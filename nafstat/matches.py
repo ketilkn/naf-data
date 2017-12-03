@@ -19,7 +19,7 @@ def parse_table(soup):
     return []
 
 
-def parse_matches(soup):
+def parse_match(soup):
     LOG.debug("Parsing matches")
 
     maincontent = soup.select_one("#pn-maincontent")
@@ -46,7 +46,7 @@ def main():
     LOG.debug("matches.py main")
     filename = "data/matches/m3154.html" if len(sys.argv) < 2 else sys.argv[1]
 
-    result = list(load(parse_matches, filename))
+    result = list(load(parse_match, filename))
     if len(result) > 0:
         pprint(result, indent=2)
     else:
