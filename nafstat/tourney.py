@@ -37,6 +37,8 @@ def parse_row(columns):
 
 def parse_rows(rows):
     LOG.debug(f"Parsing {len(rows)} rows")
+    if len(rows)<3:
+        LOG.warning(f"Expected lots of rows(Usually 3100+), found {len(rows)}")
     result = []
     LOG.debug("Skipping first two rows")
 
@@ -44,7 +46,7 @@ def parse_rows(rows):
         parsed_row = parse_row(row.select("td"))
         result.append(parsed_row)
 
-    LOG.debug(f"Finished parsing {len(result)} rows")
+    LOG.info(f"Finished parsing {len(result)} rows")
     return result
 
 
@@ -58,8 +60,8 @@ def parse_file(soup):
     LOG.debug("Loading div.pn-box1 from soup")
     tables = soup.select("div.pn-box1 table")
     if len(tables)!=2:
-        LOG.error(f"Unexpected table length {len(tables)}")
-        return []
+        LOG.error(f"Unexpected table count {len(tables)}, 2 expected")
+        #return []
     return parse_table(tables[1])
 
 
