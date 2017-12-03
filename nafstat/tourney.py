@@ -86,7 +86,8 @@ def main():
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)12s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
     LOG.debug("tourney.py main")
-    result = list(load()[:10])
+    filename = "data/naf_tourneys.html" if len(sys.argv) < 2 else sys.argv[1]
+    result = list(load(filename)[:10])
     LOG.info("Showing first 10 results")
     pprint(result, indent=2)
 
