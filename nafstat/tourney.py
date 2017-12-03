@@ -57,7 +57,7 @@ def parse_table(table):
 
 
 def parse_file(soup):
-    LOG.debug("Loading div.pn-box1 from soup")
+    LOG.debug("Loading 'div.pn-box1 table' from soup")
     tables = soup.select("div.pn-box1 table")
     if len(tables)!=2:
         LOG.error(f"Unexpected table count {len(tables)}, 2 expected")
