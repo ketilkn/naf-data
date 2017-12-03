@@ -4,6 +4,7 @@ import sys
 import logging
 import os.path
 from bs4 import BeautifulSoup
+from .__main__ import load
 
 LOG = logging.getLogger(__package__)
 
@@ -65,7 +66,7 @@ def parse_file(soup):
     return parse_table(tables[1])
 
 
-def load(filename="data/naf_tourneys.html"):
+def load2(parser, filename="data/naf_tourneys.html"):
     LOG.info(f"Loading tournaments from {filename}")
     if not os.path.exists(filename):
         LOG.error(f"{filename} does not exist")
@@ -76,10 +77,15 @@ def load(filename="data/naf_tourneys.html"):
 
     with open(filename, "rb") as f:
         LOG.debug("Decode UTF-8")
-        data = f.read().decode("UTF-8")
-        LOG.debug("Parsing file using bs4 lxml")
-        return parse_file(BeautifulSoup(data, "lxml"))
-    LOG.warning(f"No data loading {filename}")
+        try:
+            data = f.read().decode("UTF-8")
+            LOG.debug("Parsing file using bs4 lxml")
+            return parser(BeautifulSoup(data, "lxml"))
+        except UnicodeDecodeError as ex:
+            LOG.exception(ex)
+            LOG.error(f"Expected character set UTF-8 for input file {filename}")
+
+    return []
 
 
 
@@ -89,9 +95,15 @@ def main():
     logging.basicConfig(level=logging.DEBUG, format=log_format)
     LOG.debug("tourney.py main")
     filename = "data/naf_tourneys.html" if len(sys.argv) < 2 else sys.argv[1]
-    result = list(load(filename)[:10])
-    LOG.info("Showing first 10 results")
-    pprint(result, indent=2)
+
+    result = list(load(parse_file, filename))
+    if len(result) > 0:
+        LOG.info("Showing first 10 results")
+        pprint(result[:10], indent=2)
+    else:
+        LOG.warning(f"No data loading {filename}")
+        LOG.warning("Did you supply the correct filename?")
+        LOG.info(f"No tournaments found in file f{filename}")
 
 
 
