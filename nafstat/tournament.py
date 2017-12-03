@@ -28,7 +28,8 @@ def row_with_heading(table, heading):
     return None
 
 
-def parse_table(soup):
+def parse_tables(tables):
+    soup = tables[0]
     style = row_with_heading(soup, "Style")
     scoring = row_with_heading(soup, "Scoring")
     type = row_with_heading(soup, "Type")
@@ -38,6 +39,11 @@ def parse_table(soup):
     end_date = row_with_heading(soup, "End Date")
     organizer = row_with_heading(soup, "Organizer")
 
+    more = tables[1]
+
+    information = more.find_all("tr")[8].text
+
+
 
     return {"style": style,
             "scoring": scoring,
@@ -46,7 +52,8 @@ def parse_table(soup):
             "start_date": start_date,
             "end_date": end_date,
             "email": email,
-            "webpage": webpage}
+            "webpage": webpage,
+            "information": information}
 
 
 def parse_tournament(soup):
@@ -62,12 +69,13 @@ def parse_tournament(soup):
         LOG.error("#pn-maincontent not found")
         return []
 
-    table = maincontent.select_one("table table[border=0]")
-    if not table:
+    tables = list(maincontent.select("table table[border=0]"))
+    if not tables:
         LOG.error("match table not found")
         return []
+    LOG.debug(f"Found {len(tables)} tables")
 
-    return parse_table(table)
+    return parse_tables(tables)
 
 
 def main():
