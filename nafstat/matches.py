@@ -20,6 +20,9 @@ def parse_date(row):
     column = row.select_one("th")
     if column and len(column.text.strip().split("-")) == 3:
         return column.text.strip()
+    else:
+        LOG.debug(f"Not a date {row}")
+        return False
 
 def parse_match(row):
     LOG.debug("parse_match")
@@ -28,8 +31,15 @@ def parse_match(row):
 
 def parse_row(row, current_date, current_time):
     LOG.debug("parse_row")
+    if current_date == "1970-01-01":
+        LOG.warning(row)
+        LOG.warning(f"Current date is default")
+    if current_time == "99:99":
+        LOG.warning(row)
+        LOG.warning(f"Current time is default")
+
     columns = list(row.children)
-    if len(columns)!=14:
+    if len(columns) != 14:
         LOG.warning(f"Row count {len(columns)} expected 14")
         LOG.debug(row)
         sys.exit("Unrecoverable error")
@@ -50,7 +60,8 @@ def parse_row(row, current_date, current_time):
     home_casualties = [int(val) for val in columns[4].text.split("|")]
     away_casualties = [int(val) for val in columns[10].text.split("|")]
 
-    return {"datetime": f"{current_date} {current_time}",
+    return {"date": current_date,
+            "time": current_time,
             "match_id": columns[0].text,
             "home_coach": columns[1].text,
             "home_race": columns[2].text,
@@ -100,7 +111,7 @@ def parse_table(soup):
 
     rows = list(soup.children)
     LOG.debug(f"{len(rows)} rows in table")
-    return parse_rows(rows[3:])
+    return parse_rows(rows[2:])
 
 
 def parse_match(soup):
@@ -109,17 +120,23 @@ def parse_match(soup):
     maincontent = soup.select_one("#pn-maincontent")
     if not maincontent:
         LOG.error("#pn-maincontent not found")
-        return []
+        return None
 
     maincontent = soup.select_one("#pn-maincontent ")
     if not maincontent:
         LOG.error("#pn-maincontent not found")
-        return []
+        return None
 
     table = maincontent.select_one("table")
     if not table:
-        LOG.error("match table not found")
-        return []
+        LOG.debug("match table not found")
+        if "There are no games to view for this tournament." in maincontent.text:
+            LOG.debug("Found: There are no games to view for this tournament")
+            return []
+        else:
+            LOG.debug(maincontent)
+            LOG.error("No matches found. Unexpected content in #pn-maincontent.")
+            return None
 
     return parse_table(table)
 

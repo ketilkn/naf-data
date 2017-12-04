@@ -2,6 +2,7 @@
 """  Parse match from HTML """
 import sys
 import logging
+import re
 from bs4.element import NavigableString
 
 from .__main__ import load
@@ -33,14 +34,25 @@ def parse_tables(tables):
     name = row_with_heading(soup, "Tournament Name")
     style = row_with_heading(soup, "Style")
     scoring = row_with_heading(soup, "Scoring")
-    type = row_with_heading(soup, "Type")
+    tournament_type = row_with_heading(soup, "Type")
     email = row_with_heading(soup, "Email")
     webpage = row_with_heading(soup, "Webpage")
     start_date = row_with_heading(soup, "Start Date")
     end_date = row_with_heading(soup, "End Date")
     organizer = row_with_heading(soup, "Organizer")
 
-    more = tables[1]
+    more = None
+
+    for table in tables:
+        for el in table(text=re.compile(r'Tournament Location')):
+            LOG.debug(el)
+            if more:
+                LOG.warning(f"Multiple Tournament Location found for '{name}'")
+            more = el.find_parent("table")
+
+    if not more:
+        LOG.warning("More table not found! Using default")
+        more = tables[1]
 
     more_elements = more.find_all("tr")
     if len(more_elements) < 8:
@@ -50,9 +62,8 @@ def parse_tables(tables):
 
     return {"style": style,
             "scoring": scoring,
-            "type": type,
+            "type": tournament_type,
             "organizer": organizer,
-            "type": type,
             "start_date": start_date,
             "end_date": end_date,
             "email": email,

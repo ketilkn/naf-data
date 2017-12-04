@@ -22,7 +22,11 @@ def load(parser=None, filename="data/naf_tourneys.html"):
         try:
             data = f.read().decode("UTF-8")
             LOG.debug("Parsing file using bs4 lxml")
-            return parser(BeautifulSoup(data, "lxml"))
+            result = parser(BeautifulSoup(data, "lxml"))
+            if result is None:
+                LOG.error(f"Parser {parser.__name__} returned None for {filename}")
+                return []
+            return result
         except UnicodeDecodeError as ex:
             LOG.exception(ex)
             LOG.error(f"Expected character set UTF-8 for input file {filename}")
