@@ -41,9 +41,10 @@ def parse_tables(tables):
 
     more = tables[1]
 
-    information = more.find_all("tr")[8].text
-
-
+    more_elements = more.find_all("tr")
+    if len(more_elements) < 8:
+        LOG.warning(f"more_elements less than 8.")
+    information = more.find_all("tr")[8].text if len(more_elements) > 8 else "NOT FOUND"
 
     return {"style": style,
             "scoring": scoring,
