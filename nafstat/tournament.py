@@ -30,6 +30,7 @@ def row_with_heading(table, heading):
 
 def parse_tables(tables):
     soup = tables[0]
+    name = row_with_heading(soup, "Tournament Name")
     style = row_with_heading(soup, "Style")
     scoring = row_with_heading(soup, "Scoring")
     type = row_with_heading(soup, "Type")
@@ -43,11 +44,13 @@ def parse_tables(tables):
 
     more_elements = more.find_all("tr")
     if len(more_elements) < 8:
-        LOG.warning(f"more_elements less than 8.")
+        LOG.warning(f"more_elements less than 8 for tournament '{name}'")
+        LOG.debug(more_elements)
     information = more.find_all("tr")[8].text if len(more_elements) > 8 else "NOT FOUND"
 
     return {"style": style,
             "scoring": scoring,
+            "type": type,
             "organizer": organizer,
             "type": type,
             "start_date": start_date,
