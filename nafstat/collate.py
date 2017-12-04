@@ -27,7 +27,7 @@ def load_all():
         LOG.debug(f"Loading data for {t['tournament_id']}")
         tourney_data = load(tournament.parse_tournament, f"data/tournaments/t{t['tournament_id']}.html")
         LOG.debug(f"Loading matches for {t['tournament_id']}")
-        match_data = load(matches.parse_match, f"data/tournaments/t{t['tournament_id']}.html")
+        match_data = load(matches.parse_match, f"data/matches/m{t['tournament_id']}.html")
         result.append(collate_tournament(t, tourney_data, match_data))
 
     return result
@@ -39,11 +39,11 @@ def load_all():
 def main():
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
-    logging.basicConfig(level=logging.DEBUG, format=log_format)
+    logging.basicConfig(level=logging.INFO, format=log_format)
 
     result = load_all()
 
-    pprint(result, ident=2)
+    pprint(result[:10], indent=2)
 
 
 
