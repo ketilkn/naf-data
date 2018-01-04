@@ -36,7 +36,7 @@ def to_csv(matches):
                    "ruleset",
                    "style",
                    "location"]
-        csv_writer = csv.DictWriter(csvfile, fieldnames=columns, extrasaction='ignore')
+        csv_writer = csv.DictWriter(csvfile, fieldnames=columns, extrasaction='ignore', quotechar='"')
         LOG.debug("Write header")
         csv_writer.writeheader()
         for m in matches:
