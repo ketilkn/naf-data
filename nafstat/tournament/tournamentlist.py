@@ -16,13 +16,13 @@ def tournament_line(t):
     return "{} {} {} {}".format(t["tournament_id"], t["name"], t["location"], t["end_date"])
 
 
-def list_tournaments():
+def list_tournaments(renew_time = 3600, force = False):
     """List all naf tournaments from members.thenaf.net"""
     LOG.debug("Listing tournaments")
     last_modified = round((time.time() - os.path.getmtime("data/naf_tourneys.html")))
     LOG.debug("data/naf_tourneys.html modified %ss ago", last_modified)
 
-    if last_modified < 3600 or fetch_tournamentlist.fetch_tournamentlist():
+    if (not force and last_modified < renew_time) or fetch_tournamentlist.fetch_tournamentlist():
         return list(parse_tournamentlist.load2(parse_tournamentlist.parse_file))
 
     return []
