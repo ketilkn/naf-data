@@ -73,7 +73,7 @@ def main():
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_format)
     LOG.info("All matches")
-    to_csv(sorted(all_matches(), key=lambda m: m["order"]))
+    to_csv(sorted(all_matches(), key=lambda m: m["order"], reverse=True))
 
 
 if __name__ == "__main__":
