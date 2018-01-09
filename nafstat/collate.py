@@ -146,14 +146,17 @@ def main():
             #print("NO CASUALTIES RECORDED")
         if not t["touchdowns"]:
             stats["no touchdowns"].append(t["tournament_id"])
-            print(f'\n{t["tournament_id"]} {t["ruleset"]} {t["name"]} {t["swiss"]} {t["end_date"]}')
-            print("NO TOUCHDOWNS RECORDED")
+            if do_print:
+                print(f'\n{t["tournament_id"]} {t["ruleset"]} {t["name"]} {t["swiss"]} {t["end_date"]}')
+                print("NO TOUCHDOWNS RECORDED")
         if not t["swiss"]:
-            print(f'\n{t["tournament_id"]} {t["ruleset"]} {t["name"]} {t["swiss"]} {t["end_date"]}')
+            if do_print:
+                print(f'\n{t["tournament_id"]} {t["ruleset"]} {t["name"]} {t["swiss"]} {t["end_date"]}')
             stats["swiss"].append(t["tournament_id"])
-            print(f'STYLE:\n{t["style"]}')
-            print(f'INFORMATION:\n{t["information"]}')
-            print("==========================\n")
+            if do_print:
+                print(f'STYLE:\n{t["style"]}')
+                print(f'INFORMATION:\n{t["information"]}')
+                print("==========================\n")
 
         stats[t["ruleset"]].append(t["tournament_id"])
 
