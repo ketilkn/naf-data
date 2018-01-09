@@ -145,7 +145,7 @@ def main():
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
-    LOG.debug("matches.py main")
+    LOG.debug("parse_matches.py main")
     filename = "data/matches/m3154.html" if len(sys.argv) < 2 else sys.argv[1]
 
     result = list(load(parse_match, filename))
