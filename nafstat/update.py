@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """ Update nafstat from members.thenaf.net """
 import sys
+import time
 import logging
 import nafstat.tournament.tournamentlist
 import nafstat.tournament.fetch_tournament
@@ -17,10 +18,14 @@ def update():
         ))
 
     LOG.debug("%s recent tournaments", len(recent_tournaments))
-    for t in recent_tournaments:
+    for idx, t in enumerate(recent_tournaments):
+        if idx > 0:
+            LOG.debug("Waiting 2 seconds")
+            time.sleep(2)
         LOG.info("Tournament %s", nafstat.tournament.tournamentlist.tournament_line(t))
         LOG.debug("Downloading tournament data")
         nafstat.tournament.fetch_tournament.fetch_tournament(t["tournament_id"])
+        time.sleep(1)
         LOG.debug("Downloading tournament matches")
         nafstat.tournament.fetch_tournamentmatch.fetch_tournamentmatch(t["tournament_id"])
 
