@@ -6,7 +6,7 @@ import logging
 
 import csv
 
-import nafstat.collate.load_all
+import nafstat.collate
 LOG = logging.getLogger(__package__)
 
 
@@ -39,11 +39,14 @@ def to_csv(matches):
         csv_writer = csv.DictWriter(csvfile, fieldnames=columns, extrasaction='ignore', quotechar='"')
         LOG.debug("Write header")
         csv_writer.writeheader()
+        tournament_name = ""
         for m in matches:
-            LOG.info(f"Write match {m['tournament_name']} {m['home_coach']} {m['home_race']} {m['home_score']}-{m['away_score']} {m['away_race']} {m['away_coach']}")
+            if m["tournament_name"] != tournament_name:
+                LOG.info("Writing tournament %s", m["tournament_name"])
+                tournament_name = m["tournament_name"]
+            LOG.debug(f"Write match {m['tournament_name']} {m['home_coach']} {m['home_race']} {m['home_score']}-{m['away_score']} {m['away_race']} {m['away_coach']}")
             csv_writer.writerow(m)
     LOG.debug(f"Finished writing all_matches.csv")
-
 
 
 def all_matches():
@@ -66,13 +69,11 @@ def all_matches():
             yield match
 
 
-
 def main():
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_format)
     LOG.info("All matches")
     to_csv(sorted(all_matches(), key=lambda m: m["order"]))
-
 
 
 if __name__ == "__main__":
