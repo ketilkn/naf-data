@@ -6,7 +6,7 @@ import logging
 
 import csv
 
-from nafstat.collate import load_all
+import nafstat.collate.load_all
 LOG = logging.getLogger(__package__)
 
 
@@ -47,7 +47,7 @@ def to_csv(matches):
 
 
 def all_matches():
-    for t in load_all():
+    for t in nafstat.collate.load_all():
         for m in t["matches"]:
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
