@@ -3,7 +3,7 @@
 import sys
 import logging
 
-from nafstat.tournament import tourney, matches, parse_tournament
+from nafstat.tournament import parse_tournamentlist, matches, parse_tournament
 from .__main__ import load
 
 LOG = logging.getLogger(__package__)
@@ -101,7 +101,7 @@ def load_all():
     LOG.debug("loading all tournaments")
     result = []
 
-    for t in load(tourney.parse_file, "data/naf_tourneys.html"):
+    for t in load(parse_tournamentlist.parse_file, "data/naf_tourneys.html"):
         LOG.info(f"Loading {t['tournament_id']} {t['name']}")
         LOG.debug(f"Loading data for {t['tournament_id']}")
         tourney_data = load(parse_tournament.parse_tournament, f"data/tournaments/t{t['tournament_id']}.html")

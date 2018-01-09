@@ -9,7 +9,6 @@ from nafstat.__main__ import load
 LOG = logging.getLogger(__package__)
 
 
-
 def parse_row(columns):
     if len(columns)!=5:
         LOG.warning(f"Unexpected column count {len(columns)}")
@@ -88,12 +87,11 @@ def load2(parser, filename="data/naf_tourneys.html"):
     return []
 
 
-
 def main():
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)12s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
-    LOG.debug("tourney.py main")
+    LOG.debug("parse_tournamentlist.py main")
     filename = "data/naf_tourneys.html" if len(sys.argv) < 2 else sys.argv[1]
 
     result = list(load(parse_file, filename))
