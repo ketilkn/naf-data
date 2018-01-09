@@ -46,7 +46,7 @@ def no_matches(tournaments):
         matchfile = "data/matches/m{}.html".format(t["tournament_id"])
         matches = load(parse_matches.parse_match, matchfile)
         LOG.debug("Tournament {} {} {} matches".format(t["tournament_id"], t["name"], len(matches)))
-        if len(matches) > 0:
+        if len(matches) < 1:
             result.append(t)
 
     return result
