@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """  Parse match from HTML """
 import sys
+import shutil
 import copy
 import logging
 
@@ -11,6 +12,8 @@ LOG = logging.getLogger(__package__)
 
 
 def to_csv(matches):
+    output_file = "all_matches.csv"
+    copy_to = "/home/ketilkn/Dropbox/bloodbowl/nafdata/all_matches.csv"
     LOG.debug(f"Opening file all_matches.csv")
     with open('all_matches.csv', 'w') as csvfile:
         columns = ["date",
@@ -47,6 +50,8 @@ def to_csv(matches):
             LOG.debug(f"Write match {m['tournament_name']} {m['home_coach']} {m['home_race']} {m['home_score']}-{m['away_score']} {m['away_race']} {m['away_coach']}")
             csv_writer.writerow(m)
     LOG.debug(f"Finished writing all_matches.csv")
+    LOG.info("Copy file to target")
+    shutil.copy(output_file, copy_to)
 
 
 def all_matches():
