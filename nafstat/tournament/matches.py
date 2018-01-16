@@ -3,7 +3,7 @@
 import sys
 import logging
 
-from .__main__ import load
+from nafstat.__main__ import load
 
 LOG = logging.getLogger(__package__)
 

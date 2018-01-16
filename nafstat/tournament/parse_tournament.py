@@ -5,7 +5,7 @@ import logging
 import re
 from bs4.element import NavigableString
 
-from .__main__ import load
+from nafstat.__main__ import load
 
 LOG = logging.getLogger(__package__)
 

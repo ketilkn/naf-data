@@ -4,7 +4,7 @@ import sys
 import logging
 import os.path
 from bs4 import BeautifulSoup
-from .__main__ import load
+from nafstat.__main__ import load
 
 LOG = logging.getLogger(__package__)
 

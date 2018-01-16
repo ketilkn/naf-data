@@ -6,7 +6,7 @@ import logging
 
 import csv
 
-from .collate import load_all
+from nafstat.collate import load_all
 LOG = logging.getLogger(__package__)
 
 
