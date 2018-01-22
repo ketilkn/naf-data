@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """  Parse match from HTML """
-import sys
 import shutil
 import copy
 import logging
