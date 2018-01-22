@@ -3,6 +3,7 @@
 import datetime
 import time
 import os
+import os.path
 import logging
 from . import fetch_tournamentlist
 from . import parse_tournamentlist
@@ -26,6 +27,18 @@ def list_tournaments(renew_time = 3600, force = False):
         return list(parse_tournamentlist.load2(parse_tournamentlist.parse_file))
 
     return []
+
+
+def no_data(tournaments):
+    tournament_file = "data/tournaments/t{}.html"
+    match_file = "data/matches/m{}.html"
+
+    for t in tournaments:
+        if not os.path.exists(tournament_file.format(t["tournament_id"])) or not os.path.exists(match_file.format(t["tournament_id"])):
+            LOG.info("NO DATA for {}".format(t["tournament_id"]))
+            yield t
+
+
 
 
 def future(tournaments):
