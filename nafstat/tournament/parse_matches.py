@@ -3,8 +3,6 @@
 import sys
 import logging
 
-from nafstat.__main__ import load
-
 LOG = logging.getLogger(__package__)
 
 def parse_time(row):
@@ -142,6 +140,7 @@ def parse_match(soup):
 
 
 def main():
+    from nafstat.file_loader import load
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)

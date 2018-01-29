@@ -8,7 +8,7 @@ import logging
 from . import fetch_tournamentlist
 from . import parse_tournamentlist
 from . import parse_matches
-from nafstat.__main__ import load
+from nafstat.file_loader import load_cached
 
 LOG = logging.getLogger(__package__)
 
@@ -57,7 +57,7 @@ def no_matches(tournaments):
     result = []
     for t in tournaments:
         matchfile = "data/matches/m{}.html".format(t["tournament_id"])
-        matches = load(parse_matches.parse_match, matchfile)
+        matches = load_cached(parse_matches.parse_match, matchfile)
         LOG.debug("Tournament {} {} {} matches".format(t["tournament_id"], t["name"], len(matches)))
         if len(matches) < 1:
             result.append(t)

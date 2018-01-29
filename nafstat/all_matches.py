@@ -50,7 +50,7 @@ def to_csv(matches):
             csv_writer.writerow(m)
     LOG.debug(f"Finished writing all_matches.csv")
     LOG.info("Copy file to target")
-    shutil.copy(output_file, copy_to)
+    #shutil.copy(output_file, copy_to)
 
 
 def all_matches():

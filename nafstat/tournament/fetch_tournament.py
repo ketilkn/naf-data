@@ -15,9 +15,10 @@ def fetch_tournament(tournament_id, url = TOURNAMENT_URL, target = DEFAULT_TARGE
 
 
 def main():
+    import sys
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
-    data_for_tournament = fetch_tournament("3154")
+    data_for_tournament = fetch_tournament("3154" if not len(sys.argv) > 1 else sys.argv[1])
     print(data_for_tournament)
 
 
