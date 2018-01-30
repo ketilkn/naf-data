@@ -12,7 +12,7 @@ LOG = logging.getLogger(__package__)
 
 
 
-def row_with_heading(table, heading):
+def row_with_heading(table, heading, force_text=False):
     LOG.debug(f"Searching for heading {heading}")
     for row in table.children:
         if isinstance(row, NavigableString):
@@ -22,7 +22,7 @@ def row_with_heading(table, heading):
         LOG.debug(f"{len(columns)} children {columns}")
         if columns[0] and heading in columns[0].text:
             LOG.debug(f"Found {heading} with content '{columns[1].text}'")
-            if columns[1].select_one("a"):
+            if columns[1].select_one("a") and not force_text:
                 return columns[1].select_one("a")["href"] if columns[1].select_one("a").has_attr("href") else columns[1].text
             return columns[1].text
     LOG.debug(f"{heading} not found")
