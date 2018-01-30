@@ -1,0 +1,15 @@
+*.pyc
+__pycache__
+*.csv
+data
+*.xls*
+*.xls
+*.txt
+*.ods
+.idea
+dl-all
+dl-coach
+run-update
+*.sh
+*.zip
+*.tar
