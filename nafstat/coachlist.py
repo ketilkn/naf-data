@@ -11,6 +11,14 @@ from nafstat.tournament.parse_coach import parse_coach
 LOG = logging.getLogger(__package__)
 
 
+def load_dict_by_name():
+    coaches = {}
+    for c in load_all():
+        coaches[c["naf_name"].lower()] = c
+    return coaches
+
+
+
 def load_all():
     LOG.debug("loading all coaches")
     result = []
