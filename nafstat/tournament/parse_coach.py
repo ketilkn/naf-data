@@ -14,9 +14,13 @@ LOG = logging.getLogger(__package__)
 def parse_coach_info(table):
     LOG.debug("parse_coach info for table %s", table)
 
+    nation = row_with_heading(table, "Nation").strip().capitalize()
+    if nation == "Deutschland":
+        nation = "Germany"
+
     return {"naf_number": row_with_heading(table, "NAF number").strip(),
             "naf_name": row_with_heading(table, "NAF name").strip(),
-            "nation": row_with_heading(table, "Nation").strip()}
+            "nation": nation}
 
 
 def parse_summary_stats(table):
