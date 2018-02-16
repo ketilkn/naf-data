@@ -5,6 +5,7 @@ import logging
 
 from nafstat.tournament import parse_tournamentlist, parse_matches, parse_tournament
 from nafstat.file_loader import load_cached
+import nafstat.coachlist
 
 LOG = logging.getLogger(__package__)
 
@@ -97,16 +98,30 @@ def collate_tournament(tourney, tournament_data, matches):
     return tourney
 
 
+def nationality(coaches, match, home_or_away):
+    nation = coaches[match[home_or_away].lower()]["nation"] if match[home_or_away].lower() in coaches else "Old world"
+
+    return nation if nation else "Old world"
+
+
+def load_coaches():
+    return nafstat.coachlist.load_dict_by_name()
+
+
 def load_all():
     LOG.debug("loading all tournaments")
     result = []
 
+    coaches = load_coaches()
     for t in load_cached(parse_tournamentlist.parse_file, "data/naf_tourneys.html"):
         LOG.info(f"Loading {t['tournament_id']} {t['name']}")
         LOG.debug(f"Loading data for {t['tournament_id']}")
         tourney_data = load_cached(parse_tournament.parse_tournament, f"data/tournaments/t{t['tournament_id']}.html")
         LOG.debug(f"Loading matches for {t['tournament_id']}")
         match_data = load_cached(parse_matches.parse_match, f"data/matches/m{t['tournament_id']}.html")
+        for m in match_data:
+            m["home_nationality"] = nationality(coaches, m, "home_coach")
+            m["away_nationality"] = nationality(coaches, m, "away_coach")
         yield collate_tournament(t, tourney_data, match_data)
 
     return result

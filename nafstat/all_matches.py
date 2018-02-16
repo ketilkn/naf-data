@@ -37,7 +37,9 @@ def to_csv(matches):
                    "swiss",
                    "ruleset",
                    "style",
-                   "location"]
+                   "location",
+                   "home_nationality",
+                   "away_nationality"]
         csv_writer = csv.DictWriter(csvfile, fieldnames=columns, extrasaction='ignore', quotechar='"')
         LOG.debug("Write header")
         csv_writer.writeheader()

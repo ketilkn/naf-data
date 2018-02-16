@@ -15,7 +15,7 @@ def to_xlsx(matches):
     output_file = "all_matches.xlsx"
     copy_to = "/home/ketilkn/Dropbox/bloodbowl/nafdata/all_matches.xlsx"
     LOG.info(f"Opening file %s", input_file)
-    columns = ["date", "tournament_id", "match_id", "tournament_name", "home_coach", "home_race", "home_result", "home_score", "away_score", "away_result", "away_race", "away_coach", "casualties?", "home_cas", "away_cas", "mirror", "home_tr", "away_tr", "variant", "swiss", "ruleset", "style", "location"]
+    columns = ["date", "tournament_id", "match_id", "tournament_name", "home_coach", "home_race", "home_result", "home_score", "away_score", "away_result", "away_race", "away_coach", "casualties?", "home_cas", "away_cas", "mirror", "home_tr", "away_tr", "variant", "swiss", "ruleset", "style", "location", "home_nationality", "away_nationality"]
 
     LOG.debug("Load workbook")
     workbook = openpyxl.load_workbook(input_file)
@@ -66,6 +66,7 @@ def all_matches():
             match["order"] = f"{t['start_date']} {t['name']} {m['match_id'].zfill(4)}"
             match["mirror"] = m["home_race"].lower() == m["away_race"].lower()
             match["ruleset"] = t["ruleset"] if "unknown" not in t["ruleset"] else ""
+
             yield match
 
 
