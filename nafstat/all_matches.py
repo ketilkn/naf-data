@@ -12,8 +12,8 @@ LOG = logging.getLogger(__package__)
 
 def to_csv(matches):
     output_file = "all_matches.csv"
-    copy_to = "/home/ketilkn/Dropbox/bloodbowl/nafdata/all_matches.csv"
-    LOG.debug(f"Opening file all_matches.csv")
+    copy_to = "/home/ketilkn/www/nafdata/all_matches.csv"
+    LOG.debug("Opening file all_matches.csv")
     with open('all_matches.csv', 'w') as csvfile:
         columns = ["date",
                    "tournament_id",
