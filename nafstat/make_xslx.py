@@ -45,8 +45,8 @@ def to_xlsx(matches):
     LOG.info("Saving %s", output_file)
     workbook.save(output_file)
     LOG.info("updating target")
-    LOG.debug("copy %s to %s", output_file, copy_to)
-    shutil.copy(output_file, copy_to)
+    #LOG.debug("copy %s to %s", output_file, copy_to)
+    #shutil.copy(output_file, copy_to)
 
 
 def all_matches():
