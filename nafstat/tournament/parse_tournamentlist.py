@@ -11,7 +11,7 @@ LOG = logging.getLogger(__package__)
 
 def parse_row(columns):
     if len(columns)!=5:
-        LOG.warning(f"Unexpected column count {len(columns)}")
+        LOG.warning("Unexpected column count %s",len(columns))
 
     anchor = columns[0].select_one("a")
 
@@ -36,9 +36,9 @@ def parse_row(columns):
 
 
 def parse_rows(rows):
-    LOG.debug(f"Parsing {len(rows)} rows")
+    LOG.debug("Parsing %s {} rows", len(rows))
     if len(rows)<3:
-        LOG.warning(f"Expected lots of rows(Usually 3100+), found {len(rows)}")
+        LOG.warning("Expected lots of rows(Usually 3100+), found {}", len(rows))
     result = []
     LOG.debug("Skipping first two rows")
 
@@ -46,7 +46,7 @@ def parse_rows(rows):
         parsed_row = parse_row(row.select("td"))
         result.append(parsed_row)
 
-    LOG.info(f"Finished parsing {len(result)} rows")
+    LOG.info("Finished parsing %s rows", len(result) )
     return result
 
 
@@ -60,18 +60,18 @@ def parse_file(soup):
     LOG.debug("Loading 'div.pn-box1 table' from soup")
     tables = soup.select("div.pn-box1 table")
     if len(tables)!=2:
-        LOG.error(f"Unexpected table count {len(tables)}, 2 expected")
+        LOG.error("Unexpected table count %s, 2 expected",len(tables))
         #return []
     return parse_table(tables[1])
 
 
 def load2(parser, filename="data/naf_tourneys.html"):
-    LOG.info(f"Loading tournaments from {filename}")
+    LOG.info("Loading tournaments from %s", filename)
     if not os.path.exists(filename):
-        LOG.error(f"{filename} does not exist")
+        LOG.error("%s does not exist", filename)
         sys.exit("Unrecoverable error")
     if not os.path.isfile(filename):
-        LOG.error(f"{filename} is not a file")
+        LOG.error("%s is not a file", filename)
         sys.exit("Unrecoverable error")
 
     with open(filename, "rb") as f:
@@ -82,7 +82,7 @@ def load2(parser, filename="data/naf_tourneys.html"):
             return parser(BeautifulSoup(data, "lxml"))
         except UnicodeDecodeError as ex:
             LOG.exception(ex)
-            LOG.error(f"Expected character set UTF-8 for input file {filename}")
+            LOG.error("Expected character set UTF-8 for input file %s", filename)
 
     return []
 
@@ -99,12 +99,9 @@ def main():
         LOG.info("Showing first 10 results")
         pprint(result[:10], indent=2)
     else:
-        LOG.warning(f"No data loading {filename}")
+        LOG.warning("No data loading %s", filename)
         LOG.warning("Did you supply the correct filename?")
-        LOG.info(f"No tournaments found in file f{filename}")
-
-
-
+        LOG.info("No tournaments found in file %s", filename)
 
 
 if __name__ == "__main__":

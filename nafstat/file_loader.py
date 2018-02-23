@@ -51,12 +51,12 @@ def load_cached(parser, filename="data/naf_tourneys.html"):
 
 
 def load(parser=None, filename="data/naf_tourneys.html"):
-    LOG.info(f"Loading data from {filename}")
+    LOG.info("Loading data from %s", filename)
     if not os.path.exists(filename):
-        LOG.error(f"{filename} does not exist")
+        LOG.error("%s does not exist", filename)
         sys.exit("Unrecoverable error")
     if not os.path.isfile(filename):
-        LOG.error(f"{filename} is not a file")
+        LOG.error("%s is not a file", filename)
         sys.exit("Unrecoverable error")
 
 
@@ -67,12 +67,12 @@ def load(parser=None, filename="data/naf_tourneys.html"):
             LOG.debug("Parsing file using bs4 lxml")
             result = parser(BeautifulSoup(data, "lxml"))
             if result is None:
-                LOG.error(f"Parser {parser.__name__} returned None for {filename}")
+                LOG.error("Parser %s returned None for %s", parser.__name__, filename)
                 return []
             return result
         except UnicodeDecodeError as ex:
             LOG.exception(ex)
-            LOG.error(f"Expected character set UTF-8 for input file {filename}")
+            LOG.error("Expected character set UTF-8 for input file %s", filename)
 
     return []
 

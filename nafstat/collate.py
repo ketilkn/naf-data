@@ -114,11 +114,11 @@ def load_all():
 
     coaches = load_coaches()
     for t in load_cached(parse_tournamentlist.parse_file, "data/naf_tourneys.html"):
-        LOG.info(f"Loading {t['tournament_id']} {t['name']}")
-        LOG.debug(f"Loading data for {t['tournament_id']}")
-        tourney_data = load_cached(parse_tournament.parse_tournament, f"data/tournaments/t{t['tournament_id']}.html")
-        LOG.debug(f"Loading matches for {t['tournament_id']}")
-        match_data = load_cached(parse_matches.parse_match, f"data/matches/m{t['tournament_id']}.html")
+        LOG.info("Loading %s %s", t['tournament_id'],  t['name'])
+        LOG.debug("Loading data for %s", t['tournament_id'])
+        tourney_data = load_cached(parse_tournament.parse_tournament, "data/tournaments/t{}.html".format(t['tournament_id']))
+        LOG.debug("Loading matches for %s", t['tournament_id'])
+        match_data = load_cached(parse_matches.parse_match, "data/matches/m{}.html".format(t['tournament_id']))
         for m in match_data:
             m["home_nationality"] = nationality(coaches, m, "home_coach")
             m["away_nationality"] = nationality(coaches, m, "away_coach")
@@ -162,21 +162,21 @@ def main():
         if not t["touchdowns"]:
             stats["no touchdowns"].append(t["tournament_id"])
             if do_print:
-                print(f'\n{t["tournament_id"]} {t["ruleset"]} {t["name"]} {t["swiss"]} {t["end_date"]}')
+                print('\n{} {} {} {} {}'.format(t["tournament_id"], t["ruleset"], t["name"], t["swiss"], t["end_date"]))
                 print("NO TOUCHDOWNS RECORDED")
         if not t["swiss"]:
             if do_print:
-                print(f'\n{t["tournament_id"]} {t["ruleset"]} {t["name"]} {t["swiss"]} {t["end_date"]}')
+                print('\n{} {} {} {} {}'.format(t["tournament_id"], t["ruleset"], t["name"], t["swiss"], t["end_date"]))
             stats["swiss"].append(t["tournament_id"])
             if do_print:
-                print(f'STYLE:\n{t["style"]}')
-                print(f'INFORMATION:\n{t["information"]}')
+                print('STYLE:\n{}'.format(t["style"]))
+                print('INFORMATION:\n{}'.format(t["information"]))
                 print("==========================\n")
 
         stats[t["ruleset"]].append(t["tournament_id"])
 
     for key, value in stats.items():
-        print(f"{key}: {len(value)}")
+        print("{}: {}".format(key), len(value))
         if key != "all" and "no " not in key:
             print(value)
 
@@ -184,8 +184,6 @@ def main():
         #for t in result:
             #if not printables or t["tournament_id"] in printables:
                 #pprint(t, indent=2)
-
-
 
 
 if __name__ == "__main__":

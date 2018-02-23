@@ -24,7 +24,8 @@ def switch_home_away(m):
 
 
 def write_match(csv_writer, m):
-    LOG.debug(f"Write match {m['tournament_name']} {m['home_coach']} {m['home_race']} {m['home_score']}-{m['away_score']} {m['away_race']} {m['away_coach']}")
+    LOG.debug("Write match %s %s %s %s-%s %s %s",
+            {m['tournament_name']}, {m['home_coach']}, {m['home_race']}, {m['home_score']}, {m['away_score']}, {m['away_race']}, {m['away_coach']})
     csv_writer.writerow(m)
 
 def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
@@ -71,7 +72,7 @@ def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
                 LOG.info("Writing tournament %s", m["tournament_name"])
                 tournament_name = m["tournament_name"]
 
-    LOG.debug(f"Finished writing all_matches.csv")
+    LOG.debug("Finished writing %s", output_file)
     LOG.info("Copy file to target")
 
 
@@ -81,15 +82,15 @@ def all_matches():
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
             match["tournament_name"] = t["name"]
-            match["tmid"] = f"{t['tournament_id']}#{m['match_id'].zfill(3)}"
+            match["tmid"] = "%s#%s".format(t['tournament_id'], m['match_id'].zfill(3))
             match["variant"] = t["variant"]
             match["swiss"] = t["swiss"]
-            match["datetime"] = f'{m["date"]} {m["time"]}'
+            match["datetime"] = '%s %s'.format(m["date"], m["time"])
             match["tournament_date"] = t["start_date"]
             match["location"] = t["location"]
             match["style"] = t["style"].strip().replace("\n", '').replace("  ", " ")
             match["casualties?"] = t["casualties"]
-            match["order"] = f"{t['start_date']} {t['name']} {m['match_id'].zfill(4)}"
+            match["order"] = "%s %s %s %s".format(t['start_date'], t['name'], m['match_id'].zfill(4))
             match["mirror"] = m["home_race"].lower() == m["away_race"].lower()
             match["ruleset"] = t["ruleset"] if "unknown" not in t["ruleset"] else ""
             match["repeated_match"] = 0

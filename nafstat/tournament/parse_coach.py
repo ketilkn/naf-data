@@ -74,7 +74,7 @@ def parse_coach(soup):
     if not tables:
         LOG.error("match table not found")
         return []
-    LOG.debug(f"Found {len(tables)} tables")
+    LOG.debug("Found {} tables".format(len(tables)))
 
     coach_info = parse_coach_info(tables[0])
 

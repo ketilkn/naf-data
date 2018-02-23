@@ -19,7 +19,7 @@ def parse_date(row):
     if column and len(column.text.strip().split("-")) == 3:
         return column.text.strip()
     else:
-        LOG.debug(f"Not a date {row}")
+        LOG.debug("Not a date %s", row)
         return False
 
 def parse_match(row):
@@ -31,14 +31,14 @@ def parse_row(row, current_date, current_time):
     LOG.debug("parse_row")
     if current_date == "1970-01-01":
         LOG.warning(row)
-        LOG.warning(f"Current date is default")
+        LOG.warning("Current date is default")
     if current_time == "99:99":
         LOG.warning(row)
-        LOG.warning(f"Current time is default")
+        LOG.warning("Current time is default")
 
     columns = list(row.children)
     if len(columns) != 14:
-        LOG.warning(f"Row count {len(columns)} expected 14")
+        LOG.warning("Row count %s expected 14",len(columns))
         LOG.debug(row)
         sys.exit("Unrecoverable error")
 
@@ -115,7 +115,7 @@ def parse_table(soup):
     LOG.debug("Parsing table ")
 
     rows = list(soup.children)
-    LOG.debug(f"{len(rows)} rows in table")
+    LOG.debug("%s rows in table", len(rows))
     return parse_rows(rows[2:])
 
 
@@ -158,9 +158,9 @@ def main():
     if len(result) > 0:
         pprint(result, indent=2)
     else:
-        LOG.warning(f"No data loading {filename}")
+        LOG.warning("No data loading %s", filename)
         LOG.warning("Did you supply the correct filename?")
-        LOG.info(f"No matches found in file f{filename}")
+        LOG.info("No matches found in file %s", filename)
 
 
 if __name__ == "__main__":
