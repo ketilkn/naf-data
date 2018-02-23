@@ -28,7 +28,7 @@ def write_match(csv_writer, m):
     csv_writer.writerow(m)
 
 def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
-    LOG.debug(f"Opening file all_matches.csv")
+    LOG.debug("Opening %s", output_file)
     with open(output_file, 'w') as csvfile:
         columns = ["date",
                    "tournament_id",
