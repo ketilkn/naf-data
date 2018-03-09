@@ -13,7 +13,7 @@ LOG = logging.getLogger(__package__)
 def to_csv(coaches):
     output_file = "all_coaches.csv"
     copy_to = "/home/ketilkn/Dropbox/bloodbowl/nafdata/all_coaches.csv"
-    LOG.debug(f"Opening file all_coaches.csv")
+    LOG.debug("Opening file all_coaches.csv")
     with open('all_coaches.csv', 'w') as csvfile:
         columns = ["naf_number",
                    "naf_name",
@@ -28,7 +28,7 @@ def to_csv(coaches):
         tournament_name = ""
         for c in coaches:
             csv_writer.writerow(c)
-    LOG.debug(f"Finished writing all_coaches.csv")
+    LOG.debug("Finished writing all_coaches.csv")
     LOG.info("Copy file to target")
     shutil.copy(output_file, copy_to)
 
