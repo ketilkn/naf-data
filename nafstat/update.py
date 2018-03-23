@@ -48,7 +48,7 @@ def update(throttle=True):
     else:
         LOG.debug("Politely using delay between requests")
 
-    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments()))[3:5]
+    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments()))
     LOG.info("{} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
     update_list(recent_tournaments, throttle)
 
@@ -59,10 +59,6 @@ def update(throttle=True):
 
 def main():
     import sys
-    #log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
-    #logging.basicConfig(level=logging.DEBUG if "--DEBUG" in sys.argv else logging.INFO, format=log_format)
-
-    LOG.error("TESTING")
     update(throttle="--no-throttle" not in sys.argv)
 
 
