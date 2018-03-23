@@ -43,15 +43,17 @@ def update_tournaments(tournaments, throttle=True):
 
 
 def update_recent(throttle=True):
-    LOG.info("Fetch recent and new tournaments")
-    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 7))
+    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 16))
     LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
 
+    update_tournaments(recent_tournaments, throttle)
+
+
+def update_new(throttle=True):
     new_tournaments = list(tournamentlist.no_data(tournamentlist.list_tournaments()))
     LOG.info("Found {} new tournament{}".format(len(new_tournaments), "s" if len(new_tournaments) != 1 else ""))
 
-    update_tournaments(recent_tournaments + new_tournaments, throttle)
-
+    update_tournaments(new_tournaments, throttle)
 
 
 def update(throttle=True):
@@ -63,6 +65,7 @@ def update(throttle=True):
         LOG.debug("Politely using delay between requests")
 
     update_recent(throttle)
+    update_new(throttle)
 
 
 def main():
