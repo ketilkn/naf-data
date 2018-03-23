@@ -5,9 +5,9 @@ import time
 import os
 import os.path
 import logging
-from . import fetch_tournamentlist
-from . import parse_tournamentlist
-from . import parse_matches
+from nafstat.tournament import fetch_tournamentlist
+from nafstat.tournament import parse_tournamentlist
+from nafstat.tournament import parse_matches
 from nafstat.file_loader import load_cached
 
 LOG = logging.getLogger(__package__)
@@ -31,7 +31,9 @@ def list_tournaments(renew_time=3600, force=False):
         LOG.info("Using existing tournament data in %s", filename)
         LOG.debug("Skipping download due to last modified %s < %s", last_modified, renew_time)
 
-    return list(parse_tournamentlist.load2(parse_tournamentlist.parse_file))
+    tournaments = load_cached(parse_tournamentlist.parse_file, filename)
+
+    return tournaments
 
 
 def no_data(tournaments):
@@ -78,7 +80,7 @@ def recent(tournaments):
 
 
 def main():
-    from pprint import pprint
+    import sys
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
 
@@ -87,22 +89,23 @@ def main():
     future_tournaments = list(future(tournaments))
     recent_tournaments = list(recent(tournaments))
     recent_nomatches = list(no_matches(recent_tournaments))
-    LOG.info("Counting tournaments")
-    LOG.info("Found %s tournaments", len(tournaments))
-    LOG.info("%s are past tournaments", len(past_tournaments))
-    #LOG.info("%s are past tournaments with no matches", len(list(no_matches(past_tournaments))))
-    LOG.info("%s are future tournaments", len(future_tournaments))
-    LOG.info("%s are recent tournaments", len(recent_tournaments))
-    LOG.info("%s are recent tournaments with no matches", len(recent_nomatches))
+    past_no_match = len(list(no_matches(past_tournaments)))
 
-    print("matches")
-    for t in recent_tournaments:
-        if t not in recent_nomatches:
+    print("Found {} tournaments".format(len(tournaments)))
+    print("{} are past tournaments".format(len(past_tournaments)))
+    print("{} are past tournaments with no matches".format(past_no_match))
+    print("{} are future tournaments".format(len(future_tournaments)))
+    print("{} are recent tournaments".format(len(recent_tournaments)))
+    print("{} are recent tournaments with no matches".format(len(recent_nomatches)))
+
+    if "--recent" in sys.argv:
+        print("recent with matches")
+        for t in recent_tournaments:
+            if t not in recent_nomatches:
+                print(tournament_line(t))
+        print("recent with no matches")
+        for t in recent_nomatches:
             print(tournament_line(t))
-
-    print("no matches")
-    for t in recent_nomatches:
-        print(tournament_line(t))
 
 
 if __name__ == "__main__":
