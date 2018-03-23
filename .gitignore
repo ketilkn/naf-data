@@ -14,3 +14,4 @@ run-update
 *.zip
 *.tar
 *.log
+venv
