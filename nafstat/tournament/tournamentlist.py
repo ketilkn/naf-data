@@ -70,8 +70,8 @@ def no_matches(tournaments):
     return result
 
 
-def recent(tournaments):
-    recently = (datetime.datetime.now() - datetime.timedelta(30)).isoformat()
+def recent(tournaments, number_of_days=30):
+    recently = (datetime.datetime.now() - datetime.timedelta(number_of_days)).isoformat()
     today = datetime.datetime.now().isoformat()
     LOG.debug("Filter tournaments from %s tournaments", len(tournaments))
     LOG.debug("Date range %s - %s", today, recently)

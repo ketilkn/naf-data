@@ -50,7 +50,7 @@ def update(throttle=True):
     else:
         LOG.debug("Politely using delay between requests")
 
-    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments()))
+    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 14))
     LOG.info("{} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
     update_list(recent_tournaments, throttle)
 
