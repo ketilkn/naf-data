@@ -28,7 +28,7 @@ def fetch_url(url, target, returnFile = False):
 
     path = os.path.dirname(target)
     if not os.path.exists(path):
-        LOG.error("%s does not exist")
+        LOG.error("Target path %s does not exist")
         sys.exit(2)
         return False
 
