@@ -40,6 +40,7 @@ def is_swiss(tourney):
 
     return False
 
+
 def sum_casualties(tourney):
     return sum([int(m["home_cas"]) + int(m["away_cas"]) for m in tourney["matches"]])
 
@@ -64,7 +65,7 @@ def ruleset(tourney):
     style = trim(tourney["style"])
     information = trim(tourney["information"])
 
-#v5 de Blood Bowl
+    #v5 de Blood Bowl
     if "lrb6" in style or "lrb6" in information:
         return "crp"
     elif "crp" in style or "crp" in information:
@@ -108,18 +109,23 @@ def load_coaches():
     return nafstat.coachlist.load_dict_by_name()
 
 
-def load_tournament(t, coaches):
+def load_tournament(t):
     LOG.info("Loading %s %s", t['tournament_id'],  t['name'])
     LOG.debug("Loading data for %s", t['tournament_id'])
     tourney_data = load_cached(parse_tournament.parse_tournament, "data/tournaments/t{}.html".format(t['tournament_id']))
     LOG.debug("Loading matches for %s", t['tournament_id'])
     match_data = load_cached(parse_matches.parse_match, "data/matches/m{}.html".format(t['tournament_id']))
 
-    for m in match_data:
+    return collate_tournament(t, tourney_data, match_data)
+
+
+def add_coach_data(tournament, coaches):
+    for m in tournament["matches"]:
         m["home_nationality"] = nationality(coaches, m, "home_coach")
         m["away_nationality"] = nationality(coaches, m, "away_coach")
 
-    return collate_tournament(t, tourney_data, match_data)
+    return tournament
+
 
 def load_all():
     LOG.debug("loading all tournaments")
@@ -127,7 +133,7 @@ def load_all():
 
     coaches = load_coaches()
     for t in load_cached(parse_tournamentlist.parse_file, "data/naf_tourneys.html"):
-        yield load_tournament(t, coaches)
+        yield add_coach_data(tournament=load_tournament(t), coaches=coaches)
 
     return result
 

@@ -8,6 +8,7 @@ import humanfriendly
 from nafstat.tournament import tournamentlist
 import nafstat.tournament.fetch_tournament
 import nafstat.tournament.fetch_tournamentmatch
+import nafstat.collate
 
 logging.config.fileConfig('pylogging.conf')
 LOG = logging.getLogger("nafstat.update")
@@ -37,23 +38,53 @@ def update_tournament(tournament, throttle=True):
 
 
 def update_tournaments(tournaments, throttle=True):
-    LOG.debug("%s recent tournaments", len(tournaments))
+    LOG.debug("Updating %s tournaments", len(tournaments))
     for idx, t in enumerate(tournaments):
         update_tournament(t, throttle)
+
+
+def coaches_in_tournament(tournament):
+    LOG.debug("All coaches for tournament %s %s", tournament["tournament_id"], tournament["name"])
+    coaches = set()
+    if "matches" not in tournament:
+        LOG.warning("Missing key 'matches' in tournament")
+        return []
+
+    for m in tournament["matches"]:
+        coaches.add(m["home_coach"])
+        coaches.add(m["away_coach"])
+
+    LOG.debug("Found %s coaches", len(coaches))
+    return coaches
+
+
+def find_coaches_in_tournaments(tournaments):
+    LOG.info("Update coaches for %s tournaments", len(tournaments))
+
+    all_coaches = set()
+    for t in tournaments:
+        tournament = nafstat.collate.load_tournament(t)
+        coaches = coaches_in_tournament(tournament)
+        all_coaches.update(coaches)
+
+    LOG.debug("Found %s coaches in %s tournaments", len(all_coaches), len(tournaments))
 
 
 def update_recent(throttle=True):
     recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 16))
     LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
 
-    update_tournaments(recent_tournaments, throttle)
+    if recent_tournaments:
+        update_tournaments(recent_tournaments, throttle)
+        find_coaches_in_tournaments(recent_tournaments)
 
 
 def update_new(throttle=True):
     new_tournaments = list(tournamentlist.no_data(tournamentlist.list_tournaments()))
     LOG.info("Found {} new tournament{}".format(len(new_tournaments), "s" if len(new_tournaments) != 1 else ""))
 
-    update_tournaments(new_tournaments, throttle)
+    if new_tournaments:
+        update_tournaments(new_tournaments, throttle)
 
 
 def update(throttle=True):
@@ -64,13 +95,13 @@ def update(throttle=True):
     else:
         LOG.debug("Politely using delay between requests")
 
-    update_recent(throttle)
     update_new(throttle)
+    update_recent(throttle)
 
 
 def main():
     import sys
-    LOG.info("Update stared at %s", datetime.datetime.now().isoformat())
+    LOG.info("Update started at %s", datetime.datetime.now().isoformat())
     start = time.time()
     update(throttle="--no-throttle" not in sys.argv)
     LOG.info("Update ended after %s at %s", humanfriendly.format_timespan(time.time() - start), datetime.datetime.now().isoformat())
