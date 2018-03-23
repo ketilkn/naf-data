@@ -39,6 +39,7 @@ def all_coaches():
 
 
 def main():
+    import sys
     import collections
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_format)
@@ -50,7 +51,8 @@ def main():
         race_counter[c["race"]] += 1
         c["rank"] = rank
         c["race_rank"] = race_counter[c["race"]]
-    to_csv(coaches)
+    if "--no-csv" not in sys.argv:
+        to_csv(coaches)
 
 
 if __name__ == "__main__":
