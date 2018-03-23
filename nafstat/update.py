@@ -5,6 +5,7 @@ import datetime
 import logging
 import logging.config
 import humanfriendly
+import nafstat.update_tournament
 from nafstat.tournament import tournamentlist
 import nafstat.tournament.fetch_tournament
 import nafstat.tournament.fetch_tournamentmatch
@@ -27,56 +28,14 @@ def download(downloader, tournament, throttle=True):
         LOG.debug("Throttle is False")
 
 
-def update_tournament(tournament, throttle=True):
-    LOG.info("Tournament %s", nafstat.tournament.tournamentlist.tournament_line(tournament))
-
-    LOG.debug("Downloading tournament data")
-    download(nafstat.tournament.fetch_tournament.fetch_tournament, tournament, throttle)
-
-    LOG.debug("Downloading tournament matches")
-    download(nafstat.tournament.fetch_tournamentmatch.fetch_tournamentmatch, tournament, throttle)
-
-
-def update_tournaments(tournaments, throttle=True):
-    LOG.debug("Updating %s tournaments", len(tournaments))
-    for idx, t in enumerate(tournaments):
-        update_tournament(t, throttle)
-
-
-def coaches_in_tournament(tournament):
-    LOG.debug("All coaches for tournament %s %s", tournament["tournament_id"], tournament["name"])
-    coaches = set()
-    if "matches" not in tournament:
-        LOG.warning("Missing key 'matches' in tournament")
-        return []
-
-    for m in tournament["matches"]:
-        coaches.add(m["home_coach"])
-        coaches.add(m["away_coach"])
-
-    LOG.debug("Found %s coaches", len(coaches))
-    return coaches
-
-
-def find_coaches_in_tournaments(tournaments):
-    LOG.info("Update coaches for %s tournaments", len(tournaments))
-
-    all_coaches = set()
-    for t in tournaments:
-        tournament = nafstat.collate.load_tournament(t)
-        coaches = coaches_in_tournament(tournament)
-        all_coaches.update(coaches)
-
-    LOG.debug("Found %s coaches in %s tournaments", len(all_coaches), len(tournaments))
-
-
 def update_recent(throttle=True):
-    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 16))
+    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 6))
     LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
 
     if recent_tournaments:
-        update_tournaments(recent_tournaments, throttle)
-        find_coaches_in_tournaments(recent_tournaments)
+        nafstat.update_tournament.update_tournaments(recent_tournaments, throttle)
+        #recent_coaches = coaches_by_tournaments(recent_tournaments)
+        #LOG.warning("Recent coaches not implemented")
 
 
 def update_new(throttle=True):
@@ -84,7 +43,7 @@ def update_new(throttle=True):
     LOG.info("Found {} new tournament{}".format(len(new_tournaments), "s" if len(new_tournaments) != 1 else ""))
 
     if new_tournaments:
-        update_tournaments(new_tournaments, throttle)
+        nafstat.update_tournament.update_tournaments(new_tournaments, throttle)
 
 
 def update(throttle=True):
@@ -104,7 +63,9 @@ def main():
     LOG.info("Update started at %s", datetime.datetime.now().isoformat())
     start = time.time()
     update(throttle="--no-throttle" not in sys.argv)
-    LOG.info("Update ended after %s at %s", humanfriendly.format_timespan(time.time() - start), datetime.datetime.now().isoformat())
+    LOG.info("Update ended after %s at %s",
+             humanfriendly.format_timespan(time.time() - start),
+             datetime.datetime.now().isoformat())
 
 
 if __name__ == "__main__":
