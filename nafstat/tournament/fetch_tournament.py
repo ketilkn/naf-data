@@ -10,8 +10,9 @@ TOURNAMENT_URL = "https://member.thenaf.net/index.php?module=NAF&type=tournament
 
 
 def fetch_tournament(tournament_id, url = TOURNAMENT_URL, target = DEFAULT_TARGET):
-    LOG.debug("Fetch tournament %s", tournament_id)
-    return fetch_tournamentlist.fetch_url(url.format(tournament_id), target.format(tournament_id), True)
+    download_to = target.format(tournament_id)
+    LOG.debug("Fetch tournament %s to %s", tournament_id, download_to)
+    return fetch_tournamentlist.fetch_url(url.format(tournament_id), download_to, True)
 
 
 def main():
