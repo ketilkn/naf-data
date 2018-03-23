@@ -24,8 +24,12 @@ def load_json(filename):
 def save_json(filename, data):
     LOG.debug("save_json %s %s", filename, len(data))
     if not os.path.isfile(filename):
-        with open(filename, "w") as json_file:
-            json.dump(data, json_file)
+        LOG.warning("%s does not exist", filename)
+    else:
+        LOG.debug("%s exist", filename)
+
+    with open(filename, "w") as json_file:
+        json.dump(data, json_file)
 
 
 def load_cached(parser, filename="data/naf_tourneys.html"):
