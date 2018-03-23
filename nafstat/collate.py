@@ -108,21 +108,26 @@ def load_coaches():
     return nafstat.coachlist.load_dict_by_name()
 
 
+def load_tournament(t, coaches):
+    LOG.info("Loading %s %s", t['tournament_id'],  t['name'])
+    LOG.debug("Loading data for %s", t['tournament_id'])
+    tourney_data = load_cached(parse_tournament.parse_tournament, "data/tournaments/t{}.html".format(t['tournament_id']))
+    LOG.debug("Loading matches for %s", t['tournament_id'])
+    match_data = load_cached(parse_matches.parse_match, "data/matches/m{}.html".format(t['tournament_id']))
+
+    for m in match_data:
+        m["home_nationality"] = nationality(coaches, m, "home_coach")
+        m["away_nationality"] = nationality(coaches, m, "away_coach")
+
+    return collate_tournament(t, tourney_data, match_data)
+
 def load_all():
     LOG.debug("loading all tournaments")
     result = []
 
     coaches = load_coaches()
     for t in load_cached(parse_tournamentlist.parse_file, "data/naf_tourneys.html"):
-        LOG.info("Loading %s %s", t['tournament_id'],  t['name'])
-        LOG.debug("Loading data for %s", t['tournament_id'])
-        tourney_data = load_cached(parse_tournament.parse_tournament, "data/tournaments/t{}.html".format(t['tournament_id']))
-        LOG.debug("Loading matches for %s", t['tournament_id'])
-        match_data = load_cached(parse_matches.parse_match, "data/matches/m{}.html".format(t['tournament_id']))
-        for m in match_data:
-            m["home_nationality"] = nationality(coaches, m, "home_coach")
-            m["away_nationality"] = nationality(coaches, m, "away_coach")
-        yield collate_tournament(t, tourney_data, match_data)
+        yield load_tournament(t, coaches)
 
     return result
 
