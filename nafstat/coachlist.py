@@ -14,7 +14,7 @@ LOG = logging.getLogger(__package__)
 def load_dict_by_name():
     coaches = {}
     for c in load_all():
-        coaches[c["naf_name"].lower()] = c
+        coaches[c["naf_name"]] = c
     return coaches
 
 
@@ -59,13 +59,15 @@ def main():
     if not do_print:
         del(sys.argv[sys.argv.index("--no-print")])
 
-    coaches = load_by_race()
+    coaches = load_dict_by_name()
+    #coaches = load_by_race()
     coach_count = 0
     for index, coach in enumerate(coaches):
         #print(".", end='')
         if coach:
             coach_count = coach_count + 1
-        print(coach)
+        if do_print:
+            print(coach)
         if not index % 50:
             print("Progress ", index)
 

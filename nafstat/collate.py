@@ -100,7 +100,7 @@ def collate_tournament(tourney, tournament_data, matches):
 
 
 def nationality(coaches, match, home_or_away):
-    nation = coaches[match[home_or_away].lower()]["nation"] if match[home_or_away].lower() in coaches else "Old world"
+    nation = coaches[match[home_or_away]]["nation"] if match[home_or_away] in coaches else "Old world"
 
     return nation if nation else "Old world"
 
