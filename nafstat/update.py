@@ -36,10 +36,22 @@ def update_tournament(tournament, throttle=True):
     download(nafstat.tournament.fetch_tournamentmatch.fetch_tournamentmatch, tournament, throttle)
 
 
-def update_list(tournaments, throttle=True):
+def update_tournaments(tournaments, throttle=True):
     LOG.debug("%s recent tournaments", len(tournaments))
     for idx, t in enumerate(tournaments):
         update_tournament(t, throttle)
+
+
+def update_recent(throttle=True):
+    LOG.info("Fetch recent and new tournaments")
+    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 7))
+    LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
+
+    new_tournaments = list(tournamentlist.no_data(tournamentlist.list_tournaments()))
+    LOG.info("Found {} new tournament{}".format(len(new_tournaments), "s" if len(new_tournaments) != 1 else ""))
+
+    update_tournaments(recent_tournaments + new_tournaments, throttle)
+
 
 
 def update(throttle=True):
@@ -50,13 +62,7 @@ def update(throttle=True):
     else:
         LOG.debug("Politely using delay between requests")
 
-    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 14))
-    LOG.info("{} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
-    update_list(recent_tournaments, throttle)
-
-    new_tournaments = list(tournamentlist.no_data(tournamentlist.list_tournaments()))
-    LOG.info("{} new tournament{}".format(len(new_tournaments), "s" if len(new_tournaments) != 1 else ""))
-    update_list(new_tournaments, throttle)
+    update_recent(throttle)
 
 
 def main():
