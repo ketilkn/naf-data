@@ -17,16 +17,21 @@ def tournament_line(t):
     return "{} {} {} {}".format(t["tournament_id"], t["name"], t["location"], t["end_date"])
 
 
-def list_tournaments(renew_time = 3600, force = False):
+def list_tournaments(renew_time=3600, force=False):
     """List all naf tournaments from members.thenaf.net"""
+    filename = "data/naf_tourneys.html"
     LOG.debug("Listing tournaments")
-    last_modified = round((time.time() - os.path.getmtime("data/naf_tourneys.html")))
+    last_modified = round((time.time() - os.path.getmtime(filename)))
     LOG.debug("data/naf_tourneys.html modified %ss ago", last_modified)
 
-    if (not force and last_modified < renew_time) or fetch_tournamentlist.fetch_tournamentlist():
-        return list(parse_tournamentlist.load2(parse_tournamentlist.parse_file))
+    if force or last_modified > renew_time:
+        LOG.debug("Downloading tournamentlist")
+        fetch_tournamentlist.fetch_tournamentlist(target=filename)
+    else:
+        LOG.info("Using existing tournament data in %s", filename)
+        LOG.debug("Skipping download due to last modified %s < %s", last_modified, renew_time)
 
-    return []
+    return list(parse_tournamentlist.load2(parse_tournamentlist.parse_file))
 
 
 def no_data(tournaments):
@@ -37,8 +42,6 @@ def no_data(tournaments):
         if not os.path.exists(tournament_file.format(t["tournament_id"])) or not os.path.exists(match_file.format(t["tournament_id"])):
             LOG.info("NO DATA for {}".format(t["tournament_id"]))
             yield t
-
-
 
 
 def future(tournaments):
