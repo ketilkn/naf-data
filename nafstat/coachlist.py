@@ -28,6 +28,8 @@ def load_all():
             coach = nafstat.file_loader.load_cached(parse_coach, os.path.join("data/coach", filename))
             if coach:
                 yield coach
+            else:
+                LOG.debug("%s returned nothing", filename)
 
 
 def load_by_race():
