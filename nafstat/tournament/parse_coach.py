@@ -91,6 +91,11 @@ def parse_coach(soup):
     return coach_info
 
 
+def fromfile(filename):
+    return load(parse_coach, filename)
+
+
+
 def main():
     import os
     from pprint import pprint
@@ -100,7 +105,7 @@ def main():
     LOG.debug("parse_matches.py main")
     filename = "data/coach/c{}.html".format("1305" if len(sys.argv) < 2 else sys.argv[1])
 
-    result = load(parse_coach, filename)
+    result = fromfile(filename)
     pprint(result, indent=2)
 
 
