@@ -105,6 +105,7 @@ def coaches_by_tournaments(tournaments):
         all_coaches.update(coaches)
 
     LOG.debug("Found %s coaches in %s tournaments", len(all_coaches), len(tournaments))
+    return all_coaches
 
 
 def main():

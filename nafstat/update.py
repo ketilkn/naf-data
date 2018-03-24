@@ -6,6 +6,7 @@ import logging
 import logging.config
 import humanfriendly
 import nafstat.update_tournament
+import nafstat.update_coach
 from nafstat.tournament import tournamentlist
 import nafstat.tournament.fetch_tournament
 import nafstat.tournament.fetch_tournamentmatch
@@ -29,13 +30,13 @@ def download(downloader, tournament, throttle=True):
 
 
 def update_recent(throttle=True):
-    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 6))
+    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), 8))
     LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
 
     if recent_tournaments:
         nafstat.update_tournament.update_tournaments(recent_tournaments, throttle)
-        #recent_coaches = coaches_by_tournaments(recent_tournaments)
-        #LOG.warning("Recent coaches not implemented")
+        recent_coaches = nafstat.tournament.tournamentlist.coaches_by_tournaments(recent_tournaments)
+        nafstat.update_coach.update_coaches_by_nick(recent_coaches, throttle)
 
 
 def update_new(throttle=True):
