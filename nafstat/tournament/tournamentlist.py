@@ -9,6 +9,7 @@ from nafstat.tournament import fetch_tournamentlist
 from nafstat.tournament import parse_tournamentlist
 from nafstat.tournament import parse_matches
 from nafstat.file_loader import load_cached
+import nafstat.collate
 
 LOG = logging.getLogger(__package__)
 
@@ -77,6 +78,33 @@ def recent(tournaments, number_of_days=30):
     LOG.debug("Date range %s - %s", today, recently)
 
     return filter(lambda t: today > t["end_date"] > recently, tournaments)
+
+
+def coaches_in_tournament(tournament):
+    LOG.debug("All coaches for tournament %s %s", tournament["tournament_id"], tournament["name"])
+    coaches = set()
+    if "matches" not in tournament:
+        LOG.warning("Missing key 'matches' in tournament")
+        return []
+
+    for m in tournament["matches"]:
+        coaches.add(m["home_coach"])
+        coaches.add(m["away_coach"])
+
+    LOG.debug("Found %s coaches", len(coaches))
+    return coaches
+
+
+def coaches_by_tournaments(tournaments):
+    LOG.info("Update coaches for %s tournaments", len(tournaments))
+
+    all_coaches = set()
+    for t in tournaments:
+        tournament = nafstat.collate.load_tournament(t)
+        coaches = coaches_in_tournament(tournament)
+        all_coaches.update(coaches)
+
+    LOG.debug("Found %s coaches in %s tournaments", len(all_coaches), len(tournaments))
 
 
 def main():
