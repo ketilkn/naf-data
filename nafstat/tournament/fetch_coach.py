@@ -10,7 +10,6 @@ LOG = logging.getLogger(__package__)
 
 DEFAULT_TARGET = "data/coach/c{}.html"
 COACH_URL = "https://member.thenaf.net/index.php?module=NAF&type=coachpage&coach={}"
-COACH_NAME_URL = "https://member.thenaf.net/index.php?module=NAF&type=coachpage"
 
 
 def fetch_coach(coach_id, url=COACH_URL, target=DEFAULT_TARGET):
@@ -19,7 +18,7 @@ def fetch_coach(coach_id, url=COACH_URL, target=DEFAULT_TARGET):
     return result
 
 
-def fetch_coach_by_nick(coach_id, url=COACH_NAME_URL, target=None):
+def fetch_coach_by_nick(coach_id, url=COACH_URL, target=None):
     LOG.debug("fetch_coach_by_nick %s", coach_id)
 
     url_to_get = url.format(coach_id)
@@ -39,6 +38,8 @@ def fetch_coach_by_nick(coach_id, url=COACH_NAME_URL, target=None):
                 return filename
         else:
             LOG.warning("No naf_number for %s", url_to_get)
+    else:
+        LOG.warning("Response %s %s for %s", response.status_code, response.reason, url_to_get)
 
     return False
 
