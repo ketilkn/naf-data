@@ -31,7 +31,8 @@ def download(downloader, tournament, throttle=True):
         LOG.debug("Throttle is False")
 
 
-def update_recent(throttle=True, recent=16):
+def update_recent(throttle=True, recent=16, force_coach=False):
+    """Download recent tournaments from thenaf.net"""
     recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), number_of_days=recent))
     LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
 
@@ -40,10 +41,13 @@ def update_recent(throttle=True, recent=16):
         recent_coaches = nafstat.tournament.tournamentlist.coaches_by_tournaments(recent_tournaments)
         all_coaches = set(nafstat.coachlist.load_dict_by_name().keys())
 
-        nafstat.update_coach.update_coaches_by_nick(recent_coaches.difference(all_coaches), throttle)
+        coaches_to_download = recent_coaches.difference(all_coaches) if not force_coach else recent_coaches
+
+        nafstat.update_coach.update_coaches_by_nick(coaches_to_download, throttle)
 
 
 def update_new(throttle=True):
+    """Download new future tournaments from thenaf.net"""
     new_tournaments = list(tournamentlist.no_data(tournamentlist.list_tournaments()))
     LOG.info("Found {} new tournament{}".format(len(new_tournaments), "s" if len(new_tournaments) != 1 else ""))
 
@@ -51,28 +55,37 @@ def update_new(throttle=True):
         nafstat.update_tournament.update_tournaments(new_tournaments, throttle)
 
 
-def update(throttle=True, recent=16):
-    """ Download recent tournaments from thenaf.net  """
+def update(throttle=True, recent=16, new=True, force_coach=False):
+    """Update tournaments from thenaf.net"""
     LOG.info("Updating NAF data")
     if not throttle:
         LOG.warning("No delay between requests")
     else:
         LOG.debug("Politely using delay between requests")
 
-    update_new(throttle)
-    update_recent(throttle, recent=recent)
+    if new:
+        update_new(throttle)
+    if recent:
+        update_recent(throttle, recent=recent, force_coach=force_coach)
 
 
 def main():
     LOG.info("Update started at %s", datetime.datetime.now().isoformat())
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("--no-throttle", help="No delay between requests", action="store_true")
-    argument_parser.add_argument("--recent", help="Download tournaments from the last n days", type=int, default=16)
+    argument_parser.add_argument("--force-coach", help="Download all coaches", action="store_true")
+    argument_parser.add_argument("--skip-new", help="Skip new tournaments", action="store_true", default=False)
+    argument_parser.add_argument("--recent",
+                                 help="Download tournaments from the last n days. default 16",
+                                 type=int, default=16)
     arguments = argument_parser.parse_args()
 
-
     start = time.time()
-    update(throttle=not arguments.no_throttle, recent=arguments.recent)
+    update(throttle=not arguments.no_throttle,
+           recent=arguments.recent,
+           new=not arguments.skip_new,
+           force_coach=arguments.force_coach)
+
     LOG.info("Update ended after %s at %s",
              humanfriendly.format_timespan(time.time() - start),
              datetime.datetime.now().isoformat())
