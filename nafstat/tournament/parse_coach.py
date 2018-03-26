@@ -8,11 +8,12 @@ from bs4.element import NavigableString
 from nafstat.file_loader import load
 from nafstat.tournament.parse_tournament import row_with_heading
 
+PARSE_LOG = logging.getLogger("parselog")
 LOG = logging.getLogger(__package__)
 
 
 def parse_coach_info(table):
-    LOG.debug("parse_coach info for table %s", table)
+    PARSE_LOG.debug("parse_coach info for table %s", table)
 
     nation = row_with_heading(table, "Nation").strip().capitalize()
     if nation == "Deutschland":
@@ -52,7 +53,7 @@ def parse_blood_bowl_rankings(table, naf_number = -1):
         race = parse_race_rank(row)
         races[race["race"]]=race
         if race["matches"] == -1:
-            LOG.warning("-1 matches for %s %s", naf_number, race["race"])
+            PARSE_LOG.warning("-1 matches for %s %s", naf_number, race["race"])
 
     return races
 
@@ -74,7 +75,7 @@ def parse_coach(soup):
     if not tables:
         LOG.error("match table not found")
         return []
-    LOG.debug("Found {} tables".format(len(tables)))
+    PARSE_LOG.debug("Found {} tables".format(len(tables)))
 
     coach_info = parse_coach_info(tables[0])
 
@@ -88,10 +89,12 @@ def parse_coach(soup):
     coach_info["summary"] = summary_stats
     coach_info["ranking"] = blood_bowl_rankings
 
+    LOG.debug("Finished parsing coach %s", coach_info["naf_name"])
     return coach_info
 
 
 def fromfile(filename):
+    LOG.debug("Parsing coach from file %s", filename)
     return load(parse_coach, filename)
 
 
@@ -102,7 +105,7 @@ def main():
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
 
-    LOG.debug("parse_matches.py main")
+    PARSE_LOG.debug("parse_matches.py main")
     filename = "data/coach/c{}.html".format("1305" if len(sys.argv) < 2 else sys.argv[1])
 
     result = fromfile(filename)

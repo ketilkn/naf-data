@@ -8,22 +8,23 @@ from bs4.element import NavigableString
 from nafstat.file_loader import load
 
 LOG = logging.getLogger(__package__)
+PARSE_LOG = logging.getLogger("parselog")
 
 
 def row_with_heading(table, heading, force_text=False):
-    LOG.debug("Searching for heading %s", heading)
+    PARSE_LOG.debug("Searching for heading %s", heading)
     for row in table.children:
         if isinstance(row, NavigableString):
             continue
-        LOG.debug("raden: %s", row)
+        PARSE_LOG.debug("raden: %s", row)
         columns = list(row.children)
-        LOG.debug("%s children %s", len(columns), columns)
+        PARSE_LOG.debug("%s children %s", len(columns), columns)
         if columns[0] and heading in columns[0].text:
-            LOG.debug("Found %s with content '%s'", heading, columns[1].text)
+            PARSE_LOG.debug("Found %s with content '%s'", heading, columns[1].text)
             if columns[1].select_one("a") and not force_text:
                 return columns[1].select_one("a")["href"] if columns[1].select_one("a").has_attr("href") else columns[1].text
             return columns[1].text
-    LOG.debug("%s not found", heading)
+    PARSE_LOG.debug("%s not found", heading)
     return None
 
 
@@ -43,22 +44,23 @@ def parse_tables(tables):
 
     for table in tables:
         for el in table(text=re.compile(r'Tournament Location')):
-            LOG.debug(el)
+            PARSE_LOG.debug(el)
             if more:
-                LOG.warning("Multiple Tournament Location found for '%s'", name)
+                PARSE_LOG.warning("Multiple Tournament Location found for '%s'", name)
             more = el.find_parent("table")
 
     if not more:
-        LOG.warning("More table not found! Using default")
+        PARSE_LOG.warning("More table not found! Using default")
         more = tables[1]
 
     more_elements = more.find_all("tr")
     if len(more_elements) < 8:
-        LOG.warning("more_elements less than 8 for tournament '%s'", name)
-        LOG.debug(more_elements)
+        PARSE_LOG.warning("more_elements less than 8 for tournament '%s'", name)
+        PARSE_LOG.debug(more_elements)
     information = more.find_all("tr")[8].text if len(more_elements) > 8 else "NOT FOUND"
 
-    return {"style": style,
+    return {"name": name,
+            "style": style,
             "scoring": scoring,
             "type": tournament_type,
             "organizer": organizer,
@@ -86,25 +88,27 @@ def parse_tournament(soup):
     if not tables:
         LOG.error("match table not found")
         return []
-    LOG.debug("Found %s tables", len(tables))
+    PARSE_LOG.debug("Found %s tables", len(tables))
 
-    return parse_tables(tables)
+    tournament = parse_tables(tables)
+    LOG.debug("Finished parsing tournament %s", tournament["name"])
+    return tournament
 
 
 def main():
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
-    LOG.debug("parse_matches.py main")
+    PARSE_LOG.debug("parse_matches.py main")
     filename = "data/tournaments/t3154.html" if len(sys.argv) < 2 else sys.argv[1]
 
     result = load(parse_tournament, filename)
     if len(result) > 0:
         pprint(result, indent=2)
     else:
-        LOG.warning("No data loading %s", filename)
-        LOG.warning("Did you supply the correct filename?")
-        LOG.info("No matches found in file %s", filename)
+        PARSE_LOG.warning("No data loading %s", filename)
+        PARSE_LOG.warning("Did you supply the correct filename?")
+        PARSE_LOG.info("No matches found in file %s", filename)
 
 
 if __name__ == "__main__":

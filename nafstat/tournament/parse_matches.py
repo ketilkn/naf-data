@@ -3,10 +3,12 @@
 import sys
 import logging
 
+PARSE_LOG = logging.getLogger("parselog")
 LOG = logging.getLogger(__package__)
 
+
 def parse_time(row):
-    LOG.debug("Parse time")
+    PARSE_LOG.debug("Parse time")
     column = row.select_one("td")
     if column and len(column.text.strip().split(":")) == 2:
         return column.text.strip()
@@ -14,32 +16,32 @@ def parse_time(row):
 
 
 def parse_date(row):
-    LOG.debug("Parse date")
+    PARSE_LOG.debug("Parse date")
     column = row.select_one("th")
     if column and len(column.text.strip().split("-")) == 3:
         return column.text.strip()
     else:
-        LOG.debug("Not a date %s", row)
+        PARSE_LOG.debug("Not a date %s", row)
         return False
 
 def parse_match(row):
-    LOG.debug("parse_match")
+    PARSE_LOG.debug("parse_match")
     return False
 
 
 def parse_row(row, current_date, current_time):
-    LOG.debug("parse_row")
+    PARSE_LOG.debug("parse_row")
     if current_date == "1970-01-01":
-        LOG.warning(row)
-        LOG.warning("Current date is default")
+        PARSE_LOG.warning(row)
+        PARSE_LOG.warning("Current date is default")
     if current_time == "99:99":
-        LOG.warning(row)
-        LOG.warning("Current time is default")
+        PARSE_LOG.warning(row)
+        PARSE_LOG.warning("Current time is default")
 
     columns = list(row.children)
     if len(columns) != 14:
-        LOG.warning("Row count %s expected 14",len(columns))
-        LOG.debug(row)
+        PARSE_LOG.warning("Row count %s expected 14", len(columns))
+        PARSE_LOG.debug(row)
         sys.exit("Unrecoverable error")
 
     home_result = "T"
@@ -93,7 +95,7 @@ def parse_row(row, current_date, current_time):
 
 
 def parse_rows(rows):
-    LOG.debug("Parsing rows")
+    PARSE_LOG.debug("Parsing rows")
 
     match_date = "1970-01-01"
     match_time = "99:99"
@@ -112,10 +114,10 @@ def parse_rows(rows):
 
 
 def parse_table(soup):
-    LOG.debug("Parsing table ")
+    PARSE_LOG.debug("Parsing table ")
 
     rows = list(soup.children)
-    LOG.debug("%s rows in table", len(rows))
+    PARSE_LOG.debug("%s rows in table", len(rows))
     return parse_rows(rows[2:])
 
 
@@ -134,16 +136,19 @@ def parse_match(soup):
 
     table = maincontent.select_one("table")
     if not table:
-        LOG.debug("match table not found")
+        PARSE_LOG.debug("match table not found")
         if "There are no games to view for this tournament." in maincontent.text:
             LOG.debug("Found: There are no games to view for this tournament")
             return []
         else:
-            LOG.debug(maincontent)
+            PARSE_LOG.debug(maincontent)
             LOG.error("No matches found. Unexpected content in #pn-maincontent.")
             return None
 
-    return parse_table(table)
+    matches = parse_table(table)
+    LOG.debug("Finished. Found %s match%s", len(matches), "es" if len(matches) != 1 else "")
+
+    return matches
 
 
 def main():
@@ -151,16 +156,16 @@ def main():
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
-    LOG.debug("parse_matches.py main")
+    PARSE_LOG.debug("parse_matches.py main")
     filename = "data/matches/m3154.html" if len(sys.argv) < 2 else sys.argv[1]
 
     result = list(load(parse_match, filename))
     if len(result) > 0:
         pprint(result, indent=2)
     else:
-        LOG.warning("No data loading %s", filename)
-        LOG.warning("Did you supply the correct filename?")
-        LOG.info("No matches found in file %s", filename)
+        PARSE_LOG.warning("No data loading %s", filename)
+        PARSE_LOG.warning("Did you supply the correct filename?")
+        PARSE_LOG.info("No matches found in file %s", filename)
 
 
 if __name__ == "__main__":
