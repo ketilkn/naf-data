@@ -38,9 +38,7 @@ def load_cached(parser, filename="data/naf_tourneys.html"):
     LOG.debug("Checking for cache file %s", cache_filename)
 
     if os.path.exists(filename) and os.path.exists(cache_filename):
-        LOG.debug("Checking mtime")
-        LOG.debug("file: %s", os.path.getmtime(filename))
-        LOG.debug("cache:%s", os.path.getmtime(cache_filename))
+        LOG.debug("mtime html: %s json: %s", os.path.getmtime(filename),os.path.getmtime(cache_filename))
         if os.path.getmtime(filename) < os.path.getmtime(cache_filename):
             return load_json(cache_filename)
         else:
