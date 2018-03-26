@@ -13,12 +13,12 @@ def download_to(session, url, target):
         html = response.text
         try:
             open(target, "w").write(html)
-            print(" Wrote {} to {}".format(url, target))
+            LOG.debug(" Wrote {} to {}".format(url, target))
             return True
         except OSError:
-            print(" Failed writing {} to {}".format(url, target))
+            LOG.error(" Failed writing {} to {}".format(url, target))
     else:
-        print(" Server error {} to {}".format(url, response.status_code))
+        LOG.warning(" Server error {} to {}".format(url, response.status_code))
     return False
 
 
