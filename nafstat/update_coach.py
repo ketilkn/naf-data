@@ -8,10 +8,12 @@ LOG = logging.getLogger(__package__)
 
 
 def update_coach_by_nick(coach_nick, throttle=True):
-    LOG.debug("Looking for coach %s", coach_nick)
+    LOG.info("Looking for coach %s", coach_nick)
 
     start = time.time()
     coach = nafstat.tournament.fetch_coach.fetch_coach_by_nick(coach_nick)
+    if not coach:
+        LOG.warning("Coach with nick %s not found", coach_nick)
     request_time = time.time() - start
     if throttle:
         LOG.debug("Waiting %s", humanfriendly.format_timespan(request_time))
@@ -22,7 +24,7 @@ def update_coach_by_nick(coach_nick, throttle=True):
 
 
 def update_coaches_by_nick(coaches_nick, throttle=True):
-    LOG.info("Updating %s coaches by nick lookup", len(coaches_nick))
+    LOG.info("Updating %s coaches searching for coach_nick", len(coaches_nick))
     for idx, coach in enumerate(coaches_nick):
         update_coach_by_nick(coach, throttle)
 
