@@ -22,7 +22,7 @@ def update_coach_by_nick(coach_nick, throttle=True):
 
 
 def update_coaches_by_nick(coaches_nick, throttle=True):
-    LOG.debug("Updating %s coaches", len(coaches_nick))
+    LOG.info("Updating %s coaches by nick lookup", len(coaches_nick))
     for idx, coach in enumerate(coaches_nick):
         update_coach_by_nick(coach, throttle)
 
