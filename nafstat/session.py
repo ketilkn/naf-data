@@ -2,9 +2,28 @@
 """  Parse match from HTML """
 import sys
 import requests
+import time
 import logging
+import humanfriendly
 
 LOG = logging.getLogger(__package__)
+
+
+def throttle_by_request_time(fun, *args):
+    def throttle_decorator(*args):
+        do_throttle = "--throttle" in sys.argv or "--no-throttle" not in sys.argv
+        start_time = time.time()
+        result = fun(*args)
+        request_time = time.time()-start_time
+
+        if do_throttle:
+            LOG.debug("Waiting %s after %s", humanfriendly.format_timespan(request_time), fun.__name__)
+            time.sleep(request_time)
+        else:
+            LOG.debug("Throttle is False")
+        return result
+
+    return throttle_decorator
 
 
 def download_to(session, url, target):

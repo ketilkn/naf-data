@@ -4,29 +4,24 @@ import time
 import logging
 import humanfriendly
 import nafstat.tournament.fetch_coach
+from nafstat.session import throttle_by_request_time
 LOG = logging.getLogger(__package__)
 
 
-def update_coach_by_nick(coach_nick, throttle=True):
+@throttle_by_request_time
+def update_coach_by_nick(coach_nick):
     LOG.info("Looking for coach %s", coach_nick)
 
-    start = time.time()
     coach = nafstat.tournament.fetch_coach.fetch_coach_by_nick(coach_nick)
     if not coach:
         LOG.warning("Coach with nick %s not found", coach_nick)
-    request_time = time.time() - start
-    if throttle:
-        LOG.debug("Waiting %s", humanfriendly.format_timespan(request_time))
-        time.sleep(request_time)
-    else:
-        LOG.debug("Throttle is False")
     return coach
 
 
-def update_coaches_by_nick(coaches_nick, throttle=True):
+def update_coaches_by_nick(coaches_nick):
     LOG.info("Updating %s coaches searching for coach_nick", len(coaches_nick))
     for idx, coach in enumerate(coaches_nick):
-        update_coach_by_nick(coach, throttle)
+        update_coach_by_nick(coach)
 
 
 def main():

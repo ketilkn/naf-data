@@ -12,10 +12,10 @@ def update_tournament(tournament, throttle=True):
     LOG.info("Tournament %s", nafstat.tournament.tournamentlist.tournament_line(tournament))
 
     LOG.debug("Downloading tournament data")
-    nafstat.update.download(nafstat.tournament.fetch_tournament.fetch_tournament, tournament, throttle)
+    nafstat.update.download(nafstat.tournament.fetch_tournament.fetch_tournament, tournament)
 
     LOG.debug("Downloading tournament matches")
-    nafstat.update.download(nafstat.tournament.fetch_tournamentmatch.fetch_tournamentmatch, tournament, throttle)
+    nafstat.update.download(nafstat.tournament.fetch_tournamentmatch.fetch_tournamentmatch, tournament)
 
 
 def update_tournaments(tournaments, throttle=True):
