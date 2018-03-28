@@ -1,7 +1,7 @@
 *.pyc
 __pycache__
 *.csv
-data
+data/*
 *.xls*
 *.xls
 *.txt
@@ -15,4 +15,5 @@ run-update
 *.tar
 *.log
 *.log.*
+data*
 venv
