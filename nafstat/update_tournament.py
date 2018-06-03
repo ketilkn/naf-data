@@ -19,8 +19,6 @@ def update_tournament(tournament, throttle=True):
 
 
 def update_tournaments(tournaments, throttle=True):
-    print("tname: {}".format(__name__))
-    print("tpackage:".format(__package__))
     LOG.debug("Updating %s tournaments", len(tournaments))
     for idx, t in enumerate(tournaments):
         update_tournament(t, throttle)
@@ -39,7 +37,6 @@ def main():
 
     if random_tournament1:
         nafstat.update_tournament.update_tournaments([random_tournament1], throttle=True)
-
 
 
 if __name__ == "__main__":
