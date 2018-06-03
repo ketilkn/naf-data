@@ -187,7 +187,7 @@ def main():
         stats[t["ruleset"]].append(t["tournament_id"])
 
     for key, value in stats.items():
-        print("{}: {}".format(key, len(value)))
+        print("{}: {}".format(key, len(value))                                                                                                                                                                                                                                                                                                                                      )
         if key != "all" and "no " not in key:
             print(value)
 
