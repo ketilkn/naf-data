@@ -18,10 +18,15 @@ def load_dict_by_name():
     return coaches
 
 
+def load_invalid():
+    for coach in load_all():
+        for index, race in enumerate(coach["ranking"].values()):
+            if not float(race["elo"]):
+                yield coach
+
 
 def load_all():
     LOG.debug("loading all coaches")
-    result = []
 
     for filename in os.listdir("data/coach/"):
         if not filename.startswith(".") and filename.endswith(".html"):
@@ -59,11 +64,10 @@ def main():
     if not do_print:
         del(sys.argv[sys.argv.index("--no-print")])
 
-    coaches = load_dict_by_name()
+    coaches = load_invalid()
     #coaches = load_by_race()
     coach_count = 0
     for index, coach in enumerate(coaches):
-        #print(".", end='')
         if coach:
             coach_count = coach_count + 1
         if do_print:
@@ -72,10 +76,6 @@ def main():
             print("Progress ", index)
 
     print("coach_count {}".format(coach_count))
-
-
-
-
 
 
 if __name__ == "__main__":

@@ -24,6 +24,26 @@ def download(downloader, tournament):
     downloader(tournament["tournament_id"])
 
 
+def update_invalid_coaches():
+    LOG.info("Try to update coaches with invalid data")
+    invalid_coaches = [coach["naf_name"] for coach in nafstat.coachlist.load_invalid()]
+    nafstat.update_coach.update_coaches_by_nick(invalid_coaches)
+
+
+def update_tournaments(recent_tournaments, force_coach):
+    LOG.info("Update tournaments")
+    nafstat.update_tournament.update_tournaments(recent_tournaments)
+    recent_coaches = nafstat.tournament.tournamentlist.coaches_by_tournaments(recent_tournaments)
+
+    LOG.info("Loading all coaches")
+    all_coaches = set(nafstat.coachlist.load_dict_by_name().keys())
+
+    coaches_to_download = recent_coaches.difference(all_coaches) if not force_coach else recent_coaches
+
+    LOG.info("Need to update %s coaches", len(coaches_to_download))
+    nafstat.update_coach.update_coaches_by_nick(coaches_to_download)
+
+
 def update_recent(recent=16, force_coach=False):
     """Download recent tournaments and the participants from thenaf.net
     recent(int) - number of days to consider recent
@@ -33,13 +53,7 @@ def update_recent(recent=16, force_coach=False):
     LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
 
     if recent_tournaments:
-        nafstat.update_tournament.update_tournaments(recent_tournaments)
-        recent_coaches = nafstat.tournament.tournamentlist.coaches_by_tournaments(recent_tournaments)
-        all_coaches = set(nafstat.coachlist.load_dict_by_name().keys())
-
-        coaches_to_download = recent_coaches.difference(all_coaches) if not force_coach else recent_coaches
-
-        nafstat.update_coach.update_coaches_by_nick(coaches_to_download)
+        update_tournaments(recent_tournaments, force_coach)
 
 
 def update_new():
@@ -63,6 +77,7 @@ def update(throttle=True, recent=16, new=True, force_coach=False):
         update_new()
     if recent:
         update_recent(recent=recent, force_coach=force_coach)
+    update_invalid_coaches()
 
 
 def main():
