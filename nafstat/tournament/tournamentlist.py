@@ -15,7 +15,7 @@ LOG = logging.getLogger(__package__)
 
 
 def tournament_line(t):
-    return "{} {} {} {}".format(t["tournament_id"], t["name"], t["location"], t["end_date"])
+    return "{} {} {} {}".format(t["tournament_id"], t["end_date"], t["name"], t["location"])
 
 
 def list_tournaments(renew_time=3600, force=False):
