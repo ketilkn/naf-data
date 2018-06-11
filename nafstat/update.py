@@ -67,8 +67,6 @@ def update_new():
 
 def update(throttle=True, recent=16, new=True, force_coach=False):
     """Update tournaments from thenaf.net"""
-    print("name: {}".format(__name__))
-    print("package:".format(__package__))
     LOG.info("Updating NAF data")
     if not throttle:
         LOG.warning("No delay between requests")
@@ -94,8 +92,6 @@ def main():
                                  type=int, default=16)
     arguments = argument_parser.parse_args()
 
-    print("name: {}".format(__name__))
-    print("package:".format(__package__))
     start = time.time()
     update(recent=arguments.recent,
            new=not arguments.skip_new,
