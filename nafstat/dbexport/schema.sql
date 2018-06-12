@@ -20,6 +20,7 @@ CREATE TABLE naf_tournament (
     name TEXT NOT NULL,
     organizer TEXT NOT NULL,
     scoring TEXT NOT NULL,
+    location TEXT NOT NULL,
     start_date TEXT,
     end_date TEXT,
     information TEXT,
@@ -27,7 +28,8 @@ CREATE TABLE naf_tournament (
     type TEXT,
     webpage TEXT,
     ruleset TEXT,
-    swiss BOOLEAN
+    swiss BOOLEAN,
+    variant TEXT
 );
 
 DROP TABLE IF EXISTS naf_match;
@@ -36,7 +38,8 @@ CREATE TABLE naf_match (
     tournament_id INTEGER NOT NULL,
     match_date INTEGER,
     timeofday TEXT,
-    variant TEXT,
+    datetime TEXT,
+    away_coach_id INTEGER,
     away_teamid INTEGER,
     away_race INTEGER,
     away_bh INTEGER,
@@ -47,6 +50,7 @@ CREATE TABLE naf_match (
     away_score INTEGER,
     away_winnings INTEGER,
     home_teamid INTEGER,
+    home_coach_id INTEGER,
     home_race TEXT,
     home_bh INTEGER,
     home_dead INTEGER,

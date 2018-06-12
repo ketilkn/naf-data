@@ -27,6 +27,7 @@ def write_match(csv_writer, m):
             {m['tournament_name']}, {m['home_coach']}, {m['home_race']}, {m['home_score']}, {m['away_score']}, {m['away_race']}, {m['away_coach']})
     csv_writer.writerow(m)
 
+
 def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
     LOG.debug("Opening %s", output_file)
     with open(output_file, 'w') as csvfile:
@@ -75,25 +76,62 @@ def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
     LOG.info("Copy file to target")
 
 
-def all_matches():
+def save_tournament(tournament, connection):
+    LOG.info("Save tournament %s", tournament["tournament_id"])
+    query = """
+        INSERT INTO naf_tournament 
+        (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, location, swiss, variant) 
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+
+    result = connection.execute(query, (
+                               tournament["tournament_id"],
+                               tournament["name"],
+                               tournament["organizer"],
+                               tournament["scoring"],
+                               tournament["start_date"],
+                               tournament["end_date"],
+                               tournament["information"],
+                               tournament["style"],
+                               tournament["type"],
+                               tournament["webpage"],
+                               tournament["ruleset"],
+                               tournament["location"],
+                               tournament["swiss"],
+                               tournament["variant"],))
+    LOG.info("Save result %s", result)
+    #connection.commit()
+
+
+def save_match(match, connection):
+    query = """
+        INSERT INTO naf_match (
+            match_id, tournament_id, match_date, timeofday, datetime,
+            away_coach_id, away_bh, away_si, away_dead,
+            away_result, away_tr, away_score, away_winnings,
+            home_coach_id, home_bh, home_si, home_dead,
+            home_result, home_tr, home_score, home_winnings,
+            gate)
+            values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    """
+    result = connection.execute(query, (
+         match["match_id"], match["tournament_id"], match["date"], match["time"], match["datetime"],
+         0, match["away_bh"], match["away_si"], match["away_dead"],
+         match["away_result"], match["away_tr"], match["away_score"], match["away_winnings"],
+         0, match["home_bh"], match["home_si"], match["home_dead"],
+         match["home_result"], match["home_tr"], match["home_score"], match["home_winnings"],
+         match["gate"],))
+    LOG.info("Save result %s", result)
+
+
+def all_matches(connection):
     for t in nafstat.collate.load_all():
+        save_tournament(tournament=t, connection=connection)
         for m in t["matches"]:
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
-            match["tournament_name"] = t["name"]
             match["tmid"] = "%s#%s".format(t['tournament_id'], m['match_id'].zfill(3))
-            match["variant"] = t["variant"]
-            match["swiss"] = t["swiss"]
             match["datetime"] = '%s %s'.format(m["date"], m["time"])
-            match["tournament_date"] = t["start_date"]
-            match["location"] = t["location"]
-            match["style"] = t["style"].strip().replace("\n", '').replace("  ", " ")
-            match["casualties?"] = t["casualties"]
-            match["order"] = "%s %s %s %s".format(t['start_date'], t['name'], m['match_id'].zfill(4))
-            match["mirror"] = m["home_race"].lower() == m["away_race"].lower()
-            match["ruleset"] = t["ruleset"] if "unknown" not in t["ruleset"] else ""
-            match["repeated_match"] = 0
-            yield match
+            save_match(match, connection)
 
 
 def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
@@ -105,7 +143,12 @@ def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
 def to_db(filename):
     LOG.info("Connection to %s", filename)
     connection = sqlite3.connect(filename)
+    LOG.info("Create schema")
     create_schema(connection)
+    LOG.info("Add data")
+    all_matches(connection.cursor())
+    connection.commit()
+    connection.close()
 
 
 def main():
