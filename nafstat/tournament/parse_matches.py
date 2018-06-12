@@ -89,6 +89,7 @@ def parse_row(row, current_date, current_time):
             "away_bh": away_casualties[0],
             "away_si": away_casualties[1],
             "away_dead": away_casualties[2],
+            "away_winnings": columns[11].text,
             "gate": columns[12].text,
             "variant": columns[13].text}
 
