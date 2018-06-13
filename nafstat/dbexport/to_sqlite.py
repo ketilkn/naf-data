@@ -104,12 +104,18 @@ def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
     LOG.debug("Schema OK")
 
 
+def create_index(connection, filename="nafstat/dbexport/index.sql"):
+    create_schema(connection, filename)
+
 def to_db(filename):
     LOG.info("Connection to %s", filename)
     connection = sqlite3.connect(filename)
 
     LOG.info("Create schema")
     create_schema(connection)
+
+    LOG.info("Create index")
+    create_index(connection)
     
     LOG.info("Add coaches")
     add_coaches(connection.cursor())
