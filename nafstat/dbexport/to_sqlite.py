@@ -11,7 +11,7 @@ LOG = logging.getLogger(__package__)
 
 
 def save_tournament(tournament, connection):
-    LOG.info("Save tournament %s", tournament["tournament_id"])
+    LOG.debug("Save tournament %s", tournament["tournament_id"])
     query = """
         INSERT INTO tournament 
         (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, location, swiss, variant) 
@@ -32,12 +32,12 @@ def save_tournament(tournament, connection):
                                tournament["location"],
                                tournament["swiss"],
                                tournament["variant"],))
-    LOG.info("Save result %s", result)
+    LOG.debug("Save result %s", result)
     #connection.commit()
 
 
 def save_coach(coach, connection):
-    LOG.info("Save coach %s %s", coach["naf_number"], coach["naf_name"])
+    LOG.debug("Save coach %s %s", coach["naf_number"], coach["naf_name"])
     query = """
         INSERT INTO coach 
                 (naf_number, name, nation)
@@ -47,7 +47,7 @@ def save_coach(coach, connection):
 
 
 def save_rank(coach, ranking, connection):
-    LOG.info("Save team %s %s", coach["naf_number"], ranking["race"])
+    LOG.debug("Save team %s %s", coach["naf_number"], ranking["race"])
     query = """
         INSERT INTO rank 
                 (coach_id, race, elo)
@@ -57,7 +57,7 @@ def save_rank(coach, ranking, connection):
 
 
 def add_coaches(connection):
-    LOG.info("Adding all coaches")
+    LOG.debug("Adding all coaches")
     for c in coachlist.load_all():
         save_coach(c, connection)
         for rank in c["ranking"].values():
@@ -83,10 +83,10 @@ def save_match(match, coaches, connection):
          match["home_coach"], match["home_race"], match["home_bh"], match["home_si"], match["home_dead"],
          match["home_result"], match["home_tr"], match["home_score"], match["home_winnings"],
          match["gate"],))
-    LOG.info("Save result %s", result)
+    LOG.debug("Save result %s", result)
 
 
-def all_matches(connection):
+def all_tournaments(connection):
     coaches = coachlist.load_dict_by_name()
     for t in nafstat.collate.load_all():
         save_tournament(tournament=t, connection=connection)
@@ -99,7 +99,7 @@ def all_matches(connection):
 
 
 def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
-    LOG.info("Creating schema from %s", filename)
+    LOG.debug("Creating schema from %s", filename)
     connection.executescript(open(filename, "r").read())
     LOG.debug("Schema OK")
 
@@ -121,8 +121,8 @@ def to_db(filename):
     add_coaches(connection.cursor())
     connection.commit()
 
-    LOG.info("Add matches")
-    all_matches(connection.cursor())
+    LOG.info("Add tournaments")
+    all_tournaments(connection.cursor())
 
     connection.commit()
     connection.close()
@@ -132,7 +132,6 @@ def main():
     import sys
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_format)
-    LOG.info("All matches")
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("output_file")
 
@@ -142,9 +141,6 @@ def main():
         sys.exit("Sure? '{}' does not end with .db".format(arguments.output_file))
 
     to_db(arguments.output_file)
-    #to_csv(sorted(all_matches(), key=lambda m: m["order"], reverse=True),
-           ##arguments.output_file,
-           #repeat_matches=arguments.repeat_matches)
 
 
 if __name__ == "__main__":

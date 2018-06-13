@@ -11,7 +11,7 @@ LOG = logging.getLogger("nafstat.to_db")
 
 
 def main():
-    LOG.info("Update started at %s", datetime.datetime.now().isoformat())
+    LOG.info("Export started at %s", datetime.datetime.now().isoformat())
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("filename", help="filename")
     argument_parser.add_argument("--recent",

@@ -110,7 +110,7 @@ def load_coaches():
 
 
 def load_tournament(t):
-    LOG.info("Loading %s %s", t['tournament_id'],  t['name'])
+    LOG.debug("Loading %s %s", t['tournament_id'],  t['name'])
     LOG.debug("Loading data for %s", t['tournament_id'])
     tourney_data = load_cached(parse_tournament.parse_tournament, "data/tournaments/t{}.html".format(t['tournament_id']))
     LOG.debug("Loading matches for %s", t['tournament_id'])
