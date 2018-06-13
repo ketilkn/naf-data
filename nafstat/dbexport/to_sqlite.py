@@ -5,57 +5,9 @@ import logging
 import argparse
 import sqlite3
 
-import nafstat.collate
 from nafstat import coachlist
+import nafstat.collate
 LOG = logging.getLogger(__package__)
-
-
-def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
-    LOG.debug("Opening %s", output_file)
-    with open(output_file, 'w') as csvfile:
-        columns = ["date",
-                   "tournament_id",
-                   "match_id",
-                   "tournament_name",
-                   "home_coach",
-                   "home_race",
-                   "home_result",
-                   "home_score",
-                   "away_score",
-                   "away_result",
-                   "away_race",
-                   "away_coach",
-                   "casualties?",
-                   "home_cas",
-                   "away_cas",
-                   "mirror",
-                   "home_tr",
-                   "away_tr",
-                   "variant",
-                   "swiss",
-                   "ruleset",
-                   "style",
-                   "location",
-                   "home_nationality",
-                   "away_nationality"]
-        if repeat_matches:
-            columns.append("repeated_match")
-
-        csv_writer = csv.DictWriter(csvfile, fieldnames=columns, extrasaction='ignore', quotechar='"')
-        LOG.debug("Write header")
-        csv_writer.writeheader()
-        tournament_name = ""
-        for m in matches:
-            write_match(csv_writer, m)
-            if repeat_matches:
-                write_match(csv_writer, switch_home_away(m))
-
-            if m["tournament_name"] != tournament_name:
-                LOG.info("Writing tournament %s", m["tournament_name"])
-                tournament_name = m["tournament_name"]
-
-    LOG.debug("Finished writing %s", output_file)
-    LOG.info("Copy file to target")
 
 
 def save_tournament(tournament, connection):
@@ -112,36 +64,38 @@ def add_coaches(connection):
             save_team(c, r, connection)
 
 
-def save_match(match, connection):
+def save_match(match, coaches, connection):
     query = """
         INSERT INTO naf_match (
             match_id, tournament_id, match_date, timeofday, datetime,
-            away_coach_id, away_bh, away_si, away_dead,
+            away_coach, away_bh, away_si, away_dead,
             away_result, away_tr, away_score, away_winnings,
-            home_coach_id, home_bh, home_si, home_dead,
+            home_coach, home_bh, home_si, home_dead,
             home_result, home_tr, home_score, home_winnings,
             gate)
             values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """
+
     result = connection.execute(query, (
          match["match_id"], match["tournament_id"], match["date"], match["time"], match["datetime"],
-         0, match["away_bh"], match["away_si"], match["away_dead"],
+         match["away_coach"], match["away_bh"], match["away_si"], match["away_dead"],
          match["away_result"], match["away_tr"], match["away_score"], match["away_winnings"],
-         0, match["home_bh"], match["home_si"], match["home_dead"],
+         match["home_coach"], match["home_bh"], match["home_si"], match["home_dead"],
          match["home_result"], match["home_tr"], match["home_score"], match["home_winnings"],
          match["gate"],))
     LOG.info("Save result %s", result)
 
 
 def all_matches(connection):
+    coaches = coachlist.load_dict_by_name()
     for t in nafstat.collate.load_all():
         save_tournament(tournament=t, connection=connection)
         for m in t["matches"]:
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
             match["tmid"] = "%s#%s".format(t['tournament_id'], m['match_id'].zfill(3))
-            match["datetime"] = '%s %s'.format(m["date"], m["time"])
-            save_match(match, connection)
+            match["datetime"] = '{} {}'.format(m["date"], m["time"])
+            save_match(match, coaches, connection)
 
 
 def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
@@ -159,6 +113,7 @@ def to_db(filename):
     
     LOG.info("Add coaches")
     add_coaches(connection.cursor())
+    connection.commit()
 
     LOG.info("Add matches")
     all_matches(connection.cursor())
