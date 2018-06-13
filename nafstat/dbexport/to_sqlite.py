@@ -6,26 +6,8 @@ import argparse
 import sqlite3
 
 import nafstat.collate
+from nafstat import coachlist
 LOG = logging.getLogger(__package__)
-
-
-def switch_home_away(m):
-    row = {}
-    for key, value in m.items():
-        if key.startswith("home_"):
-            row[key.replace("home_", "away_")] = value
-        elif key.startswith("away_"):
-            row[key.replace("away_", "home_")] = value
-        else:
-            row[key] = value
-    row["repeated_match"] = 1
-    return row
-
-
-def write_match(csv_writer, m):
-    LOG.debug("Write match %s %s %s %s-%s %s %s",
-            {m['tournament_name']}, {m['home_coach']}, {m['home_race']}, {m['home_score']}, {m['away_score']}, {m['away_race']}, {m['away_coach']})
-    csv_writer.writerow(m)
 
 
 def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
@@ -102,6 +84,34 @@ def save_tournament(tournament, connection):
     #connection.commit()
 
 
+def save_coach(coach, connection):
+    LOG.info("Save coach %s %s", coach["naf_number"], coach["naf_name"])
+    query = """
+        INSERT INTO naf_coach 
+                (naf_number, name, nation)
+                VALUES (?, ?, ?)
+            """
+    result = connection.execute(query, (coach["naf_number"], coach["naf_name"],  coach["nation"]))
+
+
+def save_team(coach, ranking, connection):
+    LOG.info("Save team %s %s", coach["naf_number"], ranking["race"])
+    query = """
+        INSERT INTO naf_team 
+                (coach_id, race, elo)
+                VALUES (?, ?, ?)
+            """
+    result = connection.execute(query, (coach["naf_number"], ranking["race"],  ranking["elo"]))
+
+
+def add_coaches(connection):
+    LOG.info("Adding all coaches")
+    for c in coachlist.load_all():
+        save_coach(c, connection)
+        for r in c["ranking"].values():
+            save_team(c, r, connection)
+
+
 def save_match(match, connection):
     query = """
         INSERT INTO naf_match (
@@ -143,10 +153,16 @@ def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
 def to_db(filename):
     LOG.info("Connection to %s", filename)
     connection = sqlite3.connect(filename)
+
     LOG.info("Create schema")
     create_schema(connection)
-    LOG.info("Add data")
+    
+    LOG.info("Add coaches")
+    add_coaches(connection.cursor())
+
+    LOG.info("Add matches")
     all_matches(connection.cursor())
+
     connection.commit()
     connection.close()
 
