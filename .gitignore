@@ -17,3 +17,4 @@ run-update
 *.log.*
 data*
 venv
+*.db
