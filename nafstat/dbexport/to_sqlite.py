@@ -108,6 +108,13 @@ def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
 def create_index(connection, filename="nafstat/dbexport/index.sql"):
     create_schema(connection, filename)
 
+
+def create_view(connection, filename="nafstat/dbexport/view.sql"):
+    create_schema(connection, filename)
+
+
+def create_index(connection, filename="nafstat/dbexport/index.sql"):
+    create_schema(connection, filename)
 def to_db(filename):
     LOG.info("Connection to %s", filename)
     connection = sqlite3.connect(filename)
@@ -117,6 +124,9 @@ def to_db(filename):
 
     LOG.info("Create index")
     create_index(connection)
+
+    LOG.info("Create view")
+    create_view(connection)
     
     LOG.info("Add coaches")
     add_coaches(connection.cursor())
