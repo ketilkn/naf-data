@@ -1,21 +1,24 @@
-DROP TABLE IF EXISTS naf_coach;
-CREATE TABLE naf_coach (
+DROP TABLE IF EXISTS coach;
+CREATE TABLE coach (
     naf_number INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    nation TEXT default "UNKNOWN"
+    nation TEXT default "UNKNOWN",
+    UNIQUE(name) ON CONFLICT REPLACE
 );
 
-DROP TABLE IF EXISTS naf_team;
-CREATE TABLE naf_team (
+
+DROP TABLE IF EXISTS rank;
+CREATE TABLE rank (
     coach_id INTEGER,
     race TEXT NOT NULL,
-    elo INTEGER default 150,
+    elo INTEGER default 15000,
     UNIQUE (coach_id, race) ON CONFLICT REPLACE
 
 );
 
-DROP TABLE IF EXISTS naf_tournament;
-CREATE TABLE naf_tournament (
+
+DROP TABLE IF EXISTS tournament;
+CREATE TABLE tournament (
     tournament_id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     organizer TEXT NOT NULL,
@@ -32,8 +35,8 @@ CREATE TABLE naf_tournament (
     variant TEXT
 );
 
-DROP TABLE IF EXISTS naf_match;
-CREATE TABLE naf_match (
+DROP TABLE IF EXISTS match;
+CREATE TABLE match (
     match_id INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
     match_date INTEGER,
@@ -60,3 +63,4 @@ CREATE TABLE naf_match (
     gate INTEGER,
     UNIQUE(match_id, tournament_id)
 );
+

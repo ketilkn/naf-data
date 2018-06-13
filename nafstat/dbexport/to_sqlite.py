@@ -13,7 +13,7 @@ LOG = logging.getLogger(__package__)
 def save_tournament(tournament, connection):
     LOG.info("Save tournament %s", tournament["tournament_id"])
     query = """
-        INSERT INTO naf_tournament 
+        INSERT INTO tournament 
         (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, location, swiss, variant) 
         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
 
@@ -39,34 +39,34 @@ def save_tournament(tournament, connection):
 def save_coach(coach, connection):
     LOG.info("Save coach %s %s", coach["naf_number"], coach["naf_name"])
     query = """
-        INSERT INTO naf_coach 
+        INSERT INTO coach 
                 (naf_number, name, nation)
                 VALUES (?, ?, ?)
             """
     result = connection.execute(query, (coach["naf_number"], coach["naf_name"],  coach["nation"]))
 
 
-def save_team(coach, ranking, connection):
+def save_rank(coach, ranking, connection):
     LOG.info("Save team %s %s", coach["naf_number"], ranking["race"])
     query = """
-        INSERT INTO naf_team 
+        INSERT INTO rank 
                 (coach_id, race, elo)
                 VALUES (?, ?, ?)
             """
-    result = connection.execute(query, (coach["naf_number"], ranking["race"],  ranking["elo"]))
+    result = connection.execute(query, (coach["naf_number"], ranking["race"],  ranking["elo"]*100))
 
 
 def add_coaches(connection):
     LOG.info("Adding all coaches")
     for c in coachlist.load_all():
         save_coach(c, connection)
-        for r in c["ranking"].values():
-            save_team(c, r, connection)
+        for rank in c["ranking"].values():
+            save_rank(c, rank, connection)
 
 
 def save_match(match, coaches, connection):
     query = """
-        INSERT INTO naf_match (
+        INSERT INTO match (
             match_id, tournament_id, match_date, timeofday, datetime,
             away_coach, away_race, away_bh, away_si, away_dead,
             away_result, away_tr, away_score, away_winnings,
