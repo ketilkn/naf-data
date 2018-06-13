@@ -68,19 +68,19 @@ def save_match(match, coaches, connection):
     query = """
         INSERT INTO naf_match (
             match_id, tournament_id, match_date, timeofday, datetime,
-            away_coach, away_bh, away_si, away_dead,
+            away_coach, away_race, away_bh, away_si, away_dead,
             away_result, away_tr, away_score, away_winnings,
-            home_coach, home_bh, home_si, home_dead,
+            home_coach, home_race, home_bh, home_si, home_dead,
             home_result, home_tr, home_score, home_winnings,
             gate)
-            values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """
 
     result = connection.execute(query, (
          match["match_id"], match["tournament_id"], match["date"], match["time"], match["datetime"],
-         match["away_coach"], match["away_bh"], match["away_si"], match["away_dead"],
+         match["away_coach"], match["away_race"], match["away_bh"], match["away_si"], match["away_dead"],
          match["away_result"], match["away_tr"], match["away_score"], match["away_winnings"],
-         match["home_coach"], match["home_bh"], match["home_si"], match["home_dead"],
+         match["home_coach"], match["home_race"], match["home_bh"], match["home_si"], match["home_dead"],
          match["home_result"], match["home_tr"], match["home_score"], match["home_winnings"],
          match["gate"],))
     LOG.info("Save result %s", result)
