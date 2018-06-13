@@ -32,6 +32,7 @@ CREATE TABLE tournament (
     webpage TEXT,
     ruleset TEXT,
     swiss BOOLEAN,
+    casualties INTEGER,
     variant TEXT
 );
 
@@ -39,7 +40,7 @@ DROP TABLE IF EXISTS match;
 CREATE TABLE match (
     match_id INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
-    match_date INTEGER,
+    match_date TEXT,
     timeofday TEXT,
     datetime TEXT,
     away_coach TEXT,

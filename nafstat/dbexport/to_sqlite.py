@@ -14,8 +14,8 @@ def save_tournament(tournament, connection):
     LOG.debug("Save tournament %s", tournament["tournament_id"])
     query = """
         INSERT INTO tournament 
-        (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, location, swiss, variant) 
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+        (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, location, swiss, casualties, variant) 
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
 
     result = connection.execute(query, (
                                tournament["tournament_id"],
@@ -31,6 +31,7 @@ def save_tournament(tournament, connection):
                                tournament["ruleset"],
                                tournament["location"],
                                tournament["swiss"],
+                               tournament["casualties"],
                                tournament["variant"],))
     LOG.debug("Save result %s", result)
     #connection.commit()
