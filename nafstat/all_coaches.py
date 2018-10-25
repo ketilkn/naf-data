@@ -12,7 +12,7 @@ LOG = logging.getLogger(__package__)
 
 def to_csv(coaches):
     output_file = "all_coaches.csv"
-    copy_to = "/home/ketilkn/Dropbox/bloodbowl/nafdata/all_coaches.csv"
+    copy_to = "/home/ketilkn/www/ghoulhq.com/nafdata/all_coaches.csv"
     LOG.debug("Opening file all_coaches.csv")
     with open('all_coaches.csv', 'w') as csvfile:
         columns = ["naf_number",

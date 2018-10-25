@@ -24,6 +24,9 @@ def to_xlsx(matches):
 
     tournament_name = ""
     for idx, m in enumerate(matches):
+        if tournament_name != m["tournament_name"]:
+            tournament_name = m["tournament_name"]
+            LOG.info("Writing matches for %s %s", m["tournament_id"], tournament_name)
         LOG.debug("Write row %s %s %s %s", idx, m["tmid"], m["home_coach"], m["away_coach"])
         LOG.debug("Write match {} {} {} {}-{} {} {}".format(m['tournament_name'], m['home_coach'], m['home_race'], m['home_score'], m['away_score'], m['away_race'], m['away_coach']))
         row = []
@@ -72,7 +75,7 @@ def all_matches():
 
 def main():
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
-    logging.basicConfig(level=logging.DEBUG, format=log_format)
+    logging.basicConfig(level=logging.DEBUG if "--debug" in sys.argv else logging.INFO, format=log_format)
     LOG.info("All matches")
     to_xlsx(sorted(all_matches(), key=lambda m: m["order"], reverse=True))
 

@@ -11,5 +11,5 @@ CREATE INDEX IF NOT EXISTS match_home_coach ON match(home_coach);
 CREATE INDEX IF NOT EXISTS match_home_race ON match(home_race);
 CREATE INDEX IF NOT EXISTS match_away_coach ON match(away_coach);
 CREATE INDEX IF NOT EXISTS match_away_race ON match(away_race);
-
+CREATE INDEX IF NOT EXISTS match_date_index ON match(match_date);
 
