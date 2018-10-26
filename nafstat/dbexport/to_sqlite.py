@@ -65,6 +65,21 @@ def add_coaches(connection):
             save_rank(c, rank, connection)
 
 
+def save_coachmatch(match, home_or_away, connection):
+    LOG.debug("save_coachmatch %s %s", match["match_id"], home_or_away)
+    query = """
+        INSERT INTO coachmatch (
+            match_id, tournament_id, 
+            coach_id, race, bh, si, dead, result, tr, score, winnings)
+            values(?,?,?,?,?,?,?,?,?,?,?)
+    """
+
+    result = connection.execute(query, (
+        match["match_id"],  match["tournament_id"],
+        match[home_or_away+"_coach"], match[home_or_away+"_race"], match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
+        match[home_or_away+"_result"], match[home_or_away+"_tr"], match[home_or_away+"_score"], match[home_or_away+"_winnings"],))
+
+
 def save_match(match, coaches, connection):
     query = """
         INSERT INTO match (
@@ -84,6 +99,10 @@ def save_match(match, coaches, connection):
          match["home_coach"], match["home_race"], match["home_bh"], match["home_si"], match["home_dead"],
          match["home_result"], match["home_tr"], match["home_score"], match["home_winnings"],
          match["gate"],))
+
+    save_coachmatch(match, "home", connection)
+    save_coachmatch(match, "away", connection)
+
     LOG.debug("Save result %s", result)
 
 

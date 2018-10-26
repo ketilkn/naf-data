@@ -65,6 +65,22 @@ CREATE TABLE match (
     UNIQUE(match_id, tournament_id)
 );
 
+DROP TABLE IF EXISTS coachmatch;
+CREATE TABLE coachmatch (
+    match_id INTEGER NOT NULL,
+    tournament_id INTEGER NOT NULL,
+    coach_id TEXT,
+    race TEXT,
+    bh INTEGER,
+    si INTEGER,
+    dead INTEGER,
+    tr INTEGER,
+    result INTEGER,
+    winnings INTEGER,
+    score INTEGER
+);
+
+
 DROP TABLE IF EXISTS race;
 CREATE TABLE race (
 	race_id INTEGER PRIMARY KEY,
