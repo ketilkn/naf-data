@@ -65,18 +65,20 @@ def add_coaches(connection):
             save_rank(c, rank, connection)
 
 
-def save_coachmatch(match, home_or_away, connection):
-    LOG.debug("save_coachmatch %s %s", match["match_id"], home_or_away)
+def save_coachmatch(match, home_or_away, coaches, connection):
+    LOG.info("save_coachmatch %s %s", match["match_id"], home_or_away)
+    coach_id = coaches[match[home_or_away+"_coach"]]["naf_number"] if match[home_or_away+"_coach"] in coaches else "-1"
     query = """
         INSERT INTO coachmatch (
             match_id, tournament_id, 
-            coach_id, race, bh, si, dead, result, tr, score, winnings)
-            values(?,?,?,?,?,?,?,?,?,?,?)
+            coach_id, coach, race, bh, si, dead, result, tr, score, winnings)
+            values(?,?,?,?,?,?,?,?,?,?,?,?)
     """
 
     result = connection.execute(query, (
         match["match_id"],  match["tournament_id"],
-        match[home_or_away+"_coach"], match[home_or_away+"_race"], match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
+        coach_id, match[home_or_away+"_coach"], match[home_or_away+"_race"],
+        match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
         match[home_or_away+"_result"], match[home_or_away+"_tr"], match[home_or_away+"_score"], match[home_or_away+"_winnings"],))
 
 
@@ -100,8 +102,8 @@ def save_match(match, coaches, connection):
          match["home_result"], match["home_tr"], match["home_score"], match["home_winnings"],
          match["gate"],))
 
-    save_coachmatch(match, "home", connection)
-    save_coachmatch(match, "away", connection)
+    save_coachmatch(match, "home", coaches, connection)
+    save_coachmatch(match, "away", coaches, connection)
 
     LOG.debug("Save result %s", result)
 
@@ -161,7 +163,7 @@ def to_db(filename):
 def main():
     import sys
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
-    logging.basicConfig(level=logging.INFO, format=log_format)
+    logging.basicConfig(level=logging.INFO if "--debug" not in sys.argv else logging.DEBUG, format=log_format)
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("output_file")
 

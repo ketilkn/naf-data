@@ -69,7 +69,8 @@ DROP TABLE IF EXISTS coachmatch;
 CREATE TABLE coachmatch (
     match_id INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
-    coach_id TEXT,
+    coach_id INTEGER,
+    coach TEXT,
     race TEXT,
     bh INTEGER,
     si INTEGER,
