@@ -70,13 +70,13 @@ def save_coachmatch(match, home_or_away, coaches, connection):
     coach_id = coaches[match[home_or_away+"_coach"]]["naf_number"] if match[home_or_away+"_coach"] in coaches else "-1"
     query = """
         INSERT INTO coachmatch (
-            match_id, tournament_id, 
+            match_id, tournament_id, hoa,
             coach_id, coach, race, bh, si, dead, result, tr, score, winnings)
-            values(?,?,?,?,?,?,?,?,?,?,?,?)
+            values(?, ?,?,?,?,?,?,?,?,?,?,?,?)
     """
 
     result = connection.execute(query, (
-        match["match_id"],  match["tournament_id"],
+        match["match_id"],  match["tournament_id"], "A" if home_or_away == 'away' else "H",
         coach_id, match[home_or_away+"_coach"], match[home_or_away+"_race"],
         match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
         match[home_or_away+"_result"], match[home_or_away+"_tr"], match[home_or_away+"_score"], match[home_or_away+"_winnings"],))
