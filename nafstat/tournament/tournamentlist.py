@@ -29,7 +29,7 @@ def list_tournaments(renew_time=3600, force=False):
         LOG.debug("Downloading tournamentlist")
         fetch_tournamentlist.fetch_tournamentlist(target=filename)
     else:
-        LOG.info("Using existing tournament data in %s", filename)
+        LOG.debug("Using existing tournament data in %s", filename)
         LOG.debug("Skipping download due to last modified %s < %s", last_modified, renew_time)
 
     tournaments = load_cached(parse_tournamentlist.parse_file, filename)
@@ -43,7 +43,7 @@ def no_data(tournaments):
 
     for t in tournaments:
         if not os.path.exists(tournament_file.format(t["tournament_id"])) or not os.path.exists(match_file.format(t["tournament_id"])):
-            LOG.info("NO DATA for {}".format(t["tournament_id"]))
+            LOG.warning("NO DATA for {}".format(t["tournament_id"]))
             yield t
 
 
@@ -96,7 +96,7 @@ def coaches_in_tournament(tournament):
 
 
 def coaches_by_tournaments(tournaments):
-    LOG.info("Update coaches for %s tournaments", len(tournaments))
+    LOG.debug("Update coaches for %s tournaments", len(tournaments))
 
     all_coaches = set()
     for t in tournaments:
