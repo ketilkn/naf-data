@@ -45,6 +45,7 @@ def parse_tables(tables):
     for table in tables:
         for el in table(text=re.compile(r'Tournament Location')):
             PARSE_LOG.debug(el)
+            #TODO: [WARNING:parse_tournament.py:49 -         parse_tables ] Multiple Tournament Location found for 'Carolina Charity Cup'
             if more:
                 PARSE_LOG.warning("Multiple Tournament Location found for '%s'", name)
             more = el.find_parent("table")
