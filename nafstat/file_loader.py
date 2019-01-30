@@ -57,7 +57,7 @@ def load_soup(data):
 
 
 def load(parser=None, filename="data/naf_tourneys.html"):
-    LOG.info("Loading data from %s", filename)
+    LOG.debug("Loading data from %s", filename)
     if not os.path.exists(filename):
         LOG.error("%s does not exist", filename)
         sys.exit("Unrecoverable error")
