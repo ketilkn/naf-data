@@ -71,3 +71,10 @@ CREATE TABLE race (
 	name TEXT NOT NULL
 );
 
+
+DROP TABLE IF EXISTS race;
+CREATE TABLE race (
+    race_id INTEGER PRIMARY KEY,
+    race TEXT NOT NULL
+);
+

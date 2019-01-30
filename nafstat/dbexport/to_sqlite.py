@@ -9,6 +9,7 @@ from tqdm import tqdm
 from nafstat import coachlist
 from nafstat.tournament import tournamentlist
 import nafstat.collate
+from nafstat import races
 
 LOG = logging.getLogger(__package__)
 
@@ -58,6 +59,17 @@ def save_rank(coach, ranking, connection):
                 VALUES (?, ?, ?)
             """
     result = connection.execute(query, (coach["naf_number"], ranking["race"],  ranking["elo"]*100))
+
+
+def save_race(race_id, race, connection):
+    query = """ INSERT INTO race (race_id, race) VALUES(?, ?)"""
+    return connection.execute(query, (race_id, race))
+
+
+def add_races(connection):
+    LOG.info("Adding all races")
+    for race_id, race in enumerate(races.INDEX):
+        save_race(race_id, race, connection)
 
 
 def add_coaches(connection):
@@ -130,6 +142,8 @@ def create_view(connection, filename="nafstat/dbexport/view.sql"):
 
 def create_index(connection, filename="nafstat/dbexport/index.sql"):
     create_schema(connection, filename)
+
+
 def to_db(filename):
     LOG.info("Connection to %s", filename)
     connection = sqlite3.connect(filename)
@@ -142,7 +156,10 @@ def to_db(filename):
 
     LOG.info("Create view")
     create_view(connection)
-    
+
+    LOG.info("Add races")
+    add_races(connection.cursor())
+
     LOG.info("Add coaches")
     add_coaches(connection.cursor())
     connection.commit()
