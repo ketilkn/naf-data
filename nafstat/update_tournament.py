@@ -2,6 +2,7 @@
 """  Parse match from HTML """
 import logging
 
+from tqdm import tqdm
 import nafstat.update
 from nafstat.tournament import tournamentlist
 
@@ -9,7 +10,7 @@ LOG = logging.getLogger(__package__)
 
 
 def update_tournament(tournament, throttle=True):
-    LOG.info("Tournament %s", nafstat.tournament.tournamentlist.tournament_line(tournament))
+    LOG.debug("Tournament %s", nafstat.tournament.tournamentlist.tournament_line(tournament))
 
     LOG.debug("Downloading tournament data")
     nafstat.update.download(nafstat.tournament.fetch_tournament.fetch_tournament, tournament)
@@ -20,7 +21,7 @@ def update_tournament(tournament, throttle=True):
 
 def update_tournaments(tournaments, throttle=True):
     LOG.debug("Updating %s tournaments", len(tournaments))
-    for idx, t in enumerate(tournaments):
+    for idx, t in enumerate(tqdm(tournaments)):
         update_tournament(t, throttle)
 
 

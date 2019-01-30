@@ -3,6 +3,7 @@
 import time
 import logging
 import humanfriendly
+from tqdm import tqdm
 import nafstat.tournament.fetch_coach
 from nafstat.session import throttle_by_request_time
 LOG = logging.getLogger(__package__)
@@ -10,7 +11,7 @@ LOG = logging.getLogger(__package__)
 
 @throttle_by_request_time
 def update_coach_by_nick(coach_nick):
-    LOG.info("Looking for coach %s", coach_nick)
+    LOG.debug("Looking for coach %s", coach_nick)
 
     coach = nafstat.tournament.fetch_coach.fetch_coach_by_nick(coach_nick)
     if not coach:
@@ -20,7 +21,7 @@ def update_coach_by_nick(coach_nick):
 
 def update_coaches_by_nick(coaches_nick):
     LOG.info("Updating %s coaches searching for coach_nick", len(coaches_nick))
-    for idx, coach in enumerate(coaches_nick):
+    for idx, coach in enumerate(tqdm(coaches_nick)):
         update_coach_by_nick(coach)
 
 
