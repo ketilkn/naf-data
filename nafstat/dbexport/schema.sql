@@ -10,9 +10,9 @@ CREATE TABLE coach (
 DROP TABLE IF EXISTS rank;
 CREATE TABLE rank (
     coach_id INTEGER,
-    race TEXT NOT NULL,
+    race_id INTEGER NOT NULL,
     elo INTEGER default 15000,
-    UNIQUE (coach_id, race) ON CONFLICT REPLACE
+    UNIQUE (coach_id, race_id) ON CONFLICT REPLACE
 
 );
 
@@ -54,7 +54,7 @@ CREATE TABLE coachmatch (
     hoa CHARACTER(1) NOT NULL,
     coach_id INTEGER,
     coach TEXT,
-    race TEXT,
+    race_id INTEGER,
     bh INTEGER,
     si INTEGER,
     dead INTEGER,
@@ -62,13 +62,6 @@ CREATE TABLE coachmatch (
     result INTEGER,
     winnings INTEGER,
     score INTEGER
-);
-
-
-DROP TABLE IF EXISTS race;
-CREATE TABLE race (
-	race_id INTEGER PRIMARY KEY,
-	name TEXT NOT NULL
 );
 
 

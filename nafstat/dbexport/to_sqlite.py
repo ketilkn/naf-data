@@ -55,19 +55,20 @@ def save_rank(coach, ranking, connection):
     LOG.debug("Save team %s %s", coach["naf_number"], ranking["race"])
     query = """
         INSERT INTO rank 
-                (coach_id, race, elo)
+                (coach_id, race_id, elo)
                 VALUES (?, ?, ?)
             """
-    result = connection.execute(query, (coach["naf_number"], ranking["race"],  ranking["elo"]*100))
+    result = connection.execute(query, (coach["naf_number"], races.INDEX.index(ranking["race"]),  ranking["elo"]*100))
 
 
 def save_race(race_id, race, connection):
+    LOG.debug("Saving %s %s", race_id, race)
     query = """ INSERT INTO race (race_id, race) VALUES(?, ?)"""
     return connection.execute(query, (race_id, race))
 
 
 def add_races(connection):
-    LOG.info("Adding all races")
+    LOG.debug("Adding all races")
     for race_id, race in enumerate(races.INDEX):
         save_race(race_id, race, connection)
 
@@ -87,13 +88,13 @@ def save_coachmatch(match, home_or_away, coaches, connection):
     query = """
         INSERT INTO coachmatch (
             match_id, tournament_id, hoa,
-            coach_id, coach, race, bh, si, dead, result, tr, score, winnings)
+            coach_id, coach, race_id, bh, si, dead, result, tr, score, winnings)
             values(?, ?,?,?,?,?,?,?,?,?,?,?,?)
     """
 
     result = connection.execute(query, (
         match["match_id"],  match["tournament_id"], "A" if home_or_away == 'away' else "H",
-        coach_id, match[home_or_away+"_coach"], match[home_or_away+"_race"],
+        coach_id, match[home_or_away+"_coach"], races.INDEX.index(match[home_or_away+"_race"]),
         match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
         match[home_or_away+"_result"], match[home_or_away+"_tr"], match[home_or_away+"_score"], match[home_or_away+"_winnings"],))
 
