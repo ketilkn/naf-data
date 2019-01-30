@@ -53,7 +53,6 @@ CREATE TABLE coachmatch (
     tournament_id INTEGER NOT NULL,
     hoa CHARACTER(1) NOT NULL,
     coach_id INTEGER,
-    coach TEXT,
     race_id INTEGER,
     bh INTEGER,
     si INTEGER,

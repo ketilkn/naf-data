@@ -88,13 +88,13 @@ def save_coachmatch(match, home_or_away, coaches, connection):
     query = """
         INSERT INTO coachmatch (
             match_id, tournament_id, hoa,
-            coach_id, coach, race_id, bh, si, dead, result, tr, score, winnings)
-            values(?, ?,?,?,?,?,?,?,?,?,?,?,?)
+            coach_id, race_id, bh, si, dead, result, tr, score, winnings)
+            values(?,?,?, ?,?,?,?,?,?,?,?,?)
     """
 
     result = connection.execute(query, (
         match["match_id"],  match["tournament_id"], "A" if home_or_away == 'away' else "H",
-        coach_id, match[home_or_away+"_coach"], races.INDEX.index(match[home_or_away+"_race"]),
+        coach_id, races.INDEX.index(match[home_or_away+"_race"]),
         match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
         match[home_or_away+"_result"], match[home_or_away+"_tr"], match[home_or_away+"_score"], match[home_or_away+"_winnings"],))
 

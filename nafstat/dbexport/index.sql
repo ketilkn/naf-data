@@ -7,7 +7,7 @@ CREATE INDEX IF NOT EXISTS tournament_location ON tournament(location);
 CREATE INDEX IF NOT EXISTS tournament_start ON tournament(start_date);
 CREATE INDEX IF NOT EXISTS tournament_end ON tournament(end_date);
 
-CREATE INDEX IF NOT EXISTS coachmatch_coach ON coachmatch(coach);
+CREATE INDEX IF NOT EXISTS coachmatch_coach ON coachmatch(coach_id);
 CREATE INDEX IF NOT EXISTS coachmatch_race ON coachmatch(race_id);
 CREATE INDEX IF NOT EXISTS match_date_index ON match(match_date);
 CREATE INDEX IF NOT EXISTS coachmatch_hoa ON coachmatch(hoa);
