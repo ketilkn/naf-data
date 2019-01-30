@@ -5,8 +5,11 @@ import logging
 import argparse
 import sqlite3
 
+from tqdm import tqdm
 from nafstat import coachlist
+from nafstat.tournament import tournamentlist
 import nafstat.collate
+
 LOG = logging.getLogger(__package__)
 
 
@@ -59,14 +62,15 @@ def save_rank(coach, ranking, connection):
 
 def add_coaches(connection):
     LOG.debug("Adding all coaches")
-    for c in coachlist.load_all():
+    coaches = list(coachlist.load_all())
+    for c in tqdm(coaches):
         save_coach(c, connection)
         for rank in c["ranking"].values():
             save_rank(c, rank, connection)
 
 
 def save_coachmatch(match, home_or_away, coaches, connection):
-    LOG.info("save_coachmatch %s %s", match["match_id"], home_or_away)
+    LOG.debug("save_coachmatch %s %s", match["match_id"], home_or_away)
     coach_id = coaches[match[home_or_away+"_coach"]]["naf_number"] if match[home_or_away+"_coach"] in coaches else "-1"
     query = """
         INSERT INTO coachmatch (
@@ -100,7 +104,7 @@ def save_match(match, coaches, connection):
 
 def all_tournaments(connection):
     coaches = coachlist.load_dict_by_name()
-    for t in nafstat.collate.load_all():
+    for t in tqdm(nafstat.collate.load_all(), total=len(tournamentlist.list_tournaments())):
         save_tournament(tournament=t, connection=connection)
         for m in t["matches"]:
             match = copy.copy(m)
