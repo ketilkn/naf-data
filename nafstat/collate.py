@@ -87,9 +87,14 @@ def ruleset(tourney):
 
     return "unknown"
 
+def fix_webpage_url(tourney):
+    #Remove extra http:// in front of the URL
+    return tourney["webpage"] if not tourney["webpage"].startswith("http://http") else tourney["webpage"][7:]
+
 
 def collate_tournament(tourney, tournament_data, matches):
     tourney.update(tournament_data)
+    tourney["webpage"]=fix_webpage_url(tourney)
     tourney["matches"]=matches
     tourney["swiss"]=is_swiss(tourney)
     tourney["match_count"]=match_count(tourney)
