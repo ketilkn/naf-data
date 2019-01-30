@@ -24,7 +24,7 @@ def load_json(filename):
 def save_json(filename, data):
     LOG.debug("save_json %s %s", filename, len(data))
     if not os.path.isfile(filename):
-        LOG.warning("%s does not exist", filename)
+        LOG.debug("%s does not exist", filename)
     else:
         LOG.debug("%s exist", filename)
 
@@ -44,7 +44,7 @@ def load_cached(parser, filename="data/naf_tourneys.html"):
         else:
             LOG.debug("%s < %s = %s", os.path.getmtime(filename), os.path.getmtime(cache_filename), os.path.getmtime(filename) < os.path.getmtime(cache_filename))
     else:
-        LOG.warning("No cache for %s", filename)
+        LOG.debug("No cache for %s", filename)
 
     data = load(parser, filename)
     save_json(cache_filename, data)
