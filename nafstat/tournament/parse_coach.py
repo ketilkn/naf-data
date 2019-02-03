@@ -103,6 +103,8 @@ def do_parse(coach):
     if coach.isnumeric():
         filename = "data/coach/c{}.html".format(coach)
         result = fromfile(filename)
+    elif os.path.isfile("data/coach/{}".format(coach)):
+        result = fromfile("data/coach/{}".format(coach))
     elif os.path.isfile(coach):
         result = fromfile(coach)
     return result
