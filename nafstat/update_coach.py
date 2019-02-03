@@ -26,11 +26,17 @@ def update_coaches_by_nick(coaches_nick):
 
 
 def main():
-    import sys
+    import argparse
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
 
-    update_coaches_by_nick(sys.argv[1:] if len(sys.argv) > 1 else ["joemanji", "straume", "KyRRe"])
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument("coach", type=str, nargs="*", default=["joemanji", "straume", "KyRRe"],
+                                 help="List of coach nicks")
+
+    arguments = argument_parser.parse_args()
+
+    update_coaches_by_nick(arguments.coach)
 
 
 if __name__ == "__main__":
