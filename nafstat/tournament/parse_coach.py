@@ -5,6 +5,7 @@ import logging
 import re
 from bs4.element import NavigableString
 import argparse
+from datetime import datetime
 
 from nafstat.file_loader import load
 from nafstat.tournament.parse_tournament import row_with_heading
@@ -59,6 +60,18 @@ def parse_blood_bowl_rankings(table, naf_number = -1):
     return races
 
 
+def parse_change_date(soup):
+    found = soup.find_all("td", {"width": "190"})
+    if found:
+        try:
+            found_date = datetime.strptime(found[0].text, '%b %d, %Y - %I:%M %p')
+            LOG.debug("Found date %s", found_date)
+            return datetime.isoformat(found_date)
+        except ValueError:
+            LOG.debug("Incorrect dateformat for %s", found[0])
+    return "N/A"
+
+
 def parse_coach(soup):
     LOG.debug("Parsing coach")
 
@@ -89,6 +102,8 @@ def parse_coach(soup):
 
     coach_info["summary"] = summary_stats
     coach_info["ranking"] = blood_bowl_rankings
+
+    coach_info["_last_updated"] = parse_change_date(soup)
 
     LOG.debug("Finished parsing coach %s", coach_info["naf_name"])
     return coach_info
