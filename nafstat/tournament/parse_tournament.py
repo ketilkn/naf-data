@@ -3,6 +3,7 @@
 import sys
 import logging
 import re
+from datetime import datetime
 from bs4.element import NavigableString
 
 from nafstat.file_loader import load
@@ -26,6 +27,18 @@ def row_with_heading(table, heading, force_text=False):
             return columns[1].text
     PARSE_LOG.debug("%s not found", heading)
     return None
+
+
+def parse_page_date(soup):
+    found = soup.find_all("td", {"width": "190"})
+    if found:
+        try:
+            found_date = datetime.strptime(found[0].text, '%b %d, %Y - %I:%M %p')
+            LOG.debug("Found date %s", found_date)
+            return datetime.isoformat(found_date)
+        except ValueError:
+            LOG.debug("Incorrect dateformat for %s", found[0])
+    return "N/A"
 
 
 def parse_tables(tables):
@@ -92,6 +105,8 @@ def parse_tournament(soup):
     PARSE_LOG.debug("Found %s tables", len(tables))
 
     tournament = parse_tables(tables)
+    tournament["_last_updated"] = parse_page_date(soup)
+
     LOG.debug("Finished parsing tournament %s", tournament["name"])
     return tournament
 
