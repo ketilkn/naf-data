@@ -80,6 +80,12 @@ def recent(tournaments, number_of_days=30):
     return filter(lambda t: today > t["end_date"] > recently, tournaments)
 
 
+def by_id(tournaments, ids):
+    LOG.debug("Filter %s tournaments by id", len(tournaments))
+
+    return filter(lambda t: t["tournament_id"] in ids, tournaments)
+
+
 def coaches_in_tournament(tournament):
     LOG.debug("All coaches for tournament %s %s", tournament["tournament_id"], tournament["name"])
     coaches = set()

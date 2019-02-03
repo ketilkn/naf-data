@@ -61,9 +61,14 @@ def update_new():
     """Download new future tournaments from thenaf.net"""
     new_tournaments = list(tournamentlist.no_data(tournamentlist.list_tournaments()))
     LOG.info("Found {} new tournament{}".format(len(new_tournaments), "s" if len(new_tournaments) != 1 else ""))
-
     if new_tournaments:
         nafstat.update_tournament.update_tournaments(new_tournaments)
+
+
+def update_by_id(tournament_ids, force_coach=False):
+    """Download tournaments with ids in tournaments_ids """
+    tournaments = list(tournamentlist.by_id(ids=tournament_ids, tournaments=tournamentlist.list_tournaments()))
+    update_tournaments(tournaments, force_coach)
 
 
 def update(throttle=True, recent=16, new=True, force_coach=False):
@@ -88,19 +93,24 @@ def main():
     argument_parser.add_argument("--no-throttle", help="No delay between requests", action="store_true")
     argument_parser.add_argument("--force-coach", help="Download all coaches", action="store_true")
     argument_parser.add_argument("--skip-new", help="Skip new tournaments", action="store_true", default=False)
-    argument_parser.add_argument("--recent",
-                                 help="Download tournaments from the last n days. default 16",
-                                 type=int, default=16)
+    argument_parser.add_argument("--recent", type=int, default=16,
+                                 help="Download tournaments from the last n days. default 16")
+
+    argument_parser.add_argument("--tournaments", type=str, nargs="+",
+                                 help="Update tournaments by id")
+
     arguments = argument_parser.parse_args()
 
     start = time.time()
-    update(recent=arguments.recent,
-           new=not arguments.skip_new,
-           force_coach=arguments.force_coach)
+    if arguments.tournaments:
+        update_by_id(arguments.tournaments, force_coach=arguments.force_coach)
+    else:
+        update(recent=arguments.recent,
+               new=not arguments.skip_new,
+               force_coach=arguments.force_coach)
 
-    LOG.info("Update ended after %s at %s",
-             humanfriendly.format_timespan(time.time() - start),
-             datetime.datetime.now().isoformat())
+        LOG.info("Update ended after %s at %s", humanfriendly.format_timespan(time.time() - start),
+                 datetime.datetime.now().isoformat())
 
 
 if __name__ == "__main__":
