@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 """  Parse match from HTML """
-import sys
+import os.path
 import logging
 import re
 from bs4.element import NavigableString
+import argparse
 
 from nafstat.file_loader import load
 from nafstat.tournament.parse_tournament import row_with_heading
@@ -98,6 +99,14 @@ def fromfile(filename):
     return load(parse_coach, filename)
 
 
+def do_parse(coach):
+    if coach.isnumeric():
+        filename = "data/coach/c{}.html".format(coach)
+        result = fromfile(filename)
+    elif os.path.isfile(coach):
+        result = fromfile(coach)
+    return result
+
 
 def main():
     import os
@@ -106,10 +115,16 @@ def main():
     logging.basicConfig(level=logging.DEBUG, format=log_format)
 
     PARSE_LOG.debug("parse_matches.py main")
-    filename = "data/coach/c{}.html".format("1305" if len(sys.argv) < 2 else sys.argv[1])
 
-    result = fromfile(filename)
-    pprint(result, indent=2)
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument("coach", type=str, nargs="*", default=["1305"],
+                                 help="Path, filename or coach id to parse")
+
+    arguments = argument_parser.parse_args()
+
+    for c in arguments.coach:
+        coach = do_parse(c)
+        pprint(coach, indent=2)
 
 
 if __name__ == "__main__":
