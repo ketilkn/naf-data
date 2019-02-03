@@ -113,18 +113,25 @@ def parse_tournament(soup):
 
 def main():
     from pprint import pprint
+    import argparse
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
     PARSE_LOG.debug("parse_matches.py main")
-    filename = "data/tournaments/t3154.html" if len(sys.argv) < 2 else sys.argv[1]
 
-    result = load(parse_tournament, filename)
-    if len(result) > 0:
-        pprint(result, indent=2)
-    else:
-        PARSE_LOG.warning("No data loading %s", filename)
-        PARSE_LOG.warning("Did you supply the correct filename?")
-        PARSE_LOG.info("No matches found in file %s", filename)
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument("filenames", type=str, nargs="*", default=["data/tournaments/t3154.html"],
+                                 help="Tournament(s) to parse")
+
+    arguments = argument_parser.parse_args()
+
+    for filename in arguments.filenames:
+        result = load(parse_tournament, filename)
+        if len(result) > 0:
+            pprint(result, indent=2)
+        else:
+            PARSE_LOG.warning("No data loading %s", filename)
+            PARSE_LOG.warning("Did you supply the correct filename?")
+            PARSE_LOG.info("No matches found in file %s", filename)
 
 
 if __name__ == "__main__":
