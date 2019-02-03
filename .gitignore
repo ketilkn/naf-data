@@ -18,3 +18,4 @@ run-update
 data*
 venv
 *.db
+*.gz
