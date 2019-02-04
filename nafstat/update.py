@@ -51,7 +51,10 @@ def update_recent(recent=16, force_coach=False):
     force_coach(boolean) - redownload existing coaches in data/coach
     """
     recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), number_of_days=recent))
-    LOG.debug("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
+    LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
+    if not force_coach:
+        recent_tournaments =  tournamentlist.no_matches(recent_tournaments)
+        LOG.info("Found {} recent tournament{} with no matches".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
 
     if recent_tournaments:
         update_tournaments(recent_tournaments, force_coach)
