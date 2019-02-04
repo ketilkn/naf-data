@@ -23,7 +23,7 @@ CREATE TABLE tournament (
     name TEXT NOT NULL,
     organizer TEXT NOT NULL,
     scoring TEXT NOT NULL,
-    location TEXT NOT NULL,
+    nation TEXT NOT NULL,
     start_date TEXT,
     end_date TEXT,
     information TEXT,
@@ -33,7 +33,8 @@ CREATE TABLE tournament (
     ruleset TEXT,
     swiss BOOLEAN,
     casualties INTEGER,
-    variant TEXT
+    variant TEXT,
+    city TEXT
 );
 
 DROP TABLE IF EXISTS match;

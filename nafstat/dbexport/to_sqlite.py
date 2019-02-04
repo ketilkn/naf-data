@@ -18,8 +18,8 @@ def save_tournament(tournament, connection):
     LOG.debug("Save tournament %s", tournament["tournament_id"])
     query = """
         INSERT INTO tournament 
-        (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, location, swiss, casualties, variant) 
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+        (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, nation, swiss, casualties, variant, city) 
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?)"""
 
     result = connection.execute(query, (
                                tournament["tournament_id"],
@@ -33,10 +33,12 @@ def save_tournament(tournament, connection):
                                tournament["type"],
                                tournament["webpage"],
                                tournament["ruleset"],
-                               tournament["location"],
+                               tournament["nation"] if "nation" in tournament else tournament["location"],
                                tournament["swiss"],
                                tournament["casualties"],
-                               tournament["variant"],))
+                               tournament["variant"],
+                               tournament["city"] if "city" in tournament else "",
+                               ))
     LOG.debug("Save result %s", result)
     #connection.commit()
 
@@ -153,7 +155,7 @@ def to_db(filename):
     create_schema(connection)
 
     LOG.info("Create index")
-    create_index(connection)
+    #create_index(connection)
 
     LOG.info("Create view")
     create_view(connection)

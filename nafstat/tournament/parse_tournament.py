@@ -52,10 +52,13 @@ def parse_tables(tables):
     start_date = row_with_heading(soup, "Start Date")
     end_date = row_with_heading(soup, "End Date")
     organizer = row_with_heading(soup, "Organizer")
+    nation = row_with_heading(soup, "Nation")
 
     more = None
 
     for table in tables:
+        city = row_with_heading(table, "City")
+        nation = row_with_heading(table, "Nation")
         for el in table(text=re.compile(r'Tournament Location')):
             PARSE_LOG.debug(el)
             #TODO: [WARNING:parse_tournament.py:49 -         parse_tables ] Multiple Tournament Location found for 'Carolina Charity Cup'
@@ -82,7 +85,9 @@ def parse_tables(tables):
             "end_date": end_date,
             "email": email,
             "webpage": webpage,
-            "information": information}
+            "information": information,
+            "nation": nation,
+            "city": city}
 
 
 def parse_tournament(soup):
