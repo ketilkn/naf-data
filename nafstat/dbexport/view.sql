@@ -5,7 +5,7 @@ SELECT match_date as date, match.tournament_id, match.match_id, tournament.name 
     away.score as away_score, away.result as away_result, awayrace.race as away_race, coach_away.name as away_coach,
     tournament.casualties as "casualties?", home.bh+home.si+home.dead as home_cas, away.bh+away.si+away.dead as away_cas,
     home.race_id=away.race_id as mirror, home.tr as home_tr, away.tr as away_tr,
-    variant, swiss, ruleset, style, location, coach_home.nation as home_nationality, coach_away.nation as away_nationality
+    variant, swiss, ruleset, style, nation as location, coach_home.nation as home_nationality, coach_away.nation as away_nationality
 FROM match
 JOIN tournament ON match.tournament_id=tournament.tournament_id
 JOIN coachmatch home ON match.tournament_id=home.tournament_id AND match.match_id=home.match_id AND home.hoa="H"
@@ -23,7 +23,7 @@ SELECT match_date as date, match.tournament_id, match.match_id, tournament.name 
     away.score as away_score, away.result as away_result, awayrace.race as away_race, coach_away.name as away_coach,
     tournament.casualties as "casualties?", home.bh+home.si+home.dead as home_cas, away.bh+away.si+away.dead as away_cas,
     home.race_id=away.race_id as mirror, home.tr as home_tr, away.tr as away_tr,
-    variant, swiss, ruleset, style, location, coach_home.nation as home_nationality, coach_away.nation as away_nationality
+    variant, swiss, ruleset, style, nation as location, coach_home.nation as home_nationality, coach_away.nation as away_nationality
 FROM match
 JOIN tournament ON match.tournament_id=tournament.tournament_id
 JOIN coachmatch home ON match.tournament_id=home.tournament_id AND match.match_id=home.match_id AND home.hoa="A"
