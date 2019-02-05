@@ -45,8 +45,8 @@ def award_row(soup, award_name="Winner"):
 def parse_awards(soup):
     winner = award_row(soup, award_name="Winner")
     runner_up = award_row(soup, award_name="Runner up")
-    most_touchdowns = award_row(soup, award_name="Most touchdowns")
-    most_casualties = award_row(soup, award_name="Most casualties")
+    most_touchdowns = award_row(soup, award_name="Most Touchdowns")
+    most_casualties = award_row(soup, award_name="Most Casualties")
     stunty_cup = award_row(soup, award_name="Stunty Cup")
     best_painted = award_row(soup, award_name="Best Painted")
 
