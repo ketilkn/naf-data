@@ -86,6 +86,9 @@ def add_coaches(connection):
 
 def save_coachmatch(match, home_or_away, coaches, connection):
     LOG.debug("save_coachmatch %s %s", match["match_id"], home_or_away)
+    if not match[home_or_away+"_coach"] in coaches:
+        LOG.warning("{} coach {} not in coaches found in match {}-{}".format(home_or_away, match[home_or_away+"_coach"], match["tournament_id"], match["match_id"]))
+
     coach_id = coaches[match[home_or_away+"_coach"]]["naf_number"] if match[home_or_away+"_coach"] in coaches else "-1"
     query = """
         INSERT INTO coachmatch (
