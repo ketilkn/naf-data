@@ -1,4 +1,4 @@
-CREATE INDEX IF NOT EXISTS coach_name ON coach(name);
+CREATE INDEX IF NOT EXISTS coach_name ON coach(name collate nocase);
 
 CREATE INDEX IF NOT EXISTS rank_coach_race ON rank(coach_id, race_id);
 CREATE INDEX IF NOT EXISTS rank_elo ON rank(elo);

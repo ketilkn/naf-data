@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS coach;
 CREATE TABLE coach (
     naf_number INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT collate nocase NOT NULL,
     nation TEXT default "UNKNOWN",
     UNIQUE(name) ON CONFLICT REPLACE
 );
