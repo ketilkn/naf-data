@@ -60,19 +60,20 @@ def save_rank(coach, ranking, connection):
                 (coach_id, race_id, elo)
                 VALUES (?, ?, ?)
             """
-    result = connection.execute(query, (coach["naf_number"], races.INDEX.index(ranking["race"]),  ranking["elo"]*100))
+    race_id = next(race.race_id for race in races.INDEX if race.race == ranking["race"])
+    result = connection.execute(query, (coach["naf_number"], race_id,  ranking["elo"]*100))
 
 
-def save_race(race_id, race, connection):
-    LOG.debug("Saving %s %s", race_id, race)
-    query = """ INSERT INTO race (race_id, race) VALUES(?, ?)"""
-    return connection.execute(query, (race_id, race))
+def save_race(race: races.Race, connection):
+    LOG.debug("Saving %s %s", race.race_id, race.race)
+    query = """ INSERT INTO race (race_id, race, sh) VALUES(?, ?, ?)"""
+    return connection.execute(query, (race.race_id, race.race, race.sh))
 
 
 def add_races(connection):
     LOG.debug("Adding all races")
     for race_id, race in enumerate(races.INDEX):
-        save_race(race_id, race, connection)
+        save_race(race, connection)
 
 
 def add_coaches(connection):
@@ -89,6 +90,7 @@ def save_coachmatch(match, home_or_away, coaches, connection):
     if not match[home_or_away+"_coach"] in coaches:
         LOG.warning("{} coach {} not in coaches found in match {}-{}".format(home_or_away, match[home_or_away+"_coach"], match["tournament_id"], match["match_id"]))
 
+    race_id = next(race.race_id for race in races.INDEX if race.race == match[home_or_away+"_race"])
     coach_id = coaches[match[home_or_away+"_coach"]]["naf_number"] if match[home_or_away+"_coach"] in coaches else "-1"
     query = """
         INSERT INTO coachmatch (
@@ -99,9 +101,9 @@ def save_coachmatch(match, home_or_away, coaches, connection):
 
     result = connection.execute(query, (
         match["match_id"],  match["tournament_id"], "A" if home_or_away == 'away' else "H",
-        coach_id, races.INDEX.index(match[home_or_away+"_race"]),
+        coach_id, race_id,
         match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
-        match[home_or_away+"_result"], match[home_or_away+"_tr"], match[home_or_away+"_score"], match[home_or_away+"_winnings"],))
+        match[home_or_away+"_result"], match[home_or_away+"_tr"], match[home_or_away+"_score"], match[home_or_away+"_winnings"]))
 
 
 def save_match(match, coaches, connection):

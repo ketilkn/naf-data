@@ -68,6 +68,7 @@ CREATE TABLE coachmatch (
 DROP TABLE IF EXISTS race;
 CREATE TABLE race (
     race_id INTEGER PRIMARY KEY,
-    race TEXT NOT NULL
+    race TEXT NOT NULL,
+    sh CHARACTER(2)
 );
 
