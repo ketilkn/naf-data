@@ -126,13 +126,21 @@ def main():
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("filenames", type=str, nargs="*", default=["data/tournaments/t3154.html"],
                                  help="Tournament(s) to parse")
+    argument_parser.add_argument("--show-key", type=str, nargs="+", help="Show specified key")
 
     arguments = argument_parser.parse_args()
 
     for filename in arguments.filenames:
         result = load(parse_tournament, filename)
         if len(result) > 0:
-            pprint(result, indent=2)
+            if arguments.show_key:
+                for show in arguments.show_key:
+                    if show not in result:
+                        print("Key {} not found".format(show))
+                    else:
+                        print("{}: '{}'".format(show, result[show]))
+            else:
+                pprint(result, indent=2)
         else:
             PARSE_LOG.warning("No data loading %s", filename)
             PARSE_LOG.warning("Did you supply the correct filename?")
