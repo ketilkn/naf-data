@@ -29,6 +29,35 @@ def row_with_heading(table, heading, force_text=False):
     return None
 
 
+def award_row(soup, award_name="Winner"):
+    LOG.debug("Looking for award %s", award_name)
+    stats = soup.find_all("tr", string="Tournament Statistics")
+    if stats:
+        award = stats[0].find_next("tr", string=award_name)
+        if award:
+            if not award.find_next("tr").findChild("h4"):
+                awardee = award.find_next("tr").text.split()
+                return awardee[0].split()[0] if awardee and awardee[0].split() else ""
+    LOG.debug("Did not find %s", award_name)
+    return None
+
+
+def parse_awards(soup):
+    winner = award_row(soup, award_name="Winner")
+    runner_up = award_row(soup, award_name="Runner up")
+    most_touchdowns = award_row(soup, award_name="Most touchdowns")
+    most_casualties = award_row(soup, award_name="Most casualties")
+    stunty_cup = award_row(soup, award_name="Stunty Cup")
+    best_painted = award_row(soup, award_name="Best Painted")
+
+    return {"Winner": winner,
+            "Runner up": runner_up,
+            "Most touchdowns": most_touchdowns,
+            "Most Casualties": most_casualties,
+            "Stunty cup": stunty_cup,
+            "Best painted": best_painted}
+
+
 def parse_page_date(soup):
     found = soup.find_all("td", {"width": "190"})
     if found:
@@ -111,6 +140,7 @@ def parse_tournament(soup):
 
     tournament = parse_tables(tables)
     tournament["_last_updated"] = parse_page_date(soup)
+    tournament["awards"] = parse_awards(soup)
 
     LOG.debug("Finished parsing tournament %s", tournament["name"])
     return tournament
