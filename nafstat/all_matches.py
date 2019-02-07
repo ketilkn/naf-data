@@ -74,7 +74,7 @@ def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
                 LOG.debug("Writing tournament %s", m["tournament_name"])
                 tournament_name = m["tournament_name"]
 
-    LOG.debug("Finished writing %s", output_file)
+    LOG.info("Finished writing %s", output_file)
 
 
 def all_matches():
