@@ -6,6 +6,7 @@ import argparse
 
 import csv
 
+from tqdm import tqdm
 import nafstat.collate
 LOG = logging.getLogger(__package__)
 
@@ -64,13 +65,13 @@ def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
         LOG.debug("Write header")
         csv_writer.writeheader()
         tournament_name = ""
-        for m in matches:
+        for m in tqdm(matches):
             write_match(csv_writer, m)
             if repeat_matches:
                 write_match(csv_writer, switch_home_away(m))
 
             if m["tournament_name"] != tournament_name:
-                LOG.info("Writing tournament %s", m["tournament_name"])
+                LOG.debug("Writing tournament %s", m["tournament_name"])
                 tournament_name = m["tournament_name"]
 
     LOG.debug("Finished writing %s", output_file)
