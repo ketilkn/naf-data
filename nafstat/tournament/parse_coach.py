@@ -2,10 +2,7 @@
 """  Parse match from HTML """
 import os.path
 import logging
-import re
-from bs4.element import NavigableString
 import argparse
-from datetime import datetime
 
 from nafstat.file_loader import load
 from nafstat.tournament.parse_tournament import row_with_heading, parse_page_date
