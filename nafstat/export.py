@@ -17,7 +17,7 @@ def add_arguments(args, default_source="data/"):
     args.add_argument("type", choices=["sqlite", "sqlite3", "csv"], help="Export format")
     args.add_argument("source", nargs="?",help="Optional path to the source directory. ", default=default_source)
     args.add_argument("target", help="Output filename")
-    args.add_argument("--coach-list", help="Log level debug", action="store_true")
+    args.add_argument("--coach-list", help="Dump list of coaches (csv)", action="store_true")
     args.add_argument("--debug", help="Log level debug", action="store_true")
     return args
 
