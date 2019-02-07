@@ -89,31 +89,49 @@ def update(throttle=True, recent=16, new=True, force_coach=False):
     update_invalid_coaches()
 
 
-def main():
+def add_arguments(arg, default_source="data/"):
+    arg.add_argument("source", nargs="?", default=default_source, 
+            help="Optional path to the source directory default: {}".format(default_source))
+    #arg.add_argument("target", help="Path to the destination directory")
+    arg.add_argument("--debug", help="Log level debug", action="store_true")
+    arg.add_argument("--source", help="source", default="data/")
+    arg.add_argument("--recent",
+                                 help="Download tournaments from the last n days. default 16",
+                                 type=int, default=16)
+    arg.add_argument("--throttle", action="store_true", 
+            help="Delay between requests (default)")
+    arg.add_argument("--no-throttle", action="store_true",
+            help="No delay between requests")
+    arg.add_argument("--force-coach", action="store_true",
+            help="Download all coaches")
+    arg.add_argument("--skip-new", action="store_true", default=False, 
+            help="Skip new tournaments")
+    arg.add_argument("--tournament", type=str, nargs="+", 
+            help="Update tournaments by id")
+    return arg
+
+
+def run_with_arguments(arguments):
     LOG.info("Update started at %s", datetime.datetime.now().isoformat())
-    argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument("--throttle", help="Delay between requests (default)", action="store_true")
-    argument_parser.add_argument("--no-throttle", help="No delay between requests", action="store_true")
-    argument_parser.add_argument("--force-coach", help="Download all coaches", action="store_true")
-    argument_parser.add_argument("--skip-new", help="Skip new tournaments", action="store_true", default=False)
-    argument_parser.add_argument("--recent", type=int, default=16,
-                                 help="Download tournaments from the last n days. default 16")
-
-    argument_parser.add_argument("--tournaments", type=str, nargs="+",
-                                 help="Update tournaments by id")
-
-    arguments = argument_parser.parse_args()
-
+    LOG.debug(arguments)
     start = time.time()
-    if arguments.tournaments:
-        update_by_id(arguments.tournaments, force_coach=arguments.force_coach)
+    if arguments.tournament:
+        update_by_id(arguments.tournament, force_coach=arguments.force_coach)
     else:
         update(recent=arguments.recent,
                new=not arguments.skip_new,
                force_coach=arguments.force_coach)
 
-        LOG.info("Update ended after %s at %s", humanfriendly.format_timespan(time.time() - start),
+    LOG.info("Update ended after %s at %s", humanfriendly.format_timespan(time.time() - start),
                  datetime.datetime.now().isoformat())
+
+
+def main():
+    argument_parser = argparse.ArgumentParser()
+    add_arguments(argument_parser)
+    arguments = argument_parser.parse_args()
+
+    run_with_arguments(arguments)
 
 
 if __name__ == "__main__":
