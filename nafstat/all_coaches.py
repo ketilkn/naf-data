@@ -10,11 +10,10 @@ import nafstat.coachlist
 LOG = logging.getLogger(__package__)
 
 
-def to_csv(coaches):
-    output_file = "all_coaches.csv"
+def to_csv(coaches, output_file="all_coaches.csv"):
     copy_to = "/home/ketilkn/www/ghoulhq.com/nafdata/all_coaches.csv"
     LOG.debug("Opening file all_coaches.csv")
-    with open('all_coaches.csv', 'w') as csvfile:
+    with open(output_file, 'w') as csvfile:
         columns = ["naf_number",
                    "naf_name",
                    "nation",
@@ -28,9 +27,9 @@ def to_csv(coaches):
         tournament_name = ""
         for c in coaches:
             csv_writer.writerow(c)
-    LOG.debug("Finished writing all_coaches.csv")
-    LOG.info("Copy file to target")
-    shutil.copy(output_file, copy_to)
+    LOG.debug("Finished writing %s", output_file)
+    #LOG.info("Copy file to target")
+    #shutil.copy(output_file, copy_to)
 
 
 def all_coaches():
@@ -38,12 +37,8 @@ def all_coaches():
         yield coach_race
 
 
-def main():
-    import sys
+def do_it(filename):
     import collections
-    log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
-    logging.basicConfig(level=logging.INFO, format=log_format)
-    LOG.info("All matches")
     race_counter = collections.Counter()
 
     coaches = sorted(all_coaches(), key=lambda m: m["elo"], reverse=True)
@@ -51,8 +46,18 @@ def main():
         race_counter[c["race"]] += 1
         c["rank"] = rank
         c["race_rank"] = race_counter[c["race"]]
-    if "--no-csv" not in sys.argv:
-        to_csv(coaches)
+    to_csv(coaches, filename)
+
+
+def run_with_arguments(args):
+    do_it(filename=args.target)
+
+
+def main():
+    import sys
+    log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
+    logging.basicConfig(level=logging.INFO, format=log_format)
+    LOG.info("All matches")
 
 
 if __name__ == "__main__":
