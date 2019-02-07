@@ -4,7 +4,7 @@ import datetime
 import argparse
 import logging.config
 import nafstat.collate
-
+import nafstat.coachlist
 
 logging.config.fileConfig('pylogging.conf', disable_existing_loggers=False)
 LOG = logging.getLogger(__name__)
@@ -43,13 +43,20 @@ def filter_data(data):
         yield filter_tournament(tournament)
 
 
-def create_json(filename):
-    import json
-    data = nafstat.collate.load_all()
+def load_data(coach_list):
+    if coach_list:
+        return nafstat.coachlist.load_dict_by_name()
+    else:
+        data = nafstat.collate.load_all()
+        return list(filter_data(data))
 
-    data = filter_data(data)
+
+def create_json(filename, coach_list=False):
+    import json
+    data = load_data(coach_list)
+
     with open(filename, "w") as json_file:
-        json.dump(list(data), json_file, indent=2)
+        json.dump(data, json_file, indent=2)
 
 
 def add_arguments(args, default_source="data/"):
@@ -62,7 +69,7 @@ def add_arguments(args, default_source="data/"):
 def run_with_arguments(arguments):
     LOG.info("JSON export started at %s", datetime.datetime.now().isoformat())
     LOG.debug(arguments)
-    create_json(arguments.target)
+    create_json(arguments.target, arguments.coach_list)
 
 
 def main():
