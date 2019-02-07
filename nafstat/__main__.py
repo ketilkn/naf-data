@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """ Export data to sqlite """
-import datetime
 import argparse
 import logging.config
 
 import nafstat.update
-import nafstat.to_db
+import nafstat.export
 
 logging.config.fileConfig('pylogging.conf', disable_existing_loggers=True)
 LOG = logging.getLogger("nafstat.to_db")
@@ -17,17 +16,18 @@ def add_arguments(argument_parser, default_source):
     subparsers = argument_parser.add_subparsers(dest="command")
 
     exporter = subparsers.add_parser("export", help="nafstat export TYPE [SOURCE] DEST") 
-    nafstat.to_db.add_arguments(exporter, default_source)
+    nafstat.export.add_arguments(exporter, default_source)
 
     updater = subparsers.add_parser("update", help="nafstat update TYPE [SOURCE] DEST")
     nafstat.update.add_arguments(updater, default_source)
     return argument_parser
 
+
 def run_with_arguments(arguments):
     if arguments.command == "update":
         nafstat.update.run_with_arguments(arguments)
     elif arguments.command == "export" and arguments.type == "sqlite":
-        nafstat.to_db.run_with_arguments(arguments)
+        nafstat.export.run_with_arguments(arguments)
     else:
         print(arguments)
         print("Not implemented")
