@@ -53,7 +53,7 @@ def parse_awards(soup):
     return {"Winner": winner,
             "Runner up": runner_up,
             "Most touchdowns": most_touchdowns,
-            "Most Casualties": most_casualties,
+            "Most casualties": most_casualties,
             "Stunty cup": stunty_cup,
             "Best painted": best_painted}
 
