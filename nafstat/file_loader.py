@@ -7,8 +7,8 @@ import os.path
 import json
 from bs4 import BeautifulSoup
 
-LOG = logging.getLogger(__package__)
-
+LOG = logging.getLogger(__name__)
+logging.getLogger(__name__).setLevel(logging.INFO)
 
 def load_json(filename):
     LOG.debug("load_json %s", filename)
