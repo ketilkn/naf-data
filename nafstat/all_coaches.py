@@ -5,15 +5,17 @@ import copy
 import logging
 
 import csv
-
+from tqdm import tqdm
 import nafstat.coachlist
 LOG = logging.getLogger(__package__)
 
 
 def to_csv(coaches, output_file="all_coaches.csv"):
     copy_to = "/home/ketilkn/www/ghoulhq.com/nafdata/all_coaches.csv"
-    LOG.debug("Opening file all_coaches.csv")
+    LOG.info("Opening file %s", output_file)
+
     with open(output_file, 'w') as csvfile:
+        LOG.info("Writing coach list to %s", output_file)
         columns = ["naf_number",
                    "naf_name",
                    "nation",
@@ -25,7 +27,7 @@ def to_csv(coaches, output_file="all_coaches.csv"):
         LOG.debug("Write header")
         csv_writer.writeheader()
         tournament_name = ""
-        for c in coaches:
+        for c in tqdm(coaches):
             csv_writer.writerow(c)
     LOG.debug("Finished writing %s", output_file)
     #LOG.info("Copy file to target")
@@ -41,7 +43,9 @@ def do_it(filename):
     import collections
     race_counter = collections.Counter()
 
+    LOG.info("Load coaches")
     coaches = sorted(all_coaches(), key=lambda m: m["elo"], reverse=True)
+    LOG.info("Adding ranking")
     for rank, c in enumerate(coaches, 1):
         race_counter[c["race"]] += 1
         c["rank"] = rank
