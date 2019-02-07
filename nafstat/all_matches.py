@@ -97,23 +97,32 @@ def all_matches():
             yield match
 
 
+def do_it(filename, repeat_matches=False):
+    to_csv(sorted(all_matches(), key=lambda m: m["order"], reverse=True),
+           filename,
+           repeat_matches=repeat_matches)
+
+
+def run_with_arguments(args):
+    do_it(args.target)
+
+
 def main():
     import sys
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_format)
     LOG.info("All matches")
     argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument("output_file")
+    argument_parser.add_argument("target")
     argument_parser.add_argument("--repeat-matches", action="store_true", default=False)
 
     arguments = argument_parser.parse_args()
 
-    if not arguments.output_file.endswith(".csv"):
-        sys.exit("Sure? '{}' does not end with .csv".format(arguments.output_file))
+    if not arguments.target.endswith(".csv"):
+        sys.exit("Sure? '{}' does not end with .csv".format(arguments.target))
 
-    to_csv(sorted(all_matches(), key=lambda m: m["order"], reverse=True),
-           arguments.output_file,
-           repeat_matches=arguments.repeat_matches)
+    do_it(arguments.target, arguments.repeat_matches)
+
 
 
 if __name__ == "__main__":

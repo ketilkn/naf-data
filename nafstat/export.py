@@ -5,6 +5,7 @@ import argparse
 import logging.config
 
 import nafstat.dbexport.to_sqlite
+import nafstat.all_matches
 
 logging.config.fileConfig('pylogging.conf', disable_existing_loggers=False)
 LOG = logging.getLogger(__name__)
@@ -22,7 +23,11 @@ def add_arguments(args, default_source="data/"):
 def run_with_arguments(arguments):
     LOG.info("Export started at %s", datetime.datetime.now().isoformat())
     LOG.debug(arguments)
-    nafstat.dbexport.to_sqlite.to_db(arguments.target)
+
+    if arguments.type in ["sqlite", "sqlite3"]:
+        nafstat.dbexport.to_sqlite.to_db(arguments.target)
+    elif arguments.type == "csv":
+        nafstat.all_matches.run_with_arguments(arguments)
 
 
 def main():

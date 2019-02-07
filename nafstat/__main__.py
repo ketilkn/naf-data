@@ -26,7 +26,7 @@ def add_arguments(argument_parser, default_source):
 def run_with_arguments(arguments):
     if arguments.command == "update":
         nafstat.update.run_with_arguments(arguments)
-    elif arguments.command == "export" and arguments.type == "sqlite":
+    elif arguments.command == "export" and arguments.type in ["sqlite", "sqlite3", "csv"]:
         nafstat.export.run_with_arguments(arguments)
     else:
         print(arguments)
