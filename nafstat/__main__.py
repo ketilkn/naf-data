@@ -35,9 +35,6 @@ def run_with_arguments(arguments):
 
 def main():
     import sys
-    print(__name__)
-    #log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
-    #logging.basicConfig(level=logging.INFO if "--debug" is sys.argv else logging.INFO, format=log_format)
 
     argument_parser = argparse.ArgumentParser()
     default_source="data/"
