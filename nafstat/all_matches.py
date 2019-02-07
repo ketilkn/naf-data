@@ -28,6 +28,7 @@ def write_match(csv_writer, m):
             {m['tournament_name']}, {m['home_coach']}, {m['home_race']}, {m['home_score']}, {m['away_score']}, {m['away_race']}, {m['away_coach']})
     csv_writer.writerow(m)
 
+
 def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
     LOG.debug("Opening %s", output_file)
     with open(output_file, 'w') as csvfile:
@@ -73,7 +74,6 @@ def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
                 tournament_name = m["tournament_name"]
 
     LOG.debug("Finished writing %s", output_file)
-    LOG.info("Copy file to target")
 
 
 def all_matches():
@@ -122,7 +122,6 @@ def main():
         sys.exit("Sure? '{}' does not end with .csv".format(arguments.target))
 
     do_it(arguments.target, arguments.repeat_matches)
-
 
 
 if __name__ == "__main__":
