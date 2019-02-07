@@ -3,39 +3,32 @@
 import datetime
 import argparse
 import logging.config
+import nafstat.collate
 
-import nafstat.dbexport.to_sqlite
-import nafstat.all_matches
-import nafstat.all_coaches
-import nafstat.export_json
 
 logging.config.fileConfig('pylogging.conf', disable_existing_loggers=False)
 LOG = logging.getLogger(__name__)
 
 
+def create_json(filename):
+    import json
+    data = nafstat.collate.load_all()
+
+    with open(filename, "w") as json_file:
+        json.dump(list(data), json_file, indent=2)
+
+
 def add_arguments(args, default_source="data/"):
     LOG.debug("add_arguments debug")
-    args.add_argument("type", choices=["sqlite", "sqlite3", "csv", "json"], help="Export format")
     args.add_argument("source", nargs="?",help="Optional path to the source directory. ", default=default_source)
     args.add_argument("target", help="Output filename")
-    args.add_argument("--coach-list", help="Dump list of coaches (csv)", action="store_true")
-    args.add_argument("--debug", help="Log level debug", action="store_true")
     return args
 
 
 def run_with_arguments(arguments):
-    LOG.info("Export started at %s", datetime.datetime.now().isoformat())
+    LOG.info("JSON export started at %s", datetime.datetime.now().isoformat())
     LOG.debug(arguments)
-
-    if arguments.type in ["sqlite", "sqlite3"]:
-        nafstat.dbexport.to_sqlite.to_db(arguments.target)
-    elif arguments.type == "csv" and arguments.coach_list:
-        nafstat.all_coaches.run_with_arguments(arguments)
-    elif arguments.type == "csv":
-        nafstat.all_matches.run_with_arguments(arguments)
-    elif arguments.type == "json":
-        nafstat.export_json.run_with_arguments(arguments)
-
+    create_json(arguments.target)
 
 
 def main():
