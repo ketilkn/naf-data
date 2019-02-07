@@ -10,10 +10,44 @@ logging.config.fileConfig('pylogging.conf', disable_existing_loggers=False)
 LOG = logging.getLogger(__name__)
 
 
+def filter_match(match):
+    match.pop("home_nationality", None)
+    match.pop("away_nationality", None)
+    match.pop("home_team", None)
+    match.pop("away_team", None)
+    match.pop("home_coachid", None)
+    match.pop("away_coachid", None)
+    match.pop("home_teamid", None)
+    match.pop("away_teamid", None)
+    match.pop("home_cas")
+    match.pop("away_cas")
+    match.pop("variant")
+    match.pop("home_result")
+    match.pop("away_result")
+    match.pop("home_winnings")
+    match.pop("away_winnings")
+    return match
+
+
+def filter_tournament(tournament):
+    for match in tournament["matches"]:
+        filter_match(match)
+    tournament.pop("email", None)
+    if tournament["ruleset"] == "unknown":
+        tournament["ruleset"] = ""
+    return tournament
+
+
+def filter_data(data):
+    for tournament in data:
+        yield filter_tournament(tournament)
+
+
 def create_json(filename):
     import json
     data = nafstat.collate.load_all()
 
+    data = filter_data(data)
     with open(filename, "w") as json_file:
         json.dump(list(data), json_file, indent=2)
 
