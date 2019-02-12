@@ -78,6 +78,12 @@ def load(parser=None, filename="data/naf_tourneys.html"):
         except UnicodeDecodeError as ex:
             LOG.exception(ex)
             LOG.error("Expected character set UTF-8 for input file %s", filename)
+        except SyntaxError as ex:
+            LOG.exception(ex)
+            LOG.error("Syntax error while parsing %s", filename)
+            import sys
+            sys.exit(1)
+
 
     return []
 
