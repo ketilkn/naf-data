@@ -24,7 +24,7 @@ def add_arguments(args, default_source="data/"):
 
 
 def run_with_arguments(arguments):
-    LOG.info("Export started at %s", datetime.datetime.now().isoformat())
+    LOG.info("Export %s started at %s", arguments.type, datetime.datetime.now().isoformat())
     LOG.debug(arguments)
 
     if arguments.type in ["sqlite", "sqlite3"]:
