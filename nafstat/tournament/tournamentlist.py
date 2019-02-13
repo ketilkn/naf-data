@@ -61,14 +61,20 @@ def past(tournaments):
 
 def no_matches(tournaments):
     result = []
+    for t in load_matches(tournaments):
+        if len(t["matches"]) < 1:
+            result.append(t)
+
+    return result
+
+
+def load_matches(tournaments):
     for t in tournaments:
         matchfile = "data/matches/m{}.html".format(t["tournament_id"])
         matches = load_cached(parse_matches.parse_match, matchfile)
         LOG.debug("Tournament {} {} {} matches".format(t["tournament_id"], t["name"], len(matches)))
-        if len(matches) < 1:
-            result.append(t)
-
-    return result
+        t["matches"] = matches
+        yield t
 
 
 def recent(tournaments, number_of_days=30):
