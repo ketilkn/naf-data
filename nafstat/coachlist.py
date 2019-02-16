@@ -33,13 +33,10 @@ def load_all():
             coach = nafstat.file_loader.load_cached(parse_coach, os.path.join("data/coach", filename))
             if coach:
                 yield coach
-            else:
-                LOG.debug("%s returned nothing", filename)
 
 
 def load_by_race():
     LOG.debug("loading all coaches")
-    result = []
 
     for filename in os.listdir("data/coach/"):
         if not filename.startswith(".") and filename.endswith(".html"):
