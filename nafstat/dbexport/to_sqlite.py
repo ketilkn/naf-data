@@ -21,7 +21,8 @@ def save_tournament(tournament, connection):
         (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, nation, swiss, casualties, variant, city) 
         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?)"""
 
-    result = connection.execute(query, (
+    cursor = connection.cursor()
+    result = cursor.execute(query, (
                                tournament["tournament_id"],
                                tournament["name"],
                                tournament["organizer"],
@@ -43,17 +44,17 @@ def save_tournament(tournament, connection):
     #connection.commit()
 
 
-def save_coach(coach, connection):
+def save_coach(coach, cursor):
     LOG.debug("Save coach %s %s", coach["naf_number"], coach["naf_name"])
     query = """
         INSERT INTO coach 
                 (naf_number, name, nation)
                 VALUES (?, ?, ?)
             """
-    result = connection.execute(query, (coach["naf_number"], coach["naf_name"],  coach["nation"]))
+    return cursor.execute(query, (coach["naf_number"], coach["naf_name"],  coach["nation"]))
 
 
-def save_rank(coach, ranking, connection):
+def save_rank(coach, ranking, cursor):
     LOG.debug("Save team %s %s", coach["naf_number"], ranking["race"])
     query = """
         INSERT INTO rank 
@@ -61,31 +62,33 @@ def save_rank(coach, ranking, connection):
                 VALUES (?, ?, ?)
             """
     race_id = next(race.race_id for race in races.INDEX if race.race == ranking["race"])
-    result = connection.execute(query, (coach["naf_number"], race_id,  ranking["elo"]*100))
+    return cursor.execute(query, (coach["naf_number"], race_id,  ranking["elo"]*100))
 
 
-def save_race(race: races.Race, connection):
+def save_race(race: races.Race, cursor):
     LOG.debug("Saving %s %s", race.race_id, race.race)
     query = """ INSERT INTO race (race_id, race, sh) VALUES(?, ?, ?)"""
-    return connection.execute(query, (race.race_id, race.race, race.sh))
+    return cursor.execute(query, (race.race_id, race.race, race.sh))
 
 
 def add_races(connection):
     LOG.debug("Adding all races")
+    cursor = connection.cursor()
     for race_id, race in enumerate(races.INDEX):
-        save_race(race, connection)
+        save_race(race, cursor)
 
 
 def add_coaches(connection):
     LOG.debug("Adding all coaches")
     coaches = list(coachlist.load_all())
     for c in tqdm(coaches):
-        save_coach(c, connection)
+        cursor = connection.cursor()
+        save_coach(c, cursor)
         for rank in c["ranking"].values():
-            save_rank(c, rank, connection)
+            save_rank(c, rank, cursor)
 
 
-def save_coachmatch(match, home_or_away, coaches, connection):
+def save_coachmatch(match, home_or_away, coaches, cursor):
     LOG.debug("save_coachmatch %s %s", match["match_id"], home_or_away)
     if not match[home_or_away+"_coach"] in coaches:
         LOG.warning("{} coach {} not in coaches found in match {}-{}".format(home_or_away, match[home_or_away+"_coach"], match["tournament_id"], match["match_id"]))
@@ -99,11 +102,12 @@ def save_coachmatch(match, home_or_away, coaches, connection):
             values(?,?,?, ?,?,?,?,?,?,?,?,?)
     """
 
-    result = connection.execute(query, (
+    result = cursor.execute(query, (
         match["match_id"],  match["tournament_id"], "A" if home_or_away == 'away' else "H",
         coach_id, race_id,
         match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
         match[home_or_away+"_result"], match[home_or_away+"_tr"], match[home_or_away+"_score"], match[home_or_away+"_winnings"]))
+    return result
 
 
 def save_match(match, coaches, connection):
@@ -113,11 +117,12 @@ def save_match(match, coaches, connection):
             values(?,?,?,?,?,?)
     """
 
-    result = connection.execute(query, (
+    cursor = connection.cursor()
+    result = cursor.execute(query, (
          match["match_id"], match["tournament_id"], match["date"], match["time"], match["datetime"], match["gate"],))
 
-    save_coachmatch(match, "home", coaches, connection)
-    save_coachmatch(match, "away", coaches, connection)
+    save_coachmatch(match, "home", coaches, cursor)
+    save_coachmatch(match, "away", coaches, cursor)
 
     LOG.debug("Save result %s", result)
 
@@ -159,21 +164,21 @@ def to_db(filename):
     LOG.info("Create schema")
     create_schema(connection)
 
-    LOG.info("Create index")
+    LOG.info("Skipping index")
     #create_index(connection)
 
     LOG.info("Create view")
     create_view(connection)
 
     LOG.info("Add races")
-    add_races(connection.cursor())
+    add_races(connection)
 
     LOG.info("Add coaches")
-    add_coaches(connection.cursor())
+    add_coaches(connection)
     connection.commit()
 
     LOG.info("Add tournaments")
-    all_tournaments(connection.cursor())
+    all_tournaments(connection)
 
     connection.commit()
     connection.close()
