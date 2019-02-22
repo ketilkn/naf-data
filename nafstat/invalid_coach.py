@@ -24,14 +24,20 @@ def main():
     import argparse
     argparser = argparse.ArgumentParser()
     argparser.add_argument("source", default="data/coach")
-    argparser.add_argument("target", default="data/")
+    argparser.add_argument("--move",  type=str)
+    argparser.add_argument("--print", action="store_true")
     argparser.add_argument("--filename", action="store_true")
+    argparser.add_argument("--coach", action="store_true")
+    argparser.add_argument("--matches", action="store_true")
 
     arguments = argparser.parse_args()
 
     for c in find_empty(arguments.source):
-        print("Moving {} to {}".format(c.as_posix(), arguments.target))
-        c.rename(arguments.target + "/" + c.name)
+        if arguments.print:
+            print(c.as_posix())
+        elif arguments.move:
+            print("Moving {} to {}".format(c.as_posix(), arguments.target))
+            c.rename(arguments.target + "/" + c.name)
 
 
 if __name__ == "__main__":
