@@ -95,7 +95,7 @@ def save_coach_glicko(connection, coach_rating):
 def add_glicko(connection):
     LOG.debug("Adding all glicko ratings")
 
-    rating_file = "../NAF/output/player_rnks.csv"
+    rating_file = "../NAF/output/player_ranks.csv"
     LOG.info("Loading ratings from file %s", rating_file)
     try:
         ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
