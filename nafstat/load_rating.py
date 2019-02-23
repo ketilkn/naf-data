@@ -6,7 +6,7 @@ import collections
 
 LOG = logging.getLogger(__package__)
 
-Rating = collections.namedtuple("Rating", "coach race rating")
+Rating = collections.namedtuple("Rating", "coach race rating naf_number")
 
 
 def ratings_to_dict(ratings, attribute="coach"):
@@ -17,14 +17,16 @@ def ratings_to_dict(ratings, attribute="coach"):
     return result
 
 
-def from_csv(filename, coach_column="coach", race_column="race", rating_column="curr_rating", delimiter=","):
+def from_csv(filename,
+             coach_column="coach", race_column="race", rating_column="curr_rating", naf_number_column="naf_number",
+             delimiter=","):
     """Load csv file and yield Rank(coach race rating)"""
-    LOG.info("Reading rating from %s using %s %s %s", coach_column, race_column, rating_column)
+    LOG.info("Reading rating from %s using %s %s %s %s", coach_column, race_column, rating_column, naf_number_column)
 
     with open(filename) as csv_file:
         reader = csv.DictReader(csv_file, delimiter=delimiter)
         for row in reader:
-            yield Rating(row[coach_column], row[race_column], row[rating_column])
+            yield Rating(row[coach_column], row[race_column], row[rating_column], row[naf_number_column])
 
 
 def main():
