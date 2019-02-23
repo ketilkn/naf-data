@@ -4,7 +4,6 @@ import copy
 import logging
 import argparse
 import sqlite3
-
 from tqdm import tqdm
 from nafstat import coachlist
 from nafstat.tournament import tournamentlist
@@ -96,12 +95,14 @@ def save_coach_glicko(connection, coach_rating):
 def add_glicko(connection):
     LOG.debug("Adding all glicko ratings")
 
-    rating_file = "../NAF/output/player_ranks.csv"
+    rating_file = "../NAF/output/player_rnks.csv"
     LOG.info("Loading ratings from file %s", rating_file)
-    ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
-
-    for k, r in ranking.items():
-        save_coach_glicko(connection, r)
+    try:
+        ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
+        for k, r in ranking.items():
+            save_coach_glicko(connection, r)
+    except FileNotFoundError:
+        LOG.warning("Rating file %s not found. Skipping.", rating_file)
 
 
 def add_coaches(connection):
