@@ -10,7 +10,8 @@ Rating = collections.namedtuple("Rating", "coach race rating naf_number")
 
 
 def ratings_to_dict(ratings, attribute="coach"):
-    """ With list of Rating, return dict by attribute"""
+    """ With list of Rating, return dict by attribute (coach name by default)"""
+    LOG.debug("Organize ratings to dict")
     result = collections.defaultdict(list)
     for rating in ratings:
         result[getattr(rating, attribute)].append(rating)
@@ -21,7 +22,7 @@ def from_csv(filename,
              coach_column="coach", race_column="race", rating_column="curr_rating", naf_number_column="naf_number",
              delimiter=","):
     """Load csv file and yield Rank(coach race rating)"""
-    LOG.info("Reading rating from %s using %s %s %s %s", filename, coach_column, race_column, rating_column, naf_number_column)
+    LOG.debug("Reading rating from %s using %s %s %s %s", filename, coach_column, race_column, rating_column, naf_number_column)
 
     with open(filename) as csv_file:
         reader = csv.DictReader(csv_file, delimiter=delimiter)
@@ -39,8 +40,6 @@ def main():
     argument_parser.add_argument("csv_filename")
 
     arguments = argument_parser.parse_args()
-    LOG.info("info")
-    LOG.debug("debugged")
 
     ratings = list(from_csv(arguments.csv_filename))
     LOG.info("Found %s ratings", len(ratings))
