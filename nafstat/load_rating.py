@@ -21,7 +21,7 @@ def from_csv(filename,
              coach_column="coach", race_column="race", rating_column="curr_rating", naf_number_column="naf_number",
              delimiter=","):
     """Load csv file and yield Rank(coach race rating)"""
-    LOG.info("Reading rating from %s using %s %s %s %s", coach_column, race_column, rating_column, naf_number_column)
+    LOG.info("Reading rating from %s using %s %s %s %s", filename, coach_column, race_column, rating_column, naf_number_column)
 
     with open(filename) as csv_file:
         reader = csv.DictReader(csv_file, delimiter=delimiter)

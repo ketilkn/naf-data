@@ -9,6 +9,7 @@ from tqdm import tqdm
 from nafstat import coachlist
 from nafstat.tournament import tournamentlist
 import nafstat.collate
+import nafstat.load_rating
 from nafstat import races
 
 LOG = logging.getLogger(__package__)
@@ -78,9 +79,35 @@ def add_races(connection):
         save_race(race, cursor)
 
 
+def save_coach_glicko(connection, coach_rating):
+    LOG.debug("Save coach rating %s", coach_rating)
+    query = """
+        UPDATE rank SET glicko = ? WHERE coach_id=? AND race_id=?
+        """
+    cursor = connection.cursor()
+
+    for race_rating in coach_rating:
+        race_id = next(race.race_id for race in races.INDEX if race.race == race_rating.race)
+        cursor.execute(query, (race_rating.rating, race_rating.naf_number, race_id))
+        if cursor.rowcount != 1:
+            LOG.warning("Updated %s rows for %s", cursor.rowcount, race_rating)
+
+
+def add_glicko(connection):
+    LOG.debug("Adding all glicko ratings")
+
+    rating_file = "../NAF/output/player_ranks.csv"
+    LOG.info("Loading ratings from file %s", rating_file)
+    ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
+
+    for k, r in ranking.items():
+        save_coach_glicko(connection, r)
+
+
 def add_coaches(connection):
     LOG.debug("Adding all coaches")
     coaches = list(coachlist.load_all())
+
     for c in tqdm(coaches):
         cursor = connection.cursor()
         save_coach(c, cursor)
@@ -175,6 +202,10 @@ def to_db(filename):
 
     LOG.info("Add coaches")
     add_coaches(connection)
+    connection.commit()
+
+    LOG.info("Add glicko")
+    add_glicko(connection)
     connection.commit()
 
     LOG.info("Add tournaments")

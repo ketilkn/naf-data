@@ -12,6 +12,7 @@ CREATE TABLE rank (
     coach_id INTEGER,
     race_id INTEGER NOT NULL,
     elo INTEGER default 15000,
+    glicko INTEGER default 15000,
     UNIQUE (coach_id, race_id) ON CONFLICT REPLACE
 
 );
