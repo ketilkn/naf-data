@@ -2,6 +2,7 @@
 """  Parse match from HTML """
 import sys
 import logging
+from nafstat.file_loader import load
 
 PARSE_LOG = logging.getLogger("parselog")
 LOG = logging.getLogger(__package__)
@@ -23,6 +24,7 @@ def parse_date(row):
     else:
         PARSE_LOG.debug("Not a date %s", row)
         return False
+
 
 def parse_match(row):
     PARSE_LOG.debug("parse_match")
@@ -94,7 +96,6 @@ def parse_row(row, current_date, current_time):
             "variant": columns[13].text}
 
 
-
 def parse_rows(rows):
     PARSE_LOG.debug("Parsing rows")
 
@@ -152,8 +153,11 @@ def parse_match(soup):
     return matches
 
 
+def from_file(filename):
+    return list(load(parse_match, filename))
+
+
 def main():
-    from nafstat.file_loader import load
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
