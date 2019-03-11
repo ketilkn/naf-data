@@ -18,10 +18,10 @@ def tournament_line(t):
     return "{} {} {} {}".format(t["tournament_id"], t["end_date"], t["name"], t["location"])
 
 
-def list_tournaments(renew_time=3600, force=False):
+def load_tournaments(renew_time=3600, force=False):
     """List all naf tournaments from members.thenaf.net"""
     filename = "data/naf_tourneys.html"
-    LOG.debug("Listing tournaments")
+    LOG.debug("Loading tournaments")
     last_modified = round((time.time() - os.path.getmtime(filename)))
     LOG.debug("data/naf_tourneys.html modified %ss ago", last_modified)
 
@@ -32,6 +32,18 @@ def list_tournaments(renew_time=3600, force=False):
         LOG.debug("Using existing tournament data in %s", filename)
         LOG.debug("Skipping download due to last modified %s < %s", last_modified, renew_time)
 
+    tournaments = load_cached(parse_tournamentlist.parse_file, filename)
+
+    return tournaments
+
+
+def list_tournaments(renew_time=False, force=None):
+    """List all naf tournaments from members.thenaf.net"""
+    filename = "data/naf_tourneys.html"
+    LOG.debug("Listing tournaments")
+
+    if renew_time or force:
+        return load_tournaments(renew_time=renew_time, force=force)
     tournaments = load_cached(parse_tournamentlist.parse_file, filename)
 
     return tournaments

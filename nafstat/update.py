@@ -50,7 +50,7 @@ def update_recent(recent=16, force_coach=False):
     recent(int) - number of days to consider recent
     force_coach(boolean) - redownload existing coaches in data/coach
     """
-    recent_tournaments = list(tournamentlist.recent(tournamentlist.list_tournaments(), number_of_days=recent))
+    recent_tournaments = list(tournamentlist.recent(tournamentlist.load_tournaments(), number_of_days=recent))
     LOG.info("Found {} recent tournament{}".format(len(recent_tournaments), "s" if len(recent_tournaments) != 1 else ""))
     if not force_coach:
         recent_tournaments =  tournamentlist.no_matches(recent_tournaments)
@@ -62,7 +62,7 @@ def update_recent(recent=16, force_coach=False):
 
 def update_new():
     """Download new future tournaments from thenaf.net"""
-    new_tournaments = list(tournamentlist.no_data(tournamentlist.list_tournaments()))
+    new_tournaments = list(tournamentlist.no_data(tournamentlist.load_tournaments()))
     LOG.info("Found {} new tournament{}".format(len(new_tournaments), "s" if len(new_tournaments) != 1 else ""))
     if new_tournaments:
         nafstat.update_tournament.update_tournaments(new_tournaments)
@@ -70,7 +70,7 @@ def update_new():
 
 def update_by_id(tournament_ids, force_coach=False):
     """Download tournaments with ids in tournaments_ids """
-    tournaments = list(tournamentlist.by_id(ids=tournament_ids, tournaments=tournamentlist.list_tournaments()))
+    tournaments = list(tournamentlist.by_id(ids=tournament_ids, tournaments=tournamentlist.load_tournaments()))
     update_tournaments(tournaments, force_coach)
 
 
