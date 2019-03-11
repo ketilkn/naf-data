@@ -12,7 +12,7 @@ def parse_time(row):
     PARSE_LOG.debug("Parse time")
     column = row.select_one("td")
     if column and len(column.text.strip().split(":")) == 2:
-        return column.text.strip()
+        return column.text.strip().zfill(5)
     return False
 
 
