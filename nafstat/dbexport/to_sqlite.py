@@ -83,6 +83,9 @@ def save_coach_glicko(connection, coach_rating):
     query = """
         UPDATE rank SET glicko = ? WHERE coach_id=? AND race_id=?
         """
+    query = """
+        INSERT INTO rank (glicko, coach_id, race_id) VALUES(?,?,?)
+        """
     cursor = connection.cursor()
 
     for race_rating in coach_rating:
@@ -90,6 +93,9 @@ def save_coach_glicko(connection, coach_rating):
         cursor.execute(query, (race_rating.rating, race_rating.naf_number, race_id))
         if cursor.rowcount != 1:
             LOG.warning("Updated %s rows for %s", cursor.rowcount, race_rating)
+            LOG.info("Try insert instead")
+            cursor.execute(insert_query, (race_rating.rating, race_rating.naf_number, race_id))
+
 
 
 def add_glicko(connection):
