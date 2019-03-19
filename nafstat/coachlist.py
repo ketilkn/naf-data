@@ -44,7 +44,7 @@ def load_by_race():
             if coach and coach["ranking"]:
                 for index, race in enumerate(coach["ranking"].values()):
                     if not float(race["elo"]):
-                        print("None float elo ", race)
+                        LOG.warning("%s None float elo %s", coach["naf_name"], race)
                     yield {"naf_number": coach["naf_number"],
                            "naf_name": coach["naf_name"],
                            "nation": coach["nation"],
