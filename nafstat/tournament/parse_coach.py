@@ -3,7 +3,7 @@
 import os.path
 import logging
 import argparse
-
+import bs4
 from nafstat.file_loader import load
 from nafstat.tournament.parse_tournament import row_with_heading, parse_page_date
 
@@ -92,6 +92,12 @@ def parse_coach(soup):
 
     LOG.debug("Finished parsing coach %s", coach_info["naf_name"])
     return coach_info
+
+
+def parse_html(html):
+    LOG.debug("Parsing coach from HTML")
+    soup = bs4.BeautifulSoup(html, "lxml")
+    return parse_coach(soup)
 
 
 def fromfile(filename):

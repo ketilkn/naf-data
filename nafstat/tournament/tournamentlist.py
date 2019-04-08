@@ -80,6 +80,22 @@ def no_matches(tournaments):
     return result
 
 
+def unknown_coaches(tournaments):
+    LOG.debug("Searching for tournaments with unknown coaches")
+    import nafstat.coachlist
+    coaches = set(nafstat.coachlist.load_dict_by_name().keys())
+    missing = []
+    for t in load_matches(tournaments):
+        tournament_coaches = coaches_in_tournament(t)
+
+        missing_in_tournament = tournament_coaches.difference(coaches)
+        if missing_in_tournament:
+            LOG.debug("Unknown coaches in tournament: %s %s", t["tournament_id"], missing_in_tournament)
+            missing.append(t)
+
+    return missing
+
+
 def load_matches(tournaments):
     for t in tournaments:
         matchfile = "data/matches/m{}.html".format(t["tournament_id"])
@@ -109,7 +125,7 @@ def coaches_in_tournament(tournament):
     coaches = set()
     if "matches" not in tournament:
         LOG.warning("Missing key 'matches' in tournament")
-        return []
+        return coaches
 
     for m in tournament["matches"]:
         coaches.add(m["home_coach"])

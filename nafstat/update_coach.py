@@ -13,7 +13,7 @@ LOG = logging.getLogger(__package__)
 def update_coach_by_nick(coach_nick):
     LOG.debug("Looking for coach %s", coach_nick)
 
-    coach = nafstat.tournament.fetch_coach.fetch_coach_by_nick(coach_nick)
+    coach = nafstat.tournament.fetch_coach.save_coach_by_nick(coach_nick)
     if not coach:
         LOG.warning("Coach with nick %s not found", coach_nick)
     return coach

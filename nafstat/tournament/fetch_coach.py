@@ -18,29 +18,47 @@ def fetch_coach(coach_id, url=COACH_URL, target=DEFAULT_TARGET):
     return result
 
 
-def fetch_coach_by_nick(coach_id, url=COACH_URL, target=None):
+def fetch_coach_html_by_nick(coach_id, url=COACH_URL, target=None):
     LOG.debug("fetch_coach_by_nick %s", coach_id)
 
     url_to_get = url.format(coach_id)
     response = requests.get(url_to_get)
     if not response.history and response.status_code == 200:
         html = response.text
-        soup = nafstat.file_loader.load_soup(html)
-        coach = nafstat.tournament.parse_coach.parse_coach(soup)
-        if "naf_number" in coach:
-            LOG.debug("Naf number is %s", coach["naf_number"])
-            LOG.debug("Naf name is %s", coach["naf_name"])
-
-            filename = target if target else DEFAULT_TARGET.format(coach["naf_number"])
-            LOG.debug("Open file %s for writing", filename)
-            with open(filename, "w") as coach_file:
-                coach_file.write(html)
-                return filename
-        else:
-            LOG.warning("No naf_number for %s", url_to_get)
+        return html
     else:
         LOG.warning("Response %s %s for %s", response.status_code, response.reason, url_to_get)
 
+    return False
+
+
+def save_coach_by_nick(coach_id, url=COACH_URL, target=None):
+    coach, html = fetch_coach_by_nick(coach_id, url, return_html=True)
+
+    if coach and "naf_number" in coach:
+        LOG.debug("Naf number is %s", coach["naf_number"])
+        LOG.debug("Naf name is %s", coach["naf_name"])
+
+        filename = target if target else DEFAULT_TARGET.format(coach["naf_number"])
+        LOG.debug("Open file %s for writing", filename)
+        with open(filename, "w") as coach_file:
+            coach_file.write(html)
+            return filename
+
+
+def fetch_coach_by_nick(coach_id, url=COACH_URL, target=None, return_html=False):
+    LOG.debug("fetch_coach_by_nick %s", coach_id)
+
+    html = fetch_coach_html_by_nick(coach_id, url)
+    if html:
+        soup = nafstat.file_loader.load_soup(html)
+        coach = nafstat.tournament.parse_coach.parse_coach(soup)
+        if return_html:
+            return coach, html
+        return coach
+
+    if return_html:
+        return False, False
     return False
 
 
@@ -54,7 +72,11 @@ def main():
     if coach_to_find.isdigit():
         fetch_coach(coach_to_find, COACH_URL.format(coach_to_find))
     else:
-        fetch_coach_by_nick(coach_to_find, COACH_URL.format(coach_to_find))
+        html = fetch_coach_html_by_nick(coach_to_find, COACH_URL.format(coach_to_find))
+        if html:
+            coach = nafstat.tournament.parse_coach.parse_html(html)
+            if coach:
+                print(coach)
 
 
 if __name__ == "__main__":
