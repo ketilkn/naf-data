@@ -18,6 +18,13 @@ def load_dict_by_name():
     return coaches
 
 
+def load_dict_by_id():
+    coaches = {}
+    for c in load_all():
+        coaches[c["naf_number"]] = c
+    return coaches
+
+
 def load_invalid():
     for coach in load_all():
         for index, race in enumerate(coach["ranking"].values()):
@@ -61,8 +68,9 @@ def main():
     if not do_print:
         del(sys.argv[sys.argv.index("--no-print")])
 
-    coaches = load_invalid()
+    #coaches = load_invalid()
     #coaches = load_by_race()
+    coaches = load_all()
     coach_count = 0
     for index, coach in enumerate(coaches):
         if coach:
