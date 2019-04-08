@@ -95,6 +95,7 @@ def update(throttle=True, recent=16, new=True, force_coach=False):
     if recent:
         update_recent(recent=recent, force_coach=force_coach)
     update_invalid_coaches()
+    update_tournaments_with_missing_coaches()
 
 
 def add_arguments(arg, default_source="data/"):
