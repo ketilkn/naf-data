@@ -24,6 +24,14 @@ def download(downloader, tournament):
     downloader(tournament["tournament_id"])
 
 
+def update_tournaments_with_missing_coaches():
+    LOG.debug("Try update tournaments with unknown coaches")
+    tournaments_with_unknowns = tournamentlist.unknown_coaches(tournamentlist.load_tournaments())
+
+    LOG.info("Found {} tournament{} with unknown coaches".format(len(tournaments_with_unknowns), "s" if len(tournaments_with_unknowns) != 1 else ""))
+    update_tournaments(tournaments_with_unknowns, force_coach=False)
+
+
 def update_invalid_coaches():
     LOG.debug("Try to update coaches with invalid data")
     invalid_coaches = [coach["naf_name"] for coach in nafstat.coachlist.load_invalid()]
@@ -106,7 +114,9 @@ def add_arguments(arg, default_source="data/"):
             help="Download all coaches")
     arg.add_argument("--skip-new", action="store_true", default=False, 
             help="Skip new tournaments")
-    arg.add_argument("--tournament", type=str, nargs="+", 
+    arg.add_argument("--fix-missing", action="store_true",
+                     help="Redownload tournaments with unknown coaches")
+    arg.add_argument("--tournament", type=str, nargs="+",
             help="Update tournaments by id")
     return arg
 
@@ -115,7 +125,9 @@ def run_with_arguments(arguments):
     LOG.info("Update started at %s", datetime.datetime.now().isoformat())
     LOG.debug(arguments)
     start = time.time()
-    if arguments.tournament:
+    if arguments.fix_missing:
+        update_tournaments_with_missing_coaches()
+    elif arguments.tournament:
         update_by_id(arguments.tournament, force_coach=arguments.force_coach)
     else:
         update(recent=arguments.recent,
