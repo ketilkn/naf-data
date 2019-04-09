@@ -38,20 +38,20 @@ CREATE TABLE tournament (
     city TEXT
 );
 
-DROP TABLE IF EXISTS match;
-CREATE TABLE match (
-    match_id INTEGER NOT NULL,
+DROP TABLE IF EXISTS game;
+CREATE TABLE game (
+    game_id INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
-    match_date TEXT,
+    game_date TEXT,
     timeofday TEXT,
     datetime TEXT,
     gate INTEGER,
-    UNIQUE(match_id, tournament_id)
+    UNIQUE(game_id, tournament_id)
 );
 
-DROP TABLE IF EXISTS coachmatch;
-CREATE TABLE coachmatch (
-    match_id INTEGER NOT NULL,
+DROP TABLE IF EXISTS coachgame;
+CREATE TABLE coachgame (
+    game_id INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
     hoa CHARACTER(1) NOT NULL,
     coach_id INTEGER,

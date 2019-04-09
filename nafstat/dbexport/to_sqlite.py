@@ -13,16 +13,41 @@ from nafstat import races
 
 LOG = logging.getLogger(__package__)
 
-
-def save_tournament(tournament, connection):
-    LOG.debug("Save tournament %s", tournament["tournament_id"])
-    query = """
-        INSERT INTO tournament 
+INSERT_TOURNAMENT = """ INSERT INTO tournament 
         (tournament_id, name, organizer, scoring, start_date, end_date, information, style, type, webpage, ruleset, nation, swiss, casualties, variant, city) 
         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?)"""
 
+INSERT_COACH = """ INSERT INTO coach 
+                (naf_number, name, nation)
+                VALUES (?, ?, ?)
+            """
+
+INSERT_RANK = """ INSERT INTO rank 
+                (coach_id, race_id, elo)
+                VALUES (?, ?, ?)
+            """
+INSERT_RACE = """ INSERT INTO race (race_id, race, sh) VALUES(?, ?, ?)"""
+
+
+INSERT_GLICKO = """ INSERT INTO rank (glicko, coach_id, race_id) VALUES(?,?,?) """
+UPDATE_GLICKO = """ UPDATE rank SET glicko = ? WHERE coach_id=? AND race_id=? """
+
+INSERT_GAME = """ INSERT INTO game (
+            game_id, tournament_id, game_date, timeofday, datetime, gate)
+            values(?,?,?,?,?,?) """
+
+
+INSERT_COACHGAME = """ INSERT INTO coachgame (
+            game_id, tournament_id, hoa,
+            coach_id, race_id, bh, si, dead, result, tr, score, winnings)
+            values(?,?,?, ?,?,?,?,?,?,?,?,?) """
+
+
+def save_tournament(tournament, connection):
+    LOG.debug("Save tournament %s", tournament["tournament_id"])
+
     cursor = connection.cursor()
-    result = cursor.execute(query, (
+    result = cursor.execute(INSERT_TOURNAMENT, (
                                tournament["tournament_id"],
                                tournament["name"],
                                tournament["organizer"],
@@ -46,29 +71,18 @@ def save_tournament(tournament, connection):
 
 def save_coach(coach, cursor):
     LOG.debug("Save coach %s %s", coach["naf_number"], coach["naf_name"])
-    query = """
-        INSERT INTO coach 
-                (naf_number, name, nation)
-                VALUES (?, ?, ?)
-            """
-    return cursor.execute(query, (coach["naf_number"], coach["naf_name"],  coach["nation"]))
+    return cursor.execute(INSERT_COACH, (coach["naf_number"], coach["naf_name"],  coach["nation"]))
 
 
 def save_rank(coach, ranking, cursor):
     LOG.debug("Save team %s %s", coach["naf_number"], ranking["race"])
-    query = """
-        INSERT INTO rank 
-                (coach_id, race_id, elo)
-                VALUES (?, ?, ?)
-            """
     race_id = next(race.race_id for race in races.INDEX if race.race == ranking["race"])
-    return cursor.execute(query, (coach["naf_number"], race_id,  ranking["elo"]*100))
+    return cursor.execute(INSERT_RANK, (coach["naf_number"], race_id,  ranking["elo"]*100))
 
 
 def save_race(race: races.Race, cursor):
     LOG.debug("Saving %s %s", race.race_id, race.race)
-    query = """ INSERT INTO race (race_id, race, sh) VALUES(?, ?, ?)"""
-    return cursor.execute(query, (race.race_id, race.race, race.sh))
+    return cursor.execute(INSERT_RACE, (race.race_id, race.race, race.sh))
 
 
 def add_races(connection):
@@ -80,22 +94,15 @@ def add_races(connection):
 
 def save_coach_glicko(connection, coach_rating):
     LOG.debug("Save coach rating %s", coach_rating)
-    query = """
-        UPDATE rank SET glicko = ? WHERE coach_id=? AND race_id=?
-        """
-    query = """
-        INSERT INTO rank (glicko, coach_id, race_id) VALUES(?,?,?)
-        """
     cursor = connection.cursor()
 
     for race_rating in coach_rating:
         race_id = next(race.race_id for race in races.INDEX if race.race == race_rating.race)
-        cursor.execute(query, (race_rating.rating, race_rating.naf_number, race_id))
+        cursor.execute(UPDATE_GLICKO, (race_rating.rating, race_rating.naf_number, race_id))
         if cursor.rowcount != 1:
             LOG.warning("Updated %s rows for %s", cursor.rowcount, race_rating)
             LOG.info("Try insert instead")
-            cursor.execute(insert_query, (race_rating.rating, race_rating.naf_number, race_id))
-
+            cursor.execute(INSERT_GLICKO, (race_rating.rating, race_rating.naf_number, race_id))
 
 
 def add_glicko(connection):
@@ -129,14 +136,8 @@ def save_coachmatch(match, home_or_away, coaches, cursor):
 
     race_id = next(race.race_id for race in races.INDEX if race.race == match[home_or_away+"_race"])
     coach_id = coaches[match[home_or_away+"_coach"]]["naf_number"] if match[home_or_away+"_coach"] in coaches else "-1"
-    query = """
-        INSERT INTO coachmatch (
-            match_id, tournament_id, hoa,
-            coach_id, race_id, bh, si, dead, result, tr, score, winnings)
-            values(?,?,?, ?,?,?,?,?,?,?,?,?)
-    """
 
-    result = cursor.execute(query, (
+    result = cursor.execute(INSERT_COACHGAME, (
         match["match_id"],  match["tournament_id"], "A" if home_or_away == 'away' else "H",
         coach_id, race_id,
         match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
@@ -145,14 +146,9 @@ def save_coachmatch(match, home_or_away, coaches, cursor):
 
 
 def save_match(match, coaches, connection):
-    query = """
-        INSERT INTO match (
-            match_id, tournament_id, match_date, timeofday, datetime, gate)
-            values(?,?,?,?,?,?)
-    """
 
     cursor = connection.cursor()
-    result = cursor.execute(query, (
+    result = cursor.execute(INSERT_GAME, (
          match["match_id"], match["tournament_id"], match["date"], match["time"], match["datetime"], match["gate"],))
 
     save_coachmatch(match, "home", coaches, cursor)
