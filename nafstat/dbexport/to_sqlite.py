@@ -43,7 +43,7 @@ INSERT_COACHGAME = """ INSERT INTO coachgame (
             values(?,?,?, ?,?,?,?,?,?,?,?,?) """
 
 
-def save_tournament(tournament, connection):
+def insert_tournament(tournament, connection):
     LOG.debug("Save tournament %s", tournament["tournament_id"])
 
     cursor = connection.cursor()
@@ -69,7 +69,7 @@ def save_tournament(tournament, connection):
     #connection.commit()
 
 
-def save_coach(coach, cursor):
+def insert_coach(coach, cursor):
     LOG.debug("Save coach %s %s", coach["naf_number"], coach["naf_name"])
     return cursor.execute(INSERT_COACH, (coach["naf_number"], coach["naf_name"],  coach["nation"]))
 
@@ -92,7 +92,7 @@ def add_races(connection):
         save_race(race, cursor)
 
 
-def save_coach_glicko(connection, coach_rating):
+def update_coach_glicko(connection, coach_rating):
     LOG.debug("Save coach rating %s", coach_rating)
     cursor = connection.cursor()
 
@@ -113,7 +113,7 @@ def add_glicko(connection):
     try:
         ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
         for k, r in ranking.items():
-            save_coach_glicko(connection, r)
+            update_coach_glicko(connection, r)
     except FileNotFoundError:
         LOG.warning("Rating file %s not found. Skipping.", rating_file)
 
@@ -124,12 +124,12 @@ def add_coaches(connection):
 
     for c in tqdm(coaches):
         cursor = connection.cursor()
-        save_coach(c, cursor)
+        insert_coach(c, cursor)
         for rank in c["ranking"].values():
             save_rank(c, rank, cursor)
 
 
-def save_coachmatch(match, home_or_away, coaches, cursor):
+def insert_coachmatch(match, home_or_away, coaches, cursor):
     LOG.debug("save_coachmatch %s %s", match["match_id"], home_or_away)
     if not match[home_or_away+"_coach"] in coaches:
         LOG.warning("{} coach {} not in coaches found in match {}-{}".format(home_or_away, match[home_or_away+"_coach"], match["tournament_id"], match["match_id"]))
@@ -145,14 +145,14 @@ def save_coachmatch(match, home_or_away, coaches, cursor):
     return result
 
 
-def save_match(match, coaches, connection):
+def insert_match(match, coaches, connection):
 
     cursor = connection.cursor()
     result = cursor.execute(INSERT_GAME, (
          match["match_id"], match["tournament_id"], match["date"], match["time"], match["datetime"], match["gate"],))
 
-    save_coachmatch(match, "home", coaches, cursor)
-    save_coachmatch(match, "away", coaches, cursor)
+    insert_coachmatch(match, "home", coaches, cursor)
+    insert_coachmatch(match, "away", coaches, cursor)
 
     LOG.debug("Save result %s", result)
 
@@ -160,13 +160,13 @@ def save_match(match, coaches, connection):
 def all_tournaments(connection):
     coaches = coachlist.load_dict_by_name()
     for t in tqdm(nafstat.collate.load_all(), total=len(tournamentlist.list_tournaments())):
-        save_tournament(tournament=t, connection=connection)
+        insert_tournament(tournament=t, connection=connection)
         for m in t["matches"]:
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
             match["tmid"] = "%s#%s".format(t['tournament_id'], m['match_id'].zfill(3))
             match["datetime"] = '{} {}'.format(m["date"], m["time"])
-            save_match(match, coaches, connection)
+            insert_match(match, coaches, connection)
 
 
 def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
