@@ -19,3 +19,4 @@ data*
 venv
 *.db
 *.gz
+export
