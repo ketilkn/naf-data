@@ -60,7 +60,7 @@ CREATE TABLE coachgame (
     si INTEGER,
     dead INTEGER,
     tr INTEGER,
-    result INTEGER,
+    result CHARACTER(1),
     winnings INTEGER,
     score INTEGER
 );
