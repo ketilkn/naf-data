@@ -163,10 +163,16 @@ def all_tournaments(connection, attribute="?"):
             match["tournament_id"] = t["tournament_id"]
             match["tmid"] = "%s#%s".format(t['tournament_id'], m['match_id'].zfill(3))
             match["datetime"] = '{} {}'.format(m["date"], m["time"])
+            match["tmid"] = "{}#{}".format(t['tournament_id'], m['match_id'].zfill(3))
+            match["datetime"] = '{} {}'.format(m["date"], m["time"])
 
-            insert_match(match, coaches, connection, attribute)
-            insert_coachmatch(match, "home", coaches, connection, attribute)
-            insert_coachmatch(match, "away", coaches, connection, attribute)
+            if match["home_coach"] == match["away_coach"]:
+                LOG.warning("%s was playing themselves at %s game %s %s",
+                            match["home_coach"], match["tournament_id"], match["match_id"], match["datetime"])
+            else:
+                insert_match(match, coaches, connection, attribute)
+                insert_coachmatch(match, "home", coaches, connection, attribute)
+                insert_coachmatch(match, "away", coaches, connection, attribute)
 
 
 def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
