@@ -19,8 +19,7 @@ INSERT_TOURNAMENT = """ INSERT INTO tournament
 
 INSERT_COACH = """ INSERT INTO coach 
                 (naf_number, name, nation)
-                VALUES (?, ?, ?)
-            """
+                VALUES (?, ?, ?) """
 
 INSERT_RANK = """ INSERT INTO rank 
                 (coach_id, race_id, elo)
@@ -43,11 +42,11 @@ INSERT_COACHGAME = """ INSERT INTO coachgame (
             values(?,?,?, ?,?,?,?,?,?,?,?,?) """
 
 
-def insert_tournament(tournament, connection):
+def insert_tournament(tournament, connection, attribute="?"):
     LOG.debug("Save tournament %s", tournament["tournament_id"])
 
     cursor = connection.cursor()
-    result = cursor.execute(INSERT_TOURNAMENT, (
+    result = cursor.execute(INSERT_TOURNAMENT.replace("?", attribute), (
                                tournament["tournament_id"],
                                tournament["name"],
                                tournament["organizer"],
@@ -69,43 +68,44 @@ def insert_tournament(tournament, connection):
     #connection.commit()
 
 
-def insert_coach(coach, cursor):
+def insert_coach(coach, cursor, attribute="?"):
     LOG.debug("Save coach %s %s", coach["naf_number"], coach["naf_name"])
-    return cursor.execute(INSERT_COACH, (coach["naf_number"], coach["naf_name"],  coach["nation"]))
+    return cursor.execute(INSERT_COACH.replace("?", attribute), (coach["naf_number"], coach["naf_name"],  coach["nation"]))
 
 
-def save_rank(coach, ranking, cursor):
+def save_rank(coach, ranking, cursor, attribute="?"):
     LOG.debug("Save team %s %s", coach["naf_number"], ranking["race"])
     race_id = next(race.race_id for race in races.INDEX if race.race == ranking["race"])
-    return cursor.execute(INSERT_RANK, (coach["naf_number"], race_id,  ranking["elo"]*100))
+    return cursor.execute(INSERT_RANK.replace("?", attribute), (coach["naf_number"], race_id,  ranking["elo"]*100))
 
 
-def save_race(race: races.Race, cursor):
+def save_race(race: races.Race, cursor, attribute="?"):
     LOG.debug("Saving %s %s", race.race_id, race.race)
-    return cursor.execute(INSERT_RACE, (race.race_id, race.race, race.sh))
+    return cursor.execute(INSERT_RACE.replace("?", attribute), (race.race_id, race.race, race.sh))
 
 
-def add_races(connection):
+def add_races(connection, attribute="?"):
     LOG.debug("Adding all races")
     cursor = connection.cursor()
     for race_id, race in enumerate(races.INDEX):
-        save_race(race, cursor)
+        save_race(race, cursor, attribute)
+    connection.commit()
 
 
-def update_coach_glicko(connection, coach_rating):
+def update_coach_glicko(connection, coach_rating, attribute="?"):
     LOG.debug("Save coach rating %s", coach_rating)
     cursor = connection.cursor()
 
     for race_rating in coach_rating:
         race_id = next(race.race_id for race in races.INDEX if race.race == race_rating.race)
-        cursor.execute(UPDATE_GLICKO, (race_rating.rating, race_rating.naf_number, race_id))
+        cursor.execute(UPDATE_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
         if cursor.rowcount != 1:
             LOG.warning("Updated %s rows for %s", cursor.rowcount, race_rating)
             LOG.info("Try insert instead")
-            cursor.execute(INSERT_GLICKO, (race_rating.rating, race_rating.naf_number, race_id))
+            cursor.execute(INSERT_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
 
 
-def add_glicko(connection):
+def add_glicko(connection, attribute="?"):
     LOG.debug("Adding all glicko ratings")
 
     rating_file = "../NAF/output/player_ranks.csv"
@@ -113,23 +113,23 @@ def add_glicko(connection):
     try:
         ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
         for k, r in ranking.items():
-            update_coach_glicko(connection, r)
+            update_coach_glicko(connection, r, attribute)
     except FileNotFoundError:
         LOG.warning("Rating file %s not found. Skipping.", rating_file)
 
 
-def add_coaches(connection):
+def add_coaches(connection, attribute="?"):
     LOG.debug("Adding all coaches")
     coaches = list(coachlist.load_all())
 
     for c in tqdm(coaches):
         cursor = connection.cursor()
-        insert_coach(c, cursor)
+        insert_coach(c, cursor, attribute)
         for rank in c["ranking"].values():
-            save_rank(c, rank, cursor)
+            save_rank(c, rank, cursor, attribute)
 
 
-def insert_coachmatch(match, home_or_away, coaches, cursor):
+def insert_coachmatch(match, home_or_away, coaches, connection, attribute="?"):
     LOG.debug("save_coachmatch %s %s", match["match_id"], home_or_away)
     if not match[home_or_away+"_coach"] in coaches:
         LOG.warning("{} coach {} not in coaches found in match {}-{}".format(home_or_away, match[home_or_away+"_coach"], match["tournament_id"], match["match_id"]))
@@ -137,7 +137,8 @@ def insert_coachmatch(match, home_or_away, coaches, cursor):
     race_id = next(race.race_id for race in races.INDEX if race.race == match[home_or_away+"_race"])
     coach_id = coaches[match[home_or_away+"_coach"]]["naf_number"] if match[home_or_away+"_coach"] in coaches else "-1"
 
-    result = cursor.execute(INSERT_COACHGAME, (
+    cursor = connection.cursor() if "cursor" in dir(connection) else connection
+    result = cursor.execute(INSERT_COACHGAME.replace("?", attribute), (
         match["match_id"],  match["tournament_id"], "A" if home_or_away == 'away' else "H",
         coach_id, race_id,
         match[home_or_away+"_bh"], match[home_or_away+"_si"], match[home_or_away+"_dead"],
@@ -145,28 +146,27 @@ def insert_coachmatch(match, home_or_away, coaches, cursor):
     return result
 
 
-def insert_match(match, coaches, connection):
-
+def insert_match(match, coaches, connection, attribute):
     cursor = connection.cursor()
-    result = cursor.execute(INSERT_GAME, (
+    result = cursor.execute(INSERT_GAME.replace("?", attribute), (
          match["match_id"], match["tournament_id"], match["date"], match["time"], match["datetime"], match["gate"],))
-
-    insert_coachmatch(match, "home", coaches, cursor)
-    insert_coachmatch(match, "away", coaches, cursor)
 
     LOG.debug("Save result %s", result)
 
 
-def all_tournaments(connection):
+def all_tournaments(connection, attribute="?"):
     coaches = coachlist.load_dict_by_name()
     for t in tqdm(nafstat.collate.load_all(), total=len(tournamentlist.list_tournaments())):
-        insert_tournament(tournament=t, connection=connection)
+        insert_tournament(tournament=t, connection=connection, attribute=attribute)
         for m in t["matches"]:
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
             match["tmid"] = "%s#%s".format(t['tournament_id'], m['match_id'].zfill(3))
             match["datetime"] = '{} {}'.format(m["date"], m["time"])
-            insert_match(match, coaches, connection)
+
+            insert_match(match, coaches, connection, attribute)
+            insert_coachmatch(match, "home", coaches, connection, attribute)
+            insert_coachmatch(match, "away", coaches, connection, attribute)
 
 
 def create_schema(connection, filename="nafstat/dbexport/schema.sql"):
