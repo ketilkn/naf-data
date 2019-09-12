@@ -11,13 +11,13 @@ LOG = logging.getLogger(__name__)
 logging.getLogger(__name__).setLevel(logging.INFO)
 
 def load_json(filename):
-    LOG.debug("load_json %s", filename)
+    #LOG.debug("load_json %s", filename)
     if not os.path.isfile(filename):
         LOG.error("%s is not a file")
         return {}
     with open(filename) as json_file:
         data = json.load(json_file)
-        LOG.debug("Loaded from cache %s", filename)
+        #LOG.debug("Loaded from cache %s", filename)
         return data
 
 
@@ -33,18 +33,18 @@ def save_json(filename, data):
 
 
 def load_cached(parser, filename="data/naf_tourneys.html"):
-    LOG.debug("load_cache %s %s", parser.__name__, filename)
+    #LOG.debug("load_cache %s %s", parser.__name__, filename)
     cache_filename = filename[0:filename.rfind(".")] + ".json"
-    LOG.debug("Checking for cache file %s", cache_filename)
+    #LOG.debug("Checking for cache file %s", cache_filename)
 
     if os.path.exists(filename) and os.path.exists(cache_filename):
-        LOG.debug("mtime html: %s json: %s", os.path.getmtime(filename),os.path.getmtime(cache_filename))
+        #LOG.debug("mtime html: %s json: %s", os.path.getmtime(filename),os.path.getmtime(cache_filename))
         if os.path.getmtime(filename) < os.path.getmtime(cache_filename):
             return load_json(cache_filename)
-        else:
-            LOG.debug("%s < %s = %s", os.path.getmtime(filename), os.path.getmtime(cache_filename), os.path.getmtime(filename) < os.path.getmtime(cache_filename))
-    else:
-        LOG.debug("No cache for %s", filename)
+        #else:
+            #LOG.debug("%s < %s = %s", os.path.getmtime(filename), os.path.getmtime(cache_filename), os.path.getmtime(filename) < os.path.getmtime(cache_filename))
+    #else:
+        #LOG.debug("No cache for %s", filename)
 
     data = load(parser, filename)
     save_json(cache_filename, data)
@@ -57,7 +57,7 @@ def load_soup(data):
 
 
 def load(parser=None, filename="data/naf_tourneys.html"):
-    LOG.debug("Loading data from %s", filename)
+    #LOG.debug("Loading data from %s", filename)
     if not os.path.exists(filename):
         LOG.error("%s does not exist", filename)
         sys.exit("Unrecoverable error")
@@ -66,10 +66,10 @@ def load(parser=None, filename="data/naf_tourneys.html"):
         sys.exit("Unrecoverable error")
 
     with open(filename, "rb") as f:
-        LOG.debug("Decode UTF-8")
+        #LOG.debug("Decode UTF-8")
         try:
             data = f.read().decode("UTF-8")
-            LOG.debug("Parsing file using bs4 lxml")
+            #LOG.debug("Parsing file using bs4 lxml")
             result = parser(load_soup(data))
             if result is None:
                 LOG.error("Parser %s returned None for %s", parser.__name__, filename)
