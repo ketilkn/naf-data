@@ -60,10 +60,10 @@ def load(parser=None, filename="data/naf_tourneys.html"):
     #LOG.debug("Loading data from %s", filename)
     if not os.path.exists(filename):
         LOG.error("%s does not exist", filename)
-        sys.exit("Unrecoverable error")
+        exit("Unrecoverable error")
     if not os.path.isfile(filename):
         LOG.error("%s is not a file", filename)
-        sys.exit("Unrecoverable error")
+        exit("Unrecoverable error")
 
     with open(filename, "rb") as f:
         #LOG.debug("Decode UTF-8")
@@ -81,7 +81,6 @@ def load(parser=None, filename="data/naf_tourneys.html"):
         except SyntaxError as ex:
             LOG.exception(ex)
             LOG.error("Syntax error while parsing %s", filename)
-            import sys
             sys.exit(1)
 
 
