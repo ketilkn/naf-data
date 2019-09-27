@@ -36,6 +36,24 @@ CREATE TABLE tournament (
     city varchar(64)
 );
 
+DROP TABLE IF EXISTS tournament_award;
+CREATE TABLE tournament_award (
+    tournament_id INTEGER NOT NULL,
+    coach_id INTEGER,
+    award_id INTEGER,
+    PRIMARY KEY (tournament_id, coach_id, award_id)
+);
+
+DROP TABLE IF EXISTS award;
+CREATE TABLE award (
+    award_id INTEGER NOT NULL,
+    name varchar(128),
+    PRIMARY KEY (award_id)
+);
+
+INSERT INTO award VALUES(1, 'winner'), (2, 'runner up'), (3, 'most touchdowns'), (4, 'most casualties'), (5, 'stunty cup'), (6, 'best painted');
+
+
 DROP TABLE IF EXISTS game;
 CREATE TABLE game (
     game_id INTEGER NOT NULL,

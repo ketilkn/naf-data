@@ -68,6 +68,25 @@ def insert_tournament(tournament, connection, attribute="?"):
     #connection.commit()
 
 
+def insert_tournament_awards(tournament, coaches, connection, attribute="?"):
+    from nafstat.awards import AWARDS
+    INSERT_TOURNAMENT_AWARD = """
+        INSERT INTO  tournament_award (tournament_id, award_id, coach_id) VALUES(?, ?, ?)
+    """
+    LOG.debug("Save tournament %s awards", tournament["tournament_id"])
+
+    cursor = connection.cursor()
+
+    tournament_id = tournament['tournament_id']
+    for award, awardee in tournament['awards'].items():
+        if awardee and awardee not in coaches:
+            LOG.warning('Coach %s in tournament %s not found', awardee, tournament_id)
+        elif awardee:
+            award_id = AWARDS.inverse[award.lower()]
+            coach_id = coaches[awardee]['naf_number']
+            result = cursor.execute(INSERT_TOURNAMENT_AWARD.replace("?", attribute), (tournament_id, award_id, coach_id))
+
+
 def insert_coach(coach, cursor, attribute="?"):
     LOG.debug("Save coach %s %s", coach["naf_number"], coach["naf_name"])
     return cursor.execute(INSERT_COACH.replace("?", attribute), (coach["naf_number"], coach["naf_name"],  coach["nation"]))
@@ -158,6 +177,7 @@ def all_tournaments(connection, attribute="?"):
     coaches = coachlist.load_dict_by_name()
     for t in tqdm(nafstat.collate.load_all(), total=len(tournamentlist.list_tournaments())):
         insert_tournament(tournament=t, connection=connection, attribute=attribute)
+        insert_tournament_awards(tournament=t, coaches=coaches, connection=connection, attribute=attribute)
         for m in t["matches"]:
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
@@ -219,8 +239,8 @@ def to_db(filename):
 
     LOG.info("Add tournaments")
     all_tournaments(connection)
-
     connection.commit()
+
     connection.close()
 
 

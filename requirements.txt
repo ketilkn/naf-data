@@ -3,3 +3,5 @@ beautifulsoup4==4.6.0
 humanfriendly
 requests
 tqdm
+h5py
+bidict
