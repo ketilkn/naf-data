@@ -39,7 +39,7 @@ def get_other_awards(soup):
             if award:
                 try:
                     awardee = award.select_one('table td').text.split('(')[0].strip()
-                    title = award.find_next('div', {'style': 'color: grey;'}).text
+                    title = award.find_next('div', {'style': 'color: grey;'}).text.lower()
                     result[title] = awardee
                 except AttributeError as ex:
                     LOG.debug('AttributeError')
@@ -53,8 +53,8 @@ def award_row(soup, award_name="Winner"):
         award = stats[0].find_next("tr", string=award_name)
         if award:
             if not award.find_next("tr").findChild("h4"):
-                awardee = award.find_next("tr").text.split()
-                return awardee[0].split()[0] if awardee and awardee[0].split() else ""
+                awardee = award.find_next("tr").text.split('(')
+                return awardee[0].strip() if awardee and awardee[0] else ""
     LOG.debug("Did not find %s", award_name)
     return None
 
@@ -66,12 +66,12 @@ def parse_awards(soup):
     most_casualties = award_row(soup, award_name="Most Casualties")
     stunty_cup = award_row(soup, award_name="Stunty Cup")
     best_painted = award_row(soup, award_name="Best Painted")
-    awards = {"Winner": winner,
-            "Runner up": runner_up,
-            "Most touchdowns": most_touchdowns,
-            "Most casualties": most_casualties,
-            "Stunty cup": stunty_cup,
-            "Best painted": best_painted, }
+    awards = {"winner": winner,
+            "runner up": runner_up,
+            "most touchdowns": most_touchdowns,
+            "most casualties": most_casualties,
+            "stunty cup": stunty_cup,
+            "best painted": best_painted, }
 
     return awards
 
