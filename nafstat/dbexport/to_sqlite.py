@@ -10,6 +10,7 @@ from nafstat.tournament import tournamentlist
 import nafstat.collate
 import nafstat.load_rating
 from nafstat import races
+from nafstat.awards import AWARDS
 
 LOG = logging.getLogger(__package__)
 
@@ -68,23 +69,48 @@ def insert_tournament(tournament, connection, attribute="?"):
     #connection.commit()
 
 
-def insert_tournament_awards(tournament, coaches, connection, attribute="?"):
-    from nafstat.awards import AWARDS
+def insert_award(award, connection):
+    INSERT_AWARD = """
+        INSERT INTO award(award_id, name) VALUES(?, ?)
+    """
+    award_id = len(AWARDS.keys()) + 1
+    AWARDS[award_id] = award
+    LOG.debug('Creating award %s %s', award_id, award)
+    cursor = connection.cursor()
+
+    cursor.execute(INSERT_AWARD, (award_id, award))
+    connection.commit()
+    return award_id
+
+
+def lookup_award(award, connection):
+    if award.lower() not in AWARDS.inverse:
+        return insert_award(award, connection)
+    return AWARDS.inverse[award.lower()]
+
+
+def insert_tournament_awards(tournament_id, award, awardee, coaches, connection, attribute="?"):
     INSERT_TOURNAMENT_AWARD = """
         INSERT INTO  tournament_award (tournament_id, award_id, coach_id) VALUES(?, ?, ?)
     """
-    LOG.debug("Save tournament %s awards", tournament["tournament_id"])
 
     cursor = connection.cursor()
+    if awardee and awardee not in coaches:
+        LOG.warning('Coach %s in tournament %s not found', awardee, tournament_id)
+    elif awardee:
+        award_id = lookup_award(award, connection)
+        coach_id = coaches[awardee]['naf_number']
+        result = cursor.execute(INSERT_TOURNAMENT_AWARD.replace("?", attribute), (tournament_id, award_id, coach_id))
+
+
+def save_tournament_awards(tournament, coaches, connection, attribute="?"):
+    LOG.debug("Save tournament %s awards", tournament["tournament_id"])
 
     tournament_id = tournament['tournament_id']
     for award, awardee in tournament['awards'].items():
-        if awardee and awardee not in coaches:
-            LOG.warning('Coach %s in tournament %s not found', awardee, tournament_id)
-        elif awardee:
-            award_id = AWARDS.inverse[award.lower()]
-            coach_id = coaches[awardee]['naf_number']
-            result = cursor.execute(INSERT_TOURNAMENT_AWARD.replace("?", attribute), (tournament_id, award_id, coach_id))
+        insert_tournament_awards(tournament_id, award, awardee, coaches, connection)
+    for award, awardee in tournament['other_awards'].items():
+        insert_tournament_awards(tournament_id, award, awardee, coaches, connection)
 
 
 def insert_coach(coach, cursor, attribute="?"):
@@ -177,7 +203,7 @@ def all_tournaments(connection, attribute="?"):
     coaches = coachlist.load_dict_by_name()
     for t in tqdm(nafstat.collate.load_all(), total=len(tournamentlist.list_tournaments())):
         insert_tournament(tournament=t, connection=connection, attribute=attribute)
-        insert_tournament_awards(tournament=t, coaches=coaches, connection=connection, attribute=attribute)
+        save_tournament_awards(tournament=t, coaches=coaches, connection=connection, attribute=attribute)
         for m in t["matches"]:
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
