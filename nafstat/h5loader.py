@@ -80,8 +80,10 @@ def load_coach_ranks(ranking: h5py.File, coach_nick:str):
                                  #period=period)
 
 
-def load_coach(ranking: h5py.File, coach):
-    coach = ranking.get("coaches/{}".format(coach))
+def load_coach(ranking: h5py.File, coach_nick):
+    coach = ranking.get("/coaches/{}".format(coach_nick))
+    if not coach:
+        raise KeyError('load_coach %s not found. (Case sensitive)', coach_nick)
     return {'coach': coach,
             'mu': coach['mu'],
             'phi': coach['phi']}
