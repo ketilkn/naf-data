@@ -68,7 +68,7 @@ def load_all_coach_ranks(ranking: h5py.File):
 def load_coach_ranks(ranking: h5py.File, coach_nick:str):
     coach = load_coach(ranking, coach_nick)
 
-    for mus, phis, period in zip(coach['mu'], coach['phi'], ranking['date']):
+    for mus, phis, period in zip(coach['mu'][:], coach['phi'][:], ranking['date'][:]):
         if all(np.isnan(mus)):
             break
         for mu, phi, race in zip(mus, phis, ranking.get('race_ids')):
