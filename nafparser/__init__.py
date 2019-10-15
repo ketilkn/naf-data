@@ -1,5 +1,4 @@
 import os.path
-import types
 import typing
 import bs4
 import logging
@@ -18,37 +17,37 @@ def _file_to_soup(filename: str) -> bs4.BeautifulSoup:
         return bs4.BeautifulSoup(f.read(), 'lxml')
 
 
-def parse_coach(soup: str) -> typing.Dict:
-    LOG.debug('Parsing coach from %s', type(soup))
-    return nafparser.coachparser.fromfile(soup)
+def parse_coach(source: str) -> typing.Dict:
+    LOG.debug('Parsing coach from %s', type(source))
+    return nafparser.coachparser.fromfile(source)
 
 
-def parse_tournament(soup: str) -> typing.Dict:
-    LOG.debug('Parsing tournament from %s', type(soup))
-    return nafparser.tournamentparser.parse_tournament(_file_to_soup(soup))
+def parse_tournament(source: str) -> typing.Dict:
+    LOG.debug('Parsing tournament from %s', type(source))
+    return nafparser.tournamentparser.parse_tournament(_file_to_soup(source))
 
 
-def parse_tournaments(soup: str) -> typing.List[typing.Dict]:
-    LOG.debug('Parsing tournaments from %s', type(soup))
-    return nafparser.tournamentlistparser.load2(nafparser.tournamentlistparser.parse_file, filename=soup)
+def parse_tournaments(source: str) -> typing.List[typing.Dict]:
+    LOG.debug('Parsing tournaments from %s', type(source))
+    return nafparser.tournamentlistparser.load2(nafparser.tournamentlistparser.parse_file, filename=source)
 
 
-def parse_tournamentmatches(soup: str) -> typing.List[typing.Dict]:
-    LOG.debug('Parsing tournament matches from %s', type(soup))
-    return nafparser.matchesparser.from_file(soup)
+def parse_tournamentmatches(source: str) -> typing.List[typing.Dict]:
+    LOG.debug('Parsing tournament matches from %s', type(source))
+    return nafparser.matchesparser.from_file(source)
 
 
-def parse_auto(soup: str):
-    LOG.debug('Parsing auto from %s', type(soup))
-    if os.path.isfile(soup):
-        if 'coach' in soup:
-            return parse_coach(soup)
-        if 'tournament' in soup:
-            return parse_tournament(soup)
-        if 'match' in soup:
-            return parse_tournamentmatches(soup)
-        if 'tournaments' in soup or 'tourneys' in soup:
-            return parse_tournaments(soup)
+def parse_auto(source: str):
+    LOG.debug('Parsing auto from %s', type(source))
+    if os.path.isfile(source):
+        if 'coach' in source:
+            return parse_coach(source)
+        if 'tournament' in source:
+            return parse_tournament(source)
+        if 'match' in source:
+            return parse_tournamentmatches(source)
+        if 'tournaments' in source or 'tourneys' in source:
+            return parse_tournaments(source)
 
 
 def parse(source, parser=parse_auto):
