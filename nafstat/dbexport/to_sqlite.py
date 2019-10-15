@@ -5,8 +5,7 @@ import logging
 import argparse
 import sqlite3
 from tqdm import tqdm
-from nafstat import coachlist
-from nafstat.tournament import tournamentlist
+from nafstat import coachlist, tournamentlist
 import nafstat.collate
 import nafstat.load_rating
 from nafstat import races

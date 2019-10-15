@@ -2,9 +2,9 @@
 """  Parse match from HTML """
 import logging
 import requests
-from nafstat.tournament import fetch_tournamentlist
+from nafparser import fetch_tournamentlist
 import nafstat.file_loader
-import nafstat.tournament.parse_coach
+import nafparser.parse_coach
 
 LOG = logging.getLogger(__package__)
 
@@ -52,7 +52,7 @@ def fetch_coach_by_nick(coach_id, url=COACH_URL, target=None, return_html=False)
     html = fetch_coach_html_by_nick(coach_id, url)
     if html:
         soup = nafstat.file_loader.load_soup(html)
-        coach = nafstat.tournament.parse_coach.parse_coach(soup)
+        coach = nafparser.parse_coach.parse_coach(soup)
         if return_html:
             return coach, html
         return coach
@@ -74,7 +74,7 @@ def main():
     else:
         html = fetch_coach_html_by_nick(coach_to_find, COACH_URL.format(coach_to_find))
         if html:
-            coach = nafstat.tournament.parse_coach.parse_html(html)
+            coach = nafparser.parse_coach.parse_html(html)
             if coach:
                 print(coach)
 

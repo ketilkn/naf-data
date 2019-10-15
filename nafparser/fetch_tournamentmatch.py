@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """  Parse match from HTML """
 import logging
-from . import fetch_tournamentlist
+from nafparser import fetch_tournamentlist
 
 LOG = logging.getLogger(__package__)
 DEFAULT_TARGET = "data/matches/m{}.html"

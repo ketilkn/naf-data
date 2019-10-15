@@ -3,7 +3,7 @@
 import sys
 import logging
 
-from nafstat.tournament import parse_tournamentlist, parse_matches, parse_tournament
+from nafparser import parse_tournament, parse_matches, parse_tournamentlist
 from nafstat.file_loader import load_cached
 import nafstat.coachlist
 

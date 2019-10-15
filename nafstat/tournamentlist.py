@@ -5,9 +5,7 @@ import time
 import os
 import os.path
 import logging
-from nafstat.tournament import fetch_tournamentlist
-from nafstat.tournament import parse_tournamentlist
-from nafstat.tournament import parse_matches
+from nafparser import parse_matches, parse_tournamentlist, fetch_tournamentlist
 from nafstat.file_loader import load_cached
 import nafstat.collate
 

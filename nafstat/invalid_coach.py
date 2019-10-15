@@ -1,7 +1,7 @@
 import logging.config
 
 from pathlib import PosixPath
-from nafstat.tournament import parse_coach
+from nafparser import parse_coach
 
 logging.config.fileConfig('pylogging.conf', disable_existing_loggers=True)
 LOG = logging.getLogger(__name__)

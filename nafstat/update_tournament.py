@@ -4,19 +4,20 @@ import logging
 
 from tqdm import tqdm
 import nafstat.update
-from nafstat.tournament import tournamentlist
+from nafparser import fetch_tournament, fetch_tournamentmatch
+from nafstat import tournamentlist
 
 LOG = logging.getLogger(__package__)
 
 
 def update_tournament(tournament, throttle=True):
-    LOG.debug("Tournament %s", nafstat.tournament.tournamentlist.tournament_line(tournament))
+    LOG.debug("Tournament %s", tournamentlist.tournament_line(tournament))
 
     LOG.debug("Downloading tournament data")
-    nafstat.update.download(nafstat.tournament.fetch_tournament.fetch_tournament, tournament)
+    nafstat.update.download(fetch_tournament.fetch_tournament, tournament)
 
     LOG.debug("Downloading tournament matches")
-    nafstat.update.download(nafstat.tournament.fetch_tournamentmatch.fetch_tournamentmatch, tournament)
+    nafstat.update.download(fetch_tournamentmatch.fetch_tournamentmatch, tournament)
 
 
 def update_tournaments(tournaments, throttle=True):

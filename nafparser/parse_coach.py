@@ -5,7 +5,7 @@ import logging
 import argparse
 import bs4
 from nafstat.file_loader import load
-from nafstat.tournament.parse_tournament import row_with_heading, parse_page_date
+from nafparser.parse_tournament import row_with_heading, parse_page_date
 
 PARSE_LOG = logging.getLogger("parselog")
 LOG = logging.getLogger(__package__)
@@ -117,7 +117,6 @@ def do_parse(coach):
 
 
 def main():
-    import os
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
