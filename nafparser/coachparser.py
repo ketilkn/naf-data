@@ -5,7 +5,7 @@ import logging
 import argparse
 import bs4
 from nafstat.file_loader import load
-from nafparser.parse_tournament import row_with_heading, parse_page_date
+from nafparser.tournamentparser import row_with_heading, parse_page_date
 
 PARSE_LOG = logging.getLogger("parselog")
 LOG = logging.getLogger(__package__)
