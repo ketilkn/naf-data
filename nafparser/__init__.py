@@ -18,22 +18,22 @@ def _file_to_soup(filename: str) -> bs4.BeautifulSoup:
         return bs4.BeautifulSoup(f.read(), 'lxml')
 
 
-def parse_coach(soup: str) -> types.Dict:
+def parse_coach(soup: str) -> typing.Dict:
     LOG.debug('Parsing coach from %s', type(soup))
     return nafparser.coachparser.fromfile(soup)
 
 
-def parse_tournament(soup: str) -> types.Dict:
+def parse_tournament(soup: str) -> typing.Dict:
     LOG.debug('Parsing tournament from %s', type(soup))
     return nafparser.tournamentparser.parse_tournament(_file_to_soup(soup))
 
 
-def parse_tournaments(soup: str) -> typing.List[types.Dict]:
+def parse_tournaments(soup: str) -> typing.List[typing.Dict]:
     LOG.debug('Parsing tournaments from %s', type(soup))
     return nafparser.tournamentlistparser.load2(nafparser.tournamentlistparser.parse_file, filename=soup)
 
 
-def parse_tournamentmatches(soup: str) -> typing.List[types.Dict]:
+def parse_tournamentmatches(soup: str) -> typing.List[typing.Dict]:
     LOG.debug('Parsing tournament matches from %s', type(soup))
     return nafparser.matchesparser.from_file(soup)
 
