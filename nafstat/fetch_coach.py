@@ -2,7 +2,7 @@
 """  Parse match from HTML """
 import logging
 import requests
-from nafparser import fetch_tournamentlist
+from nafstat import fetch_tournamentlist
 import nafstat.file_loader
 import nafparser.coachparser
 

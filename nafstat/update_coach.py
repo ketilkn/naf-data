@@ -2,7 +2,7 @@
 """  Parse match from HTML """
 import logging
 from tqdm import tqdm
-import nafparser.fetch_coach
+import nafstat.fetch_coach
 from nafstat.session import throttle_by_request_time
 LOG = logging.getLogger(__package__)
 
@@ -11,7 +11,7 @@ LOG = logging.getLogger(__package__)
 def update_coach_by_nick(coach_nick):
     LOG.debug("Looking for coach %s", coach_nick)
 
-    coach = nafparser.fetch_coach.save_coach_by_nick(coach_nick)
+    coach = nafstat.fetch_coach.save_coach_by_nick(coach_nick)
     if not coach:
         LOG.warning("Coach with nick %s not found", coach_nick)
     return coach

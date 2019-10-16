@@ -4,8 +4,7 @@ import logging
 
 from tqdm import tqdm
 import nafstat.update
-from nafparser import fetch_tournament, fetch_tournamentmatch
-from nafstat import tournamentlist
+from nafstat import tournamentlist, fetch_tournament, fetch_tournamentmatch
 
 LOG = logging.getLogger(__package__)
 
