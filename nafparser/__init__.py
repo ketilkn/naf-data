@@ -9,7 +9,7 @@ import typing
 import bs4
 import logging
 
-import nafparser.coachparser
+import nafparser.coach
 import nafparser.matchesparser
 import nafparser.tournamentlistparser
 import nafparser.tournamentparser
@@ -26,7 +26,7 @@ def _file_to_soup(filename: str) -> bs4.BeautifulSoup:
 def parse_coach(source: str) -> typing.Dict:
     """Parse source:str (filename) as coachpage. Return dict of coach"""
     LOG.debug('Parsing coach from %s', type(source))
-    return nafparser.coachparser.fromfile(source)
+    return nafparser.coach.fromfile(source)
 
 
 def parse_tournament(source: str) -> typing.Dict:

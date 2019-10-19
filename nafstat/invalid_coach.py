@@ -1,14 +1,14 @@
 import logging.config
 
 from pathlib import PosixPath
-from nafparser import coachparser
+import nafparser.coach
 
 logging.config.fileConfig('pylogging.conf', disable_existing_loggers=True)
 LOG = logging.getLogger(__name__)
 logging.getLogger("nafstat.file_loader").setLevel(logging.INFO)
 
 
-def find_empty(source, parser=coachparser.fromfile):
+def find_empty(source, parser=nafparser.coach.fromfile):
     LOG.debug("find invalid coaches in %s", source)
     path = PosixPath(source)
     if not path.is_dir():

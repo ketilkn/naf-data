@@ -5,7 +5,7 @@ import logging
 import os
 
 import nafstat.file_loader
-from nafparser.coachparser import parse_coach
+from nafparser.coach import parse_coach
 
 
 LOG = logging.getLogger(__package__)
