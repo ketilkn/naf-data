@@ -18,7 +18,7 @@ def get_parser_choice(choice):
         return nafparser.parse_tournament
     if choice == 'tournaments' or choice == 'tournamentlist':
         return nafparser.parse_tournaments
-    return nafparser.parse_auto
+    return None
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
     LOG.debug(arguments)
 
     parser = get_parser_choice(arguments.parser)
-    result = nafparser.parse(arguments.sources, parser=parser)
+    result = nafparser.parse_all(arguments.sources, parser=parser)
 
     for parsed in result:
         pprint(parsed, indent=4)
