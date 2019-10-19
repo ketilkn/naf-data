@@ -3,7 +3,7 @@
 import sys
 import logging
 
-from nafparser import tournamentlistparser
+import nafparser.tournamentlist
 import nafparser.matches
 import nafparser.tournament
 from nafstat.file_loader import load_cached
@@ -139,7 +139,7 @@ def load_all():
     result = []
 
     coaches = load_coaches()
-    for t in load_cached(tournamentlistparser.parse_file, "data/naf_tourneys.html"):
+    for t in load_cached(nafparser.tournamentlist.parse_file, "data/naf_tourneys.html"):
         yield add_coach_data(tournament=load_tournament(t), coaches=coaches)
 
     return result

@@ -11,7 +11,7 @@ import logging
 
 import nafparser.coach
 import nafparser.matches
-import nafparser.tournamentlistparser
+import nafparser.tournamentlist
 import nafparser.tournament
 
 LOG = logging.getLogger(__package__)
@@ -38,7 +38,7 @@ def parse_tournament(source: str) -> typing.Dict:
 def parse_tournaments(source: str) -> typing.List[typing.Dict]:
     """Parse source:str (filename) as tournament list. Return list of limited tournament dicts"""
     LOG.debug('Parsing tournaments from %s', type(source))
-    return nafparser.tournamentlistparser.load2(nafparser.tournamentlistparser.parse_file, filename=source)
+    return nafparser.tournamentlist.load2(nafparser.tournamentlist.parse_file, filename=source)
 
 
 def parse_tournamentmatches(source: str) -> typing.List[typing.Dict]:
