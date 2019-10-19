@@ -84,7 +84,7 @@ def parse(source, parser=_parse_auto):
     return use_parser(source)
 
 
-def parse_all(sources: typing.List[str], parser=_parse_auto) -> typing.Iterator:
+def parse_all(sources: typing.List[str], parser: typing.Callable[[str], typing.Dict] = None) -> typing.Iterator:
     """Convenience function that will parse sources using provided parser and  yields the result.
     If no parser is defined the function will try to guess.
 
