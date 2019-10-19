@@ -136,7 +136,7 @@ def parse_tables(tables):
             "city": city}
 
 
-def parse_tournament(soup):
+def parse_soup(soup):
     LOG.debug("Parsing tournament")
 
     maincontent = soup.select_one("#pn-maincontent")
@@ -179,7 +179,7 @@ def main():
     arguments = argument_parser.parse_args()
 
     for filename in arguments.filenames:
-        result = load(parse_tournament, filename)
+        result = load(parse_soup, filename)
         if len(result) > 0:
             if arguments.show_key:
                 for show in arguments.show_key:

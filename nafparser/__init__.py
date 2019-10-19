@@ -32,7 +32,7 @@ def parse_coach(source: str) -> typing.Dict:
 def parse_tournament(source: str) -> typing.Dict:
     """Parse source:str (filename) as tournament. Return dict of tournament"""
     LOG.debug('Parsing tournament from %s', type(source))
-    return nafparser.tournament.parse_tournament(_file_to_soup(source))
+    return nafparser.tournament.parse_soup(_file_to_soup(source))
 
 
 def parse_tournaments(source: str) -> typing.List[typing.Dict]:

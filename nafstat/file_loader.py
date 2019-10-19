@@ -92,7 +92,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG, format=log_format)
     import nafparser.matches
 
-    result = load_cached(nafparser.matches.parse_match, "data/matches/m3154.html")
+    result = load_cached(nafparser.matches.parse_soup, "data/matches/m3154.html")
     LOG.info("Loaded %s elements", len(result))
     #print(result)
 

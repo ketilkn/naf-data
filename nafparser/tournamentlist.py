@@ -57,7 +57,7 @@ def parse_table(table):
     return parse_rows(rows)
 
 
-def parse_file(soup):
+def parse_soup(soup: str):
     LOG.debug("Parsing tournament list")
     PARSE_LOG.debug("Loading 'div.pn-box1 table' from soup")
     tables = soup.select("div.pn-box1 table")
