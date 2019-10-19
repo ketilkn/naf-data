@@ -68,9 +68,9 @@ def load(parser=None, filename="data/naf_tourneys.html"):
     with open(filename, "rb") as f:
         #LOG.debug("Decode UTF-8")
         try:
-            data = f.read().decode("UTF-8")
+            html = f.read().decode("UTF-8")
             #LOG.debug("Parsing file using bs4 lxml")
-            result = parser(load_soup(data))
+            result = parser(html)
             if result is None:
                 LOG.error("Parser %s returned None for %s", parser.__name__, filename)
                 return []
@@ -92,7 +92,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG, format=log_format)
     import nafparser.matches
 
-    result = load_cached(nafparser.matches.parse_soup, "data/matches/m3154.html")
+    result = load_cached(nafparser.matches.parse_html, "data/matches/m3154.html")
     LOG.info("Loaded %s elements", len(result))
     #print(result)
 

@@ -119,9 +119,9 @@ def load_coaches():
 def load_tournament(t):
     LOG.debug("Loading %s %s", t['tournament_id'],  t['name'])
     LOG.debug("Loading data for %s", t['tournament_id'])
-    tourney_data = load_cached(nafparser.tournament.parse_soup, "data/tournaments/t{}.html".format(t['tournament_id']))
+    tourney_data = load_cached(nafparser.tournament.parse_html, "data/tournaments/t{}.html".format(t['tournament_id']))
     LOG.debug("Loading matches for %s", t['tournament_id'])
-    match_data = load_cached(nafparser.matches.parse_soup, "data/matches/m{}.html".format(t['tournament_id']))
+    match_data = load_cached(nafparser.matches.parse_html, "data/matches/m{}.html".format(t['tournament_id']))
 
     return collate_tournament(t, tourney_data, match_data)
 
@@ -139,7 +139,7 @@ def load_all():
     result = []
 
     coaches = load_coaches()
-    for t in load_cached(nafparser.tournamentlist.parse_soup, "data/naf_tourneys.html"):
+    for t in load_cached(nafparser.tournamentlist.parse_html, "data/naf_tourneys.html"):
         yield add_coach_data(tournament=load_tournament(t), coaches=coaches)
 
     return result

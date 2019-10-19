@@ -51,8 +51,7 @@ def fetch_coach_by_nick(coach_id, url=COACH_URL, target=None, return_html=False)
 
     html = fetch_coach_html_by_nick(coach_id, url)
     if html:
-        soup = nafstat.file_loader.load_soup(html)
-        coach = nafparser.coach.parse_soup(soup)
+        coach = nafparser.coach.parse_html(html)
         if return_html:
             return coach, html
         return coach
