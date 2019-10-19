@@ -3,8 +3,9 @@
 import sys
 import logging
 
-from nafparser import tournamentparser, tournamentlistparser
+from nafparser import tournamentlistparser
 import nafparser.matches
+import nafparser.tournament
 from nafstat.file_loader import load_cached
 import nafstat.coachlist
 
@@ -118,7 +119,7 @@ def load_coaches():
 def load_tournament(t):
     LOG.debug("Loading %s %s", t['tournament_id'],  t['name'])
     LOG.debug("Loading data for %s", t['tournament_id'])
-    tourney_data = load_cached(tournamentparser.parse_tournament, "data/tournaments/t{}.html".format(t['tournament_id']))
+    tourney_data = load_cached(nafparser.tournament.parse_tournament, "data/tournaments/t{}.html".format(t['tournament_id']))
     LOG.debug("Loading matches for %s", t['tournament_id'])
     match_data = load_cached(nafparser.matches.parse_match, "data/matches/m{}.html".format(t['tournament_id']))
 
