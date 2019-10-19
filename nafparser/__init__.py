@@ -10,7 +10,7 @@ import bs4
 import logging
 
 import nafparser.coach
-import nafparser.matchesparser
+import nafparser.matches
 import nafparser.tournamentlistparser
 import nafparser.tournamentparser
 
@@ -44,7 +44,7 @@ def parse_tournaments(source: str) -> typing.List[typing.Dict]:
 def parse_tournamentmatches(source: str) -> typing.List[typing.Dict]:
     """Parse source:str (filename) as tournament matches. Return List with dicts of matches"""
     LOG.debug('Parsing tournament matches from %s', type(source))
-    return nafparser.matchesparser.from_file(source)
+    return nafparser.matches.from_file(source)
 
 
 def _parse_auto(source: str):

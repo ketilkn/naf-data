@@ -90,9 +90,9 @@ def load(parser=None, filename="data/naf_tourneys.html"):
 def main():
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)
-    from nafparser import matchesparser
+    import nafparser.matches
 
-    result = load_cached(matchesparser.parse_match, "data/matches/m3154.html")
+    result = load_cached(nafparser.matches.parse_match, "data/matches/m3154.html")
     LOG.info("Loaded %s elements", len(result))
     #print(result)
 
