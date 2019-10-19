@@ -5,7 +5,8 @@ import time
 import os
 import os.path
 import logging
-from nafparser import matches, tournamentlist
+import nafparser.matches
+import nafparser.tournamentlist
 from nafstat import fetch_tournamentlist
 from nafstat.file_loader import load_cached
 import nafstat.collate
@@ -31,7 +32,7 @@ def load_tournaments(renew_time=3600, force=False):
         LOG.debug("Using existing tournament data in %s", filename)
         LOG.debug("Skipping download due to last modified %s < %s", last_modified, renew_time)
 
-    tournaments = load_cached(tournamentlist.parse_file, filename)
+    tournaments = load_cached(nafparser.tournamentlist.parse_soup, filename)
 
     return tournaments
 
@@ -43,7 +44,7 @@ def list_tournaments(renew_time=False, force=None):
 
     if renew_time or force:
         return load_tournaments(renew_time=renew_time, force=force)
-    tournaments = load_cached(tournamentlist.parse_file, filename)
+    tournaments = load_cached(nafparser.tournamentlist.parse_file, filename)
 
     return tournaments
 
@@ -98,7 +99,7 @@ def unknown_coaches(tournaments):
 def load_matches(tournaments):
     for t in tournaments:
         matchfile = "data/matches/m{}.html".format(t["tournament_id"])
-        matches = load_cached(matches.parse_match, matchfile)
+        matches = load_cached(nafparser.matches.parse_match, matchfile)
         LOG.debug("Tournament {} {} {} matches".format(t["tournament_id"], t["name"], len(matches)))
         t["matches"] = matches
         yield t
