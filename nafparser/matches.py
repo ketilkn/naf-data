@@ -2,6 +2,8 @@
 """  Parse match from HTML """
 import sys
 import logging
+import typing
+import bs4
 from nafstat.file_loader import load
 
 PARSE_LOG = logging.getLogger("parselog")
@@ -121,6 +123,32 @@ def parse_table(soup):
     rows = list(soup.children)
     PARSE_LOG.debug("%s rows in table", len(rows))
     return parse_rows(rows[2:])
+
+
+def parse_html(html: str) -> typing.Dict:
+    """Parse html into list of matches/games
+
+    Parameters:
+    html(str): HTML source of tournament match page
+
+    Returns:
+    List of matches dict with
+        date
+        time
+        match_id
+        home_/away_
+            coach
+            race
+            score
+            result
+            tr
+            cas
+            bh
+            dead
+            gate
+    """
+    soup = bs4.BeautifulSoup(html, 'lxml')
+    return parse_soup(soup)
 
 
 def parse_soup(soup):

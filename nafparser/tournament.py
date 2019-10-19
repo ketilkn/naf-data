@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 """  Parse match from HTML """
 import sys
+import typing
 import logging
 import re
 from datetime import datetime
+import bs4
 from bs4.element import NavigableString
 
 from nafstat.file_loader import load
@@ -134,6 +136,32 @@ def parse_tables(tables):
             "information": information,
             "nation": nation,
             "city": city}
+
+
+def parse_html(html: str) -> typing.Dict:
+    """Parse html into dict
+
+    Parameters:
+    html(str): HTML source of tourney page
+
+    Returns:
+    Tournament dict with
+        tournament_id
+        name
+        location
+        start_date
+        end_date
+        webpage
+        nation
+        city
+        organiser
+        rules
+        awards
+        information
+    """
+    soup = bs4.BeautifulSoup(html, 'lxml')
+    return parse_soup(soup)
+
 
 
 def parse_soup(soup):
