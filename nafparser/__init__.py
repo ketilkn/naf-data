@@ -6,7 +6,6 @@ submodules are subject to name changes (2019-10-19)
 """
 import os.path
 import typing
-import bs4
 import logging
 
 import nafparser.coach
@@ -17,34 +16,45 @@ import nafparser.tournament
 LOG = logging.getLogger(__package__)
 
 
-def _file_to_soup(filename: str) -> bs4.BeautifulSoup:
-    """Load bs4.soup from file"""
+def _file_to_html(filename: str) -> str:
+    """Helper function that read file to text/html
+
+    Parameters:
+    filename (str): location of the file
+
+    Returns:
+    contents of file as string
+    """
     with open(filename, 'r') as f:
-        return bs4.BeautifulSoup(f.read(), 'lxml')
+        return f.read()
 
 
 def parse_coach(source: str) -> typing.Dict:
     """Parse source:str (filename) as coachpage. Return dict of coach"""
     LOG.debug('Parsing coach from %s', type(source))
-    return nafparser.coach.fromfile(source)
+    html = _file_to_html(source)
+    return nafparser.coach.parse_html(html)
 
 
 def parse_tournament(source: str) -> typing.Dict:
     """Parse source:str (filename) as tournament. Return dict of tournament"""
     LOG.debug('Parsing tournament from %s', type(source))
-    return nafparser.tournament.parse_soup(_file_to_soup(source))
+    html = _file_to_html(source)
+    return nafparser.tournament.parse_html(html)
 
 
 def parse_tournaments(source: str) -> typing.List[typing.Dict]:
     """Parse source:str (filename) as tournament list. Return list of limited tournament dicts"""
     LOG.debug('Parsing tournaments from %s', type(source))
-    return nafparser.tournamentlist.load2(nafparser.tournamentlist.parse_soup, filename=source)
+    html = _file_to_html(source)
+    return nafparser.tournamentlist.parse_html(html)
 
 
 def parse_tournamentmatches(source: str) -> typing.List[typing.Dict]:
     """Parse source:str (filename) as tournament matches. Return List with dicts of matches"""
     LOG.debug('Parsing tournament matches from %s', type(source))
-    return nafparser.matches.from_file(source)
+    html = _file_to_html(source)
+    return nafparser.matches.parse_html(html)
 
 
 def _parse_auto(source: str):
