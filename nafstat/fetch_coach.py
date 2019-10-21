@@ -4,7 +4,7 @@ import logging
 import requests
 from nafstat import fetch_tournamentlist
 import nafstat.file_loader
-import nafparser.coach
+import nafparser
 
 LOG = logging.getLogger(__package__)
 
@@ -51,7 +51,7 @@ def fetch_coach_by_nick(coach_id, url=COACH_URL, target=None, return_html=False)
 
     html = fetch_coach_html_by_nick(coach_id, url)
     if html:
-        coach = nafparser.coach.parse_html(html)
+        coach = nafparser.parse_coach(html)
         if return_html:
             return coach, html
         return coach
@@ -73,7 +73,7 @@ def main():
     else:
         html = fetch_coach_html_by_nick(coach_to_find, COACH_URL.format(coach_to_find))
         if html:
-            coach = nafparser.coach.parse_html(html)
+            coach = nafparser.parse_coach(html)
             if coach:
                 print(coach)
 

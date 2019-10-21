@@ -5,7 +5,7 @@ import logging
 import os
 
 import nafstat.file_loader
-import nafparser.coach
+import nafparser
 
 
 LOG = logging.getLogger(__package__)
@@ -37,7 +37,7 @@ def load_all():
 
     for filename in os.listdir("data/coach/"):
         if not filename.startswith(".") and filename.endswith(".html"):
-            coach = nafstat.file_loader.load_cached(nafparser.coach.parse_html, os.path.join("data/coach", filename))
+            coach = nafstat.file_loader.load_cached(nafparser.parse_coach, os.path.join("data/coach", filename))
             if coach:
                 yield coach
 
@@ -47,7 +47,7 @@ def load_by_race():
 
     for filename in os.listdir("data/coach/"):
         if not filename.startswith(".") and filename.endswith(".html"):
-            coach = nafstat.file_loader.load_cached(nafparser.coach.parse_html, os.path.join("data/coach", filename))
+            coach = nafstat.file_loader.load_cached(nafparser.parse_coach, os.path.join("data/coach", filename))
             if coach and coach["ranking"]:
                 for index, race in enumerate(coach["ranking"].values()):
                     if not float(race["elo"]):
