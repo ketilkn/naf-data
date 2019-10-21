@@ -30,28 +30,65 @@ def _file_to_html(filename: str) -> str:
 
 
 def parse_coach(source: str) -> typing.Dict:
-    """Parse source:str (filename) as coachpage. Return dict of coach"""
+    """Turn the provided HTML source to a dict containing the coach
+
+    Parameters:
+    source (str): HTML source
+
+    Returns:
+    Dict of coach with
+        naf_name: str, naf_number: str, nation: str, ranking: dict(elo, matches, race)
+            summary: dict(match_count races_played tournament_count)
+    """
     LOG.debug('Parsing coach from %s', type(source))
     html = _file_to_html(source)
     return nafparser.coach.parse_html(html)
 
 
 def parse_tournament(source: str) -> typing.Dict:
-    """Parse source:str (filename) as tournament. Return dict of tournament"""
+    """Turn the provided HTML source to a dict containing tournament data
+
+    Parameters:
+    source (str): HTML source
+
+    Returns:
+    Dict of tournament with
+        name, nation, organizer, awards, other_awards, scoring, style, type, webpage, email, start_date, end_date, information
+    """
     LOG.debug('Parsing tournament from %s', type(source))
     html = _file_to_html(source)
     return nafparser.tournament.parse_html(html)
 
 
 def parse_tournaments(source: str) -> typing.List[typing.Dict]:
-    """Parse source:str (filename) as tournament list. Return list of limited tournament dicts"""
+    """Turn the provided HTML source to a dict containing the tournament list
+
+    Use source from https://member.thenaf.net/index.php?module=NAF&type=tournaments&ordercolumn=tournamentstartdate&showall=1
+
+    Parameters:
+    source (str): HTML source
+
+    Returns:
+    List of Dict of tournaments with
+        name, start_date, location, end_date, variant
+    """
     LOG.debug('Parsing tournaments from %s', type(source))
     html = _file_to_html(source)
     return nafparser.tournamentlist.parse_html(html)
 
 
 def parse_tournamentmatches(source: str) -> typing.List[typing.Dict]:
-    """Parse source:str (filename) as tournament matches. Return List with dicts of matches"""
+    """Turn the provided HTML source to a dict containing the tournament matches
+
+    Parameters:
+    source (str): HTML source
+
+    Returns:
+    List of Dict of tournament matches with
+        date time match_id
+            home_/away_
+                coach race score result tr cas bh dead gate
+    """
     LOG.debug('Parsing tournament matches from %s', type(source))
     html = _file_to_html(source)
     return nafparser.matches.parse_html(html)
