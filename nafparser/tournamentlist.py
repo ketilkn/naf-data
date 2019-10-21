@@ -118,7 +118,7 @@ def main():
     PARSE_LOG.debug("parse_tournamentlist.py main")
     filename = "data/naf_tourneys.html" if len(sys.argv) < 2 else sys.argv[1]
 
-    result = list(load(parse_file, filename))
+    result = list(load(parse_html, filename))
     if len(result) > 0:
         PARSE_LOG.info("Showing first 10 results")
         pprint(result[:10], indent=2)
