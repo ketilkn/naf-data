@@ -41,8 +41,7 @@ def parse_coach(source: str) -> typing.Dict:
             summary: dict(match_count races_played tournament_count)
     """
     LOG.debug('Parsing coach from %s', type(source))
-    html = _file_to_html(source)
-    return nafparser.coach.parse_html(html)
+    return nafparser.coach.parse_html(source)
 
 
 def parse_tournament(source: str) -> typing.Dict:
@@ -56,8 +55,7 @@ def parse_tournament(source: str) -> typing.Dict:
         name, nation, organizer, awards, other_awards, scoring, style, type, webpage, email, start_date, end_date, information
     """
     LOG.debug('Parsing tournament from %s', type(source))
-    html = _file_to_html(source)
-    return nafparser.tournament.parse_html(html)
+    return nafparser.tournament.parse_html(source)
 
 
 def parse_tournaments(source: str) -> typing.List[typing.Dict]:
@@ -73,8 +71,7 @@ def parse_tournaments(source: str) -> typing.List[typing.Dict]:
         name, start_date, location, end_date, variant
     """
     LOG.debug('Parsing tournaments from %s', type(source))
-    html = _file_to_html(source)
-    return nafparser.tournamentlist.parse_html(html)
+    return nafparser.tournamentlist.parse_html(source)
 
 
 def parse_tournamentmatches(source: str) -> typing.List[typing.Dict]:
@@ -90,8 +87,12 @@ def parse_tournamentmatches(source: str) -> typing.List[typing.Dict]:
                 coach race score result tr cas bh dead gate
     """
     LOG.debug('Parsing tournament matches from %s', type(source))
-    html = _file_to_html(source)
-    return nafparser.matches.parse_html(html)
+    return nafparser.matches.parse_html(source)
+
+
+def parse_matches(source: str) -> typing.List[typing.Dict]:
+    """ Alias for parse_tournamentmatches """
+    return parse_tournamentmatches(source)
 
 
 def _parse_auto(source: str):
@@ -106,14 +107,17 @@ def _parse_auto(source: str):
     """
     LOG.debug('Parsing auto from %s', type(source))
     if os.path.isfile(source):
+        html_source = _file_to_html(source)
         if 'coach' in source:
-            return parse_coach(source)
+            return parse_coach(html_source)
         if 'tournament' in source:
-            return parse_tournament(source)
+            return parse_tournament(html_source)
         if 'match' in source:
-            return parse_tournamentmatches(source)
+            return parse_tournamentmatches(html_source)
         if 'tournaments' in source or 'tourneys' in source:
-            return parse_tournaments(source)
+            return parse_tournaments(html_source)
+    else:
+        raise AttributeError
 
 
 def parse(source, parser=_parse_auto):
@@ -128,7 +132,11 @@ def parse(source, parser=_parse_auto):
     parsed source (Dict or List)
     """
     use_parser = parser if parser else _parse_auto
-    return use_parser(source)
+
+    html_source = source
+    if os.path.isfile(source):
+        html_source = _file_to_html(source)
+    return use_parser(html_source)
 
 
 def parse_all(sources: typing.List[str], parser: typing.Callable[[str], typing.Dict] = None) -> typing.Iterator:
