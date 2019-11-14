@@ -149,10 +149,7 @@ def update_coach_glicko(connection, coach_rating, attribute="?"):
             cursor.execute(INSERT_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
 
 
-def add_glicko(connection, attribute="?"):
-    LOG.debug("Adding all glicko ratings")
-
-    rating_file = "../NAF/output/player_ranks.csv"
+def add_glicko(connection, rating_file="../NAF/output/player_ranks.csv", attribute="?"):
     LOG.info("Loading ratings from file %s", rating_file)
     try:
         ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
@@ -259,7 +256,8 @@ def to_db(filename):
     connection.commit()
 
     LOG.info("Add glicko")
-    add_glicko(connection)
+    add_glicko(connection, rating_file='data/glicko-by-race.csv')
+    #add_glicko(connection, rating_file='data/glicko.csv')
     connection.commit()
 
     LOG.info("Add tournaments")

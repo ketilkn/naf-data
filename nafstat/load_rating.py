@@ -27,7 +27,7 @@ def from_csv(filename,
 
     with open(filename) as csv_file:
         reader = csv.DictReader(csv_file, delimiter=delimiter)
-        for row in reader:
+        for index, row in enumerate(reader):
             try:
                 yield Rating(row[coach_column], row[race_column], row[rating_column], float(row[naf_number_column]))
             except Exception as ex:
