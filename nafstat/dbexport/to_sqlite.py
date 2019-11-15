@@ -257,7 +257,7 @@ def to_db(filename):
 
     LOG.info("Add glicko")
     add_glicko(connection, rating_file='data/glicko-by-race.csv')
-    #add_glicko(connection, rating_file='data/glicko.csv')
+    add_glicko(connection, rating_file='data/glicko.csv')
     connection.commit()
 
     LOG.info("Add tournaments")
