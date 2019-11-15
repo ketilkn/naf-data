@@ -29,7 +29,7 @@ def from_csv(filename,
         reader = csv.DictReader(csv_file, delimiter=delimiter)
         for index, row in enumerate(reader):
             try:
-                yield Rating(row[coach_column], row[race_column], row[rating_column], float(row[naf_number_column]))
+                yield Rating(row[coach_column], row[race_column].title(), row[rating_column], float(row[naf_number_column]))
             except Exception as ex:
                 LOG.exception(ex)
                 LOG.error(row)
