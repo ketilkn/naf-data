@@ -29,6 +29,8 @@ def from_csv(filename,
         reader = csv.DictReader(csv_file, delimiter=delimiter)
         for index, row in enumerate(reader):
             try:
+                if not row[naf_number_column]:
+                    LOG.warning("Row #%s, %s is missing naf_number", index, row[coach_column])
                 race = " ".join(map(str.capitalize, row[race_column].split(' ')))
                 yield Rating(row[coach_column], race, row[rating_column], float(row[naf_number_column]))
             except Exception as ex:
