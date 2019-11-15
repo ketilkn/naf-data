@@ -32,7 +32,8 @@ def from_csv(filename,
                 if not row[naf_number_column]:
                     LOG.warning("Row #%s, %s is missing naf_number", index, row[coach_column])
                 race = " ".join(map(str.capitalize, row[race_column].split(' ')))
-                yield Rating(row[coach_column], race, row[rating_column], float(row[naf_number_column]))
+                naf_number = float(row[naf_number_column]) if row[naf_number_column].replace('.','').isdigit() else None
+                yield Rating(row[coach_column], race, row[rating_column], naf_number)
             except Exception as ex:
                 LOG.exception(ex)
                 LOG.error(row)
