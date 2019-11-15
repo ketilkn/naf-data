@@ -144,8 +144,8 @@ def update_coach_glicko(connection, coach_rating, attribute="?"):
         race_id = next(race.race_id for race in races.INDEX if race.race == race_rating.race)
         cursor.execute(UPDATE_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
         if cursor.rowcount != 1:
-            LOG.warning("Updated %s rows for %s", cursor.rowcount, race_rating)
-            LOG.info("Try insert instead")
+            LOG.debug("Updated %s rows for %s", cursor.rowcount, race_rating)
+            LOG.debug("Try insert instead")
             cursor.execute(INSERT_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
 
 
