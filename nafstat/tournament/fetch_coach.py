@@ -5,12 +5,14 @@ import requests
 from nafstat.tournament import fetch_tournamentlist
 import nafstat.file_loader
 import nafstat.tournament.parse_coach
+from nafstat import session
+import bs4
 
 LOG = logging.getLogger(__package__)
 
 DEFAULT_TARGET = "data/coach/c{}.html"
 COACH_URL = "https://member.thenaf.net/index.php?module=NAF&type=coachpage&coach={}"
-
+SEARCH_URL = 'https://member.thenaf.net/index.php?module=NAF&type=tournamentinfo'
 
 def fetch_coach(coach_id, url=COACH_URL, target=DEFAULT_TARGET):
     LOG.debug("fetch_coach %s", coach_id)
@@ -21,13 +23,17 @@ def fetch_coach(coach_id, url=COACH_URL, target=DEFAULT_TARGET):
 def fetch_coach_html_by_nick(coach_id, url=COACH_URL, target=None):
     LOG.debug("fetch_coach_by_nick %s", coach_id)
 
-    url_to_get = url.format(coach_id)
-    response = requests.get(url_to_get)
+    response = requests.post(SEARCH_URL, headers=session.build_header(), data={'uname': coach_id})
     if not response.history and response.status_code == 200:
-        html = response.text
-        return html
+        soup = bs4.BeautifulSoup(response.text, 'lxml')
+        el = soup.find(lambda t: t!=None and t.name =='a' and 'coachpage for ' in t.text)
+        if el:
+            return fetch_coach(el['href'].replace('https://member.thenaf.net/index.php?module=NAF&type=coachpage&coach=', ''))
+        #html = response.text
+        #return html
     else:
-        LOG.warning("Response %s %s for %s", response.status_code, response.reason, url_to_get)
+        LOG.warning("Response %s %s for %s", response.status_code, response.reason, SEARCH_URL.format(coach_id))
+        LOG.warning(session.build_header())
 
     return False
 
