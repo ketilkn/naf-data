@@ -3,3 +3,4 @@ beautifulsoup4==4.6.0
 humanfriendly
 requests
 tqdm
+msgpack
