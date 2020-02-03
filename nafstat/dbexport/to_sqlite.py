@@ -141,7 +141,6 @@ def update_coach_glicko(connection, coach_rating, attribute="?"):
     cursor = connection.cursor()
 
     for race_rating in coach_rating:
-<<<<<<< HEAD
         try:
             race_id = next(race.race_id for race in races.INDEX if race.race == race_rating.race)
             cursor.execute(UPDATE_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
@@ -154,21 +153,7 @@ def update_coach_glicko(connection, coach_rating, attribute="?"):
             LOG.exception(ex)
 
 
-def add_glicko(connection, attribute="?"):
-    LOG.debug("Adding all glicko ratings")
-
-    rating_file = "/srv/www/ghoulhq.com/public/nafdata/export/glicko-by-race.csv"
-=======
-        race_id = next(race.race_id for race in races.INDEX if race.race == race_rating.race)
-        cursor.execute(UPDATE_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
-        if cursor.rowcount != 1:
-            LOG.debug("Updated %s rows for %s", cursor.rowcount, race_rating)
-            LOG.debug("Try insert instead")
-            cursor.execute(INSERT_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
-
-
 def add_glicko(connection, rating_file="../NAF/output/player_ranks.csv", attribute="?"):
->>>>>>> adb6053ad126f405f19d915c17f05c47e82cd6a2
     LOG.info("Loading ratings from file %s", rating_file)
     try:
         ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
