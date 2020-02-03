@@ -207,7 +207,7 @@ def main():
     arguments = argument_parser.parse_args()
 
     for filename in arguments.filenames:
-        result = load(parse_soup, filename)
+        result = load(parse_html, filename)
         if len(result) > 0:
             if arguments.show_key:
                 for show in arguments.show_key:
