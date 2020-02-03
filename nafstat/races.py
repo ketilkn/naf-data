@@ -29,4 +29,5 @@ INDEX = (
     Race(24, 'Chaos Pact', 'CP'),
     Race(25, 'Khorne', 'Ko'),
     Race(26, 'Bretonnians', 'Br'),
-    Race(27, 'Multiple Races', 'XX'))
+    Race(27, 'Multiple Races', 'XX'),
+    Race(28, 'Draft', 'Df'))
