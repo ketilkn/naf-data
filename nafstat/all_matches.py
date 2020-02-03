@@ -8,6 +8,7 @@ import csv
 
 from tqdm import tqdm
 import nafstat.collate
+from nafstat.races import RACES
 LOG = logging.getLogger(__package__)
 
 
@@ -57,7 +58,9 @@ def to_csv(matches, output_file = "all_matches.csv", repeat_matches = False):
                    "style",
                    "location",
                    "home_nationality",
-                   "away_nationality"]
+                   "away_nationality",
+                   "home_race_id",
+                   "away_race_id"]
         if repeat_matches:
             columns.append("repeated_match")
 
@@ -95,6 +98,8 @@ def all_matches():
             match["mirror"] = m["home_race"].lower() == m["away_race"].lower()
             match["ruleset"] = t["ruleset"] if "unknown" not in t["ruleset"] else ""
             match["repeated_match"] = 0
+            match["home_race_id"] = RACES.by_race[match['home_race']].race_id if match['home_race'] in RACES.by_race else ''
+            match["away_race_id"] = RACES.by_race[match['away_race']].race_id if match['away_race'] in RACES.by_race else ''
             yield match
 
 
