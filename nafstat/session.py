@@ -7,6 +7,20 @@ import logging
 import humanfriendly
 
 LOG = logging.getLogger(__package__)
+USER_AGENT='Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/72.0'
+ACCEPT='text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3'
+ACCEPT2='text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+
+def build_header():
+    return {'Accept-Language': 'en-US,en;q=0.5', 
+		'Accept': ACCEPT, 
+		'Referer': 'https://member.thenaf.net/', 
+		'Connection': 'keep-alive', 
+		'Host': 'member.thenaf.net', 
+		'Origin': 'https://member.thenaf.net/', 
+		'Accept-Encoding': 'gzip, deflate, br', 
+		'User-Agent': USER_AGENT, 
+		'Upgrade-Insecure-Requests': '1'} 
 
 
 def throttle_by_request_time(fun, *args):
@@ -27,7 +41,7 @@ def throttle_by_request_time(fun, *args):
 
 
 def download_to(session, url, target):
-    response = session.get(url)
+    response = session.get(url, headers=build_header())
     if not response.history and response.status_code == 200:
         html = response.text
         try:
@@ -48,7 +62,7 @@ def verify_session(session, response = None):
 
 def login(url, username, password):
     s = requests.session()
-    r = s.post(url, data={"user":username, "pass":password})
+    r = s.post(url, header=build_header(), data={"user":username, "pass":password})
 
     if verify_session(s,r):
         return s
