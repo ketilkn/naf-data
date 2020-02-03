@@ -1,23 +1,24 @@
 import logging.config
 
 from pathlib import PosixPath
-from nafstat.tournament import parse_coach
+import nafparser.coach
 
 logging.config.fileConfig('pylogging.conf', disable_existing_loggers=True)
 LOG = logging.getLogger(__name__)
 logging.getLogger("nafstat.file_loader").setLevel(logging.INFO)
 
 
-def find_empty(source, parser=parse_coach.fromfile):
+def find_empty(source, parser=nafparser.parse_coach):
     LOG.debug("find invalid coaches in %s", source)
     path = PosixPath(source)
     if not path.is_dir():
         LOG.error("No such path %s", path)
         return []
     for f in path.glob("*.html"):
-        parse_result = parser(f.as_posix())
-        if not parse_result:
-            yield(f)
+        with open(f, 'r') as html_file:
+            parse_result = parser(html_file.read())
+            if not parse_result:
+                yield(f)
 
 
 def main():

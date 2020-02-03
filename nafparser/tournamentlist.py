@@ -2,7 +2,9 @@
 """  Load tournaments from file """
 import sys
 import logging
+import typing
 import os.path
+import bs4
 from bs4 import BeautifulSoup
 from nafstat.file_loader import load
 
@@ -57,7 +59,25 @@ def parse_table(table):
     return parse_rows(rows)
 
 
-def parse_file(soup):
+def parse_html(html: str) -> typing.List[typing.Dict]:
+    """Parse html into list of tournaments
+
+    Parameters:
+    html(str): HTML source of tourney page
+
+    Returns:
+    List of tournament dicts with
+        tournament_id
+        location
+        start_date
+        end_date
+        variant
+    """
+    soup = bs4.BeautifulSoup(html, 'lxml')
+    return parse_soup(soup)
+
+
+def parse_soup(soup: str):
     LOG.debug("Parsing tournament list")
     PARSE_LOG.debug("Loading 'div.pn-box1 table' from soup")
     tables = soup.select("div.pn-box1 table")
@@ -98,7 +118,7 @@ def main():
     PARSE_LOG.debug("parse_tournamentlist.py main")
     filename = "data/naf_tourneys.html" if len(sys.argv) < 2 else sys.argv[1]
 
-    result = list(load(parse_file, filename))
+    result = list(load(parse_html, filename))
     if len(result) > 0:
         PARSE_LOG.info("Showing first 10 results")
         pprint(result[:10], indent=2)

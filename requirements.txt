@@ -3,4 +3,9 @@ beautifulsoup4==4.6.0
 humanfriendly
 requests
 tqdm
+<<<<<<< HEAD
 msgpack
+=======
+h5py
+bidict
+>>>>>>> adb6053ad126f405f19d915c17f05c47e82cd6a2

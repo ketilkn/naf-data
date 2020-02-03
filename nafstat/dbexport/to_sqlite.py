@@ -5,11 +5,11 @@ import logging
 import argparse
 import sqlite3
 from tqdm import tqdm
-from nafstat import coachlist
-from nafstat.tournament import tournamentlist
+from nafstat import coachlist, tournamentlist
 import nafstat.collate
 import nafstat.load_rating
 from nafstat import races
+from nafstat.awards import AWARDS
 
 LOG = logging.getLogger(__package__)
 
@@ -68,6 +68,50 @@ def insert_tournament(tournament, connection, attribute="?"):
     #connection.commit()
 
 
+def insert_award(award, connection):
+    INSERT_AWARD = """
+        INSERT INTO award(award_id, name) VALUES(?, ?)
+    """
+    award_id = len(AWARDS.keys()) + 1
+    AWARDS[award_id] = award
+    LOG.debug('Creating award %s %s', award_id, award)
+    cursor = connection.cursor()
+
+    cursor.execute(INSERT_AWARD, (award_id, award))
+    connection.commit()
+    return award_id
+
+
+def lookup_award(award, connection):
+    if award.lower() not in AWARDS.inverse:
+        return insert_award(award, connection)
+    return AWARDS.inverse[award.lower()]
+
+
+def insert_tournament_awards(tournament_id, award, awardee, coaches, connection, attribute="?"):
+    INSERT_TOURNAMENT_AWARD = """
+        INSERT INTO  tournament_award (tournament_id, award_id, coach_id) VALUES(?, ?, ?)
+    """
+
+    cursor = connection.cursor()
+    if awardee and awardee not in coaches:
+        LOG.warning('Coach %s in tournament %s not found', awardee, tournament_id)
+    elif awardee:
+        award_id = lookup_award(award, connection)
+        coach_id = coaches[awardee]['naf_number']
+        result = cursor.execute(INSERT_TOURNAMENT_AWARD.replace("?", attribute), (tournament_id, award_id, coach_id))
+
+
+def save_tournament_awards(tournament, coaches, connection, attribute="?"):
+    LOG.debug("Save tournament %s awards", tournament["tournament_id"])
+
+    tournament_id = tournament['tournament_id']
+    for award, awardee in tournament['awards'].items():
+        insert_tournament_awards(tournament_id, award, awardee, coaches, connection)
+    for award, awardee in tournament['other_awards'].items():
+        insert_tournament_awards(tournament_id, award, awardee, coaches, connection)
+
+
 def insert_coach(coach, cursor, attribute="?"):
     LOG.debug("Save coach %s %s", coach["naf_number"], coach["naf_name"])
     return cursor.execute(INSERT_COACH.replace("?", attribute), (coach["naf_number"], coach["naf_name"],  coach["nation"]))
@@ -97,6 +141,7 @@ def update_coach_glicko(connection, coach_rating, attribute="?"):
     cursor = connection.cursor()
 
     for race_rating in coach_rating:
+<<<<<<< HEAD
         try:
             race_id = next(race.race_id for race in races.INDEX if race.race == race_rating.race)
             cursor.execute(UPDATE_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
@@ -113,6 +158,17 @@ def add_glicko(connection, attribute="?"):
     LOG.debug("Adding all glicko ratings")
 
     rating_file = "/srv/www/ghoulhq.com/public/nafdata/export/glicko-by-race.csv"
+=======
+        race_id = next(race.race_id for race in races.INDEX if race.race == race_rating.race)
+        cursor.execute(UPDATE_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
+        if cursor.rowcount != 1:
+            LOG.debug("Updated %s rows for %s", cursor.rowcount, race_rating)
+            LOG.debug("Try insert instead")
+            cursor.execute(INSERT_GLICKO.replace("?", attribute), (race_rating.rating, race_rating.naf_number, race_id))
+
+
+def add_glicko(connection, rating_file="../NAF/output/player_ranks.csv", attribute="?"):
+>>>>>>> adb6053ad126f405f19d915c17f05c47e82cd6a2
     LOG.info("Loading ratings from file %s", rating_file)
     try:
         ranking = nafstat.load_rating.ratings_to_dict(nafstat.load_rating.from_csv(rating_file))
@@ -162,6 +218,7 @@ def all_tournaments(connection, attribute="?"):
     coaches = coachlist.load_dict_by_name()
     for t in tqdm(nafstat.collate.load_all(), total=len(tournamentlist.list_tournaments())):
         insert_tournament(tournament=t, connection=connection, attribute=attribute)
+        save_tournament_awards(tournament=t, coaches=coaches, connection=connection, attribute=attribute)
         for m in t["matches"]:
             match = copy.copy(m)
             match["tournament_id"] = t["tournament_id"]
@@ -218,13 +275,14 @@ def to_db(filename):
     connection.commit()
 
     LOG.info("Add glicko")
-    add_glicko(connection)
+    add_glicko(connection, rating_file='data/glicko-by-race.csv')
+    add_glicko(connection, rating_file='data/glicko.csv')
     connection.commit()
 
     LOG.info("Add tournaments")
     all_tournaments(connection)
-
     connection.commit()
+
     connection.close()
 
 

@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS coach;
 CREATE TABLE coach (
-    naf_number integer PRIMARY KEY,
+    naf_number INTEGER PRIMARY KEY,
     name varchar(25) NOT NULL,
-    nation varchar(24) default 'unknown'
+    nation varchar(24) default "UNKNOWN"
 );
 
 
@@ -11,7 +11,7 @@ CREATE TABLE rank (
     coach_id INTEGER,
     race_id INTEGER NOT NULL,
     elo INTEGER default 15000,
-    glicko REAL default 15000,
+    glicko INTEGER default 15000,
     PRIMARY KEY(coach_id, race_id)
 );
 
@@ -36,40 +36,20 @@ CREATE TABLE tournament (
     city varchar(64)
 );
 
-DROP TABLE IF EXISTS tournament_award;
-CREATE TABLE tournament_award (
+DROP TABLE IF EXISTS `match`;
+CREATE TABLE `match` (
+    match_id INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
-    coach_id INTEGER,
-    award_id INTEGER,
-    PRIMARY KEY (tournament_id, coach_id, award_id)
-);
-
-DROP TABLE IF EXISTS award;
-CREATE TABLE award (
-    award_id INTEGER NOT NULL,
-    name varchar(128),
-    PRIMARY KEY (award_id)
-);
-
-INSERT INTO award VALUES(1, 'winner'), (2, 'runner up'), (3, 'most touchdowns'), (4, 'most casualties'), (5, 'stunty cup'), (6, 'best painted');
-
-
-DROP TABLE IF EXISTS game;
-CREATE TABLE game (
-    game_id INTEGER NOT NULL,
-    tournament_id INTEGER NOT NULL,
-    game_date DATE,
+    match_date DATE,
     timeofday TIME,
-    datetime TIMESTAMP WITH TIME ZONE ,
+    datetime DATETIME,
     gate INTEGER,
-    PRIMARY KEY(game_id, tournament_id)
+    PRIMARY KEY(match_id, tournament_id)
 );
 
-DROP TABLE IF EXISTS coachgame;
-DROP TYPE IF EXISTS game_result;
-CREATE TYPE game_result AS ENUM('W', 'T', 'L');
-CREATE TABLE coachgame (
-    game_id INTEGER NOT NULL,
+DROP TABLE IF EXISTS coachmatch;
+CREATE TABLE coachmatch (
+    match_id INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
     hoa CHARACTER(1) NOT NULL,
     coach_id INTEGER,
@@ -78,18 +58,17 @@ CREATE TABLE coachgame (
     si INTEGER,
     dead INTEGER,
     tr INTEGER,
-    result game_result,
+    result INTEGER,
     winnings INTEGER,
     score INTEGER,
-    PRIMARY KEY(tournament_id, game_id, coach_id)
+    PRIMARY KEY(match_id, tournament_id, coach_id)
 );
 
 
 DROP TABLE IF EXISTS race;
 CREATE TABLE race (
     race_id INTEGER PRIMARY KEY,
-    race VARCHAR(16) NOT NULL,
+    race TEXT NOT NULL,
     sh CHARACTER(2)
 );
-
 

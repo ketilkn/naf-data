@@ -2,6 +2,8 @@
 """  Parse match from HTML """
 import sys
 import logging
+import typing
+import bs4
 from nafstat.file_loader import load
 
 PARSE_LOG = logging.getLogger("parselog")
@@ -123,7 +125,33 @@ def parse_table(soup):
     return parse_rows(rows[2:])
 
 
-def parse_match(soup):
+def parse_html(html: str) -> typing.Dict:
+    """Parse html into list of matches/games
+
+    Parameters:
+    html(str): HTML source of tournament match page
+
+    Returns:
+    List of matches dict with
+        date
+        time
+        match_id
+        home_/away_
+            coach
+            race
+            score
+            result
+            tr
+            cas
+            bh
+            dead
+            gate
+    """
+    soup = bs4.BeautifulSoup(html, 'lxml')
+    return parse_soup(soup)
+
+
+def parse_soup(soup):
     LOG.debug("Parsing matches")
 
     maincontent = soup.select_one("#pn-maincontent")
@@ -154,7 +182,7 @@ def parse_match(soup):
 
 
 def from_file(filename):
-    return list(load(parse_match, filename))
+    return list(load(parse_soup, filename))
 
 
 def main():
@@ -164,7 +192,7 @@ def main():
     PARSE_LOG.debug("parse_matches.py main")
     filename = "data/matches/m3154.html" if len(sys.argv) < 2 else sys.argv[1]
 
-    result = list(load(parse_match, filename))
+    result = list(load(parse_soup, filename))
     if len(result) > 0:
         pprint(result, indent=2)
     else:

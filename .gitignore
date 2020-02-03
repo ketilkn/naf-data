@@ -20,3 +20,6 @@ venv
 *.db
 *.gz
 export
+*.bak
+*.h5
+.pytest_cach

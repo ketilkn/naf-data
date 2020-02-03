@@ -8,9 +8,7 @@ import humanfriendly
 from nafstat.session import throttle_by_request_time
 import nafstat.update_tournament
 import nafstat.update_coach
-from nafstat.tournament import tournamentlist
-import nafstat.tournament.fetch_tournament
-import nafstat.tournament.fetch_tournamentmatch
+from nafstat import tournamentlist
 import nafstat.collate
 import nafstat.coachlist
 
@@ -41,7 +39,7 @@ def update_invalid_coaches():
 def update_tournaments(recent_tournaments, force_coach):
     LOG.info("Update tournaments")
     nafstat.update_tournament.update_tournaments(recent_tournaments)
-    recent_coaches = nafstat.tournament.tournamentlist.coaches_by_tournaments(recent_tournaments)
+    recent_coaches = tournamentlist.coaches_by_tournaments(recent_tournaments)
 
     LOG.debug("Loading all coaches")
     all_coaches = set(nafstat.coachlist.load_dict_by_name().keys())

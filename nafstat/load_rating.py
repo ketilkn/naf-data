@@ -4,7 +4,8 @@ import csv
 import logging
 import collections
 
-LOG = logging.getLogger(__package__)
+#LOG = logging.getLogger(__name__)
+LOG = logging.getLogger("nafstat")
 
 Rating = collections.namedtuple("Rating", "coach race rating naf_number")
 
@@ -26,11 +27,22 @@ def from_csv(filename,
 
     with open(filename) as csv_file:
         reader = csv.DictReader(csv_file, delimiter=delimiter)
-        for row in reader:
-            yield Rating(row[coach_column], row[race_column], row[rating_column], row[naf_number_column])
+        for index, row in enumerate(reader):
+            try:
+                if not row[naf_number_column]:
+                    LOG.warning("Row #%s, %s is missing naf_number", index, row[coach_column])
+                race = " ".join(map(str.capitalize, row[race_column].split(' ')))
+                naf_number = float(row[naf_number_column]) if row[naf_number_column].replace('.','').isdigit() else None
+                yield Rating(row[coach_column], race, row[rating_column], naf_number)
+            except Exception as ex:
+                LOG.exception(ex)
+                LOG.error(row)
 
 
 def main():
+    import sys
+    log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
+    logging.basicConfig(level=logging.INFO if "--debug" not in sys.argv else logging.DEBUG, format=log_format)
     import datetime
     import random
     LOG.info("Load rating started at %s", datetime.datetime.now().isoformat())
@@ -38,6 +50,7 @@ def main():
 
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("csv_filename")
+    argument_parser.add_argument("--debug", action="store_true")
 
     arguments = argument_parser.parse_args()
 

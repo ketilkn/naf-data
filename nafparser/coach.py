@@ -5,7 +5,7 @@ import logging
 import argparse
 import bs4
 from nafstat.file_loader import load
-from nafstat.tournament.parse_tournament import row_with_heading, parse_page_date
+from nafparser.tournament import row_with_heading, parse_page_date
 
 PARSE_LOG = logging.getLogger("parselog")
 LOG = logging.getLogger(__package__)
@@ -57,7 +57,7 @@ def parse_blood_bowl_rankings(table, naf_number = -1):
     return races
 
 
-def parse_coach(soup):
+def parse_soup(soup):
     LOG.debug("Parsing coach")
 
     maincontent = soup.select_one("#pn-maincontent")
@@ -97,12 +97,12 @@ def parse_coach(soup):
 def parse_html(html):
     LOG.debug("Parsing coach from HTML")
     soup = bs4.BeautifulSoup(html, "lxml")
-    return parse_coach(soup)
+    return parse_soup(soup)
 
 
 def fromfile(filename):
     LOG.debug("Parsing coach from file %s", filename)
-    return load(parse_coach, filename)
+    return load(parse_soup, filename)
 
 
 def do_parse(coach):
@@ -117,7 +117,6 @@ def do_parse(coach):
 
 
 def main():
-    import os
     from pprint import pprint
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=log_format)

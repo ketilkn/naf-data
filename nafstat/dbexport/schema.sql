@@ -38,6 +38,24 @@ CREATE TABLE tournament (
     city TEXT
 );
 
+DROP TABLE IF EXISTS tournament_award;
+CREATE TABLE tournament_award (
+    tournament_id INTEGER NOT NULL,
+    coach_id INTEGER,
+    award_id INTEGER,
+    UNIQUE (tournament_id, coach_id, award_id) ON CONFLICT REPLACE
+);
+
+DROP TABLE IF EXISTS award;
+CREATE TABLE award (
+    award_id INTEGER NOT NULL,
+    name TEXT,
+    UNIQUE (award_id) ON CONFLICT REPLACE
+);
+
+INSERT INTO award VALUES(1, 'Winner'), (2, 'Runner up'), (3, 'Most Touchdowns'), (4, 'Most Casualties'), (5, 'Stunty Cup'), (6, 'Best Painted');
+
+
 DROP TABLE IF EXISTS game;
 CREATE TABLE game (
     game_id INTEGER NOT NULL,
