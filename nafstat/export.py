@@ -41,7 +41,7 @@ def main():
     import sys
     argument_parser = argparse.ArgumentParser()
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
-    logging.basicConfig(level=logging.DEBUG if "--debug" is sys.argv else logging.INFO, format=log_format)
+    logging.basicConfig(level=logging.DEBUG if "--debug" == sys.argv else logging.INFO, format=log_format)
 
     argument_parser.add_argument("--source", help="source", default="data/")
 
