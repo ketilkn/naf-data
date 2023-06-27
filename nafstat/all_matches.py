@@ -87,7 +87,7 @@ def all_matches():
             match["tournament_id"] = t["tournament_id"]
             match["tournament_name"] = t["name"]
             match["tmid"] = "%s#%s".format(t['tournament_id'], m['match_id'].zfill(3))
-            match["variant"] = t["variant"]
+            match["variant"] = t["variant"] # match already contains variant, but we need tournament level variant
             match["swiss"] = t["swiss"]
             match["datetime"] = '%s %s'.format(m["date"], m["time"])
             match["tournament_date"] = t["start_date"]
