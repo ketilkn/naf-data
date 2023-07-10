@@ -1,8 +1,9 @@
 lxml
-beautifulsoup4==4.6.0
+#beautifulsoup4==4.6.0
+beautifulsoup4==4.6
 humanfriendly
 requests
 tqdm
-msgpack
+#msgpack
 h5py
 bidict

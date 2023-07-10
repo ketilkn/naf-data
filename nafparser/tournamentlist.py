@@ -27,9 +27,10 @@ def parse_row(columns):
     tournament_id = anchor["href"][anchor["href"].rindex("=")+1:]
     name=columns[0].text
     location=columns[1].text
-    start_date=columns[2].text
-    end_date = columns[3].text
-    variant = columns[4].text
+    #city = columns[2].text
+    start_date=columns[3].text
+    end_date = columns[4].text
+    variant = columns[5].text
     return {"name": name,
                 "tournament_id": tournament_id,
                 "location": location,
