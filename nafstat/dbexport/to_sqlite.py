@@ -199,9 +199,9 @@ def insert_match(match, coaches, connection, attribute):
     LOG.debug("Save result %s", result)
 
 
-def all_tournaments(connection, attribute="?"):
+def all_tournaments(connection, attribute="?", tournament_loader=nafstat.collate.load_all):
     coaches = coachlist.load_dict_by_name()
-    for t in tqdm(nafstat.collate.load_all(), total=len(tournamentlist.list_tournaments())):
+    for t in tqdm(tournament_loader(), total=len(tournamentlist.list_tournaments())):
         insert_tournament(tournament=t, connection=connection, attribute=attribute)
         save_tournament_awards(tournament=t, coaches=coaches, connection=connection, attribute=attribute)
         for m in t["matches"]:
