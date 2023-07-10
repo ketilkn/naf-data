@@ -50,7 +50,11 @@ INDEX = (
     Race(24, 'Chaos Pact', 'CP'),
     Race(25, 'Khorne', 'Ko'),
     Race(26, 'Bretonnians', 'Br'),
-    Race(28, 'Draft', 'Df'),
+    Race(27, 'Draft', 'Df'),
+    Race(28, 'Old World Alliance', 'Ow'),
+    Race(29, 'Snotling', 'Sn'),
+    Race(30, 'Black orc', 'Bo'),
+    Race(31, 'Imperial Nobility', 'In'),
     Race(99, 'Multiple Races', 'XX'))
 
 
