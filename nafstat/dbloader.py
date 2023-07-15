@@ -19,7 +19,9 @@ SELECT nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournament
     nts.bestPainterCoachID, bestpainted.pn_uname as bestpainted_uname,
     ntv.variantname, ntv.variantid,
     ntr.rulesetname, ntr.rulesetid,
-    count(ng.gameid) as game_count
+    count(ng.gameid) as game_count,
+    sum(ng.goalshome)+sum(ng.goalsaway) as touchdown_count,
+    sum(ng.goalshome)+sum(ng.goalsaway)
 FROM naf_tournament nt
 LEFT JOIN naf_tournament_statistics nts ON nts.tournamentID=nt.tournamentid
 LEFT JOIN naf_variants ntv ON ntv.variantid = nt.naf_variantsid
@@ -116,7 +118,7 @@ def load_tournaments(connection=None):
                 'swiss': 'N/A',
                 'match_count': row.get('game_count'),
                 'casualties': 'N/A',
-                'touchdowns': 'N/A',
+                'touchdowns': row.get('touchdown_count'),
                 'ruleset': row.get('rulesetname')}
             yield tournament
 
