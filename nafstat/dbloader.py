@@ -20,12 +20,7 @@ SELECT nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournament
     nt.tournamentstyle, nt.tournamentscoring, nt.tournamentmajor, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
     nt.tournamentnation, nt.tournamentcity, 
-    nts.winnerCoachID, winner.pn_uname as winner_uname,
-    nts.runnerUpCoachID, runnerup.pn_uname as runnerup_uname,
-    nts.mostTouchdownsCoachID, mosttouchdowns.pn_uname as mosttouchdowns_uname,
-    nts.mostCasualitiesCoachID, mostcasualties.pn_uname as mostcasualties_uname,
-    nts.stuntyCupCoachID, stuntycup.pn_uname as stuntycup_uname, 
-    nts.bestPainterCoachID, bestpainted.pn_uname as bestpainted_uname,
+    nts.awards,
     ntv.variantname, ntv.variantid,
     ntr.rulesetname, ntr.rulesetid,
     count(ng.gameid) as game_count,
@@ -35,27 +30,22 @@ SELECT nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournament
     sum(ng.serioushome)+sum(ng.seriousaway)+
     sum(ng.killshome)+sum(ng.killsaway) as casualty_count
 FROM naf_tournament nt
-LEFT JOIN naf_tournament_statistics nts ON nts.tournamentID=nt.tournamentid
+LEFT JOIN (
+SELECT ntsg.tournamentID, group_concat(concat(ntsl.label,'=',ntsg.coachID,';', replace(replace(nu.pn_uname, ';',''), ',','_'))) as awards
+FROM naf_tournament_statistics_group ntsg
+JOIN naf_tournament_statistics_list ntsl ON ntsg.typeID=ntsl.id
+LEFT JOIN nuke_users nu ON ntsg.coachID=nu.pn_uid
+GROUP BY ntsg.tournamentID
+) as nts ON nts.tournamentID=nt.tournamentid
 LEFT JOIN naf_variants ntv ON ntv.variantid = nt.naf_variantsid
 LEFT JOIN naf_ruleset ntr ON ntr.rulesetid = nt.naf_rulesetid
-LEFT JOIN nuke_users winner on winner.pn_uid = nts.winnerCoachID
-LEFT JOIN nuke_users runnerup on runnerup.pn_uid = nts.runnerUpCoachID
-LEFT JOIN nuke_users stuntycup on stuntycup.pn_uid = nts.stuntyCupCoachID
-LEFT JOIN nuke_users mosttouchdowns on mosttouchdowns.pn_uid = nts.mostTouchdownsCoachID
-LEFT JOIN nuke_users mostcasualties on mostcasualties.pn_uid = nts.mostCasualitiesCoachID
-LEFT JOIN nuke_users bestpainted on bestpainted.pn_uid = nts.bestPainterCoachID
 LEFT JOIN naf_game ng on nt.tournamentid=ng.tournamentid
 WHERE nt.tournamentstatus='APPROVED' /**AND nts.winnerCoachID > 0**/
 GROUP BY nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
     nt.tournamentstyle, nt.tournamentscoring, nt.tournamentmajor, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
     nt.tournamentnation, nt.tournamentcity, 
-    nts.winnerCoachID, winner.pn_uname ,
-    nts.runnerUpCoachID, runnerup.pn_uname ,
-    nts.mostTouchdownsCoachID, mosttouchdowns.pn_uname,
-    nts.mostCasualitiesCoachID, mostcasualties.pn_uname,
-    nts.stuntyCupCoachID, stuntycup.pn_uname, 
-    nts.bestPainterCoachID, bestpainted.pn_uname,
+    nts.awards,
     ntv.variantname, ntv.variantid,
     ntr.rulesetname, ntr.rulesetid
 """
@@ -104,6 +94,10 @@ def load_tournaments(connection=None):
             tournament_id = row.get('tournamentid')
             start_date = row.get('tournamentenddate')
             end_date = row.get('tournamentenddate')
+            awards = {}
+            if row.get('awards'):
+                row_awards = row.get('awards')
+                awards = {award.split('=', 1)[0].lower():award.split('=', 1)[1].split(';')[-1] for award in row_awards.split(',')}
             tournament = {
                 'name': row.get('tournamentname'),
                 'tournament_id': tournament_id,
@@ -122,12 +116,7 @@ def load_tournaments(connection=None):
                 'nation': row.get('tournamentnation'),
                 'city': row.get('tournamentcity'),
                 '_last_updated': datetime.datetime.now().isoformat(),
-                'awards': {'winner': row.get('winner_uname'),
-                           'runner up': row.get('runnerup_uname'),
-                           'most touchdowns': row.get('mosttouchdowns_uname'),
-                           'most casualties': row.get('mostcasualities_uname'),
-                           'stunty cup': row.get('stuntycup_uname'),
-                           'best painted': row.get('bestpainted_uname')},
+                'awards': awards,
                 'other_awards': 'N/A',
                 'matches': 'N/A',
                 'swiss': 'N/A',
