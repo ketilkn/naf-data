@@ -165,11 +165,11 @@ def main():
 
             else:
                 to_output.append(tournament)
-
+        LOG.debug('Loaded {} tournaments in {} seconds'.format(tournament_count, time.time() - start_time))
         if args.format == 'json':
             json.dump(to_output, args.outfile, ensure_ascii=False)
 
-        LOG.debug('Finished loading tournaments in {} seconds'.format(time.time() - start_time))
+
 
 if __name__ == '__main__':
     main()
