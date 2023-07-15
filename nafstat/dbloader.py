@@ -1,9 +1,15 @@
+import argparse
 import configparser
 import datetime
+import logging
 import pathlib
+import time
 
 import pymysql
 import rich
+
+
+LOG = logging.getLogger(__package__)
 
 
 TOURNAMENT_QUERY = """
@@ -71,8 +77,8 @@ def load_config(config_file='naf.ini', section='nafdata.mysql') -> dict:
     return config[section]
 
 
-def create_connection():
-    config = load_config()
+def create_connection(configuration=None):
+    config = configuration or load_config()
     connection = pymysql.connect(host=config.get('host'),
                                  user=config.get('user'),
                                  password=config.get('password'),
@@ -124,9 +130,19 @@ def load_tournaments(connection=None):
 
 
 def main():
-    for tournament_count, tournament in enumerate(load_tournaments()):
-        rich.print(tournament_count)
+    log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
+    logging.basicConfig(level=logging.DEBUG, format=log_format)
+    argp = argparse.ArgumentParser()
+    argp.add_argument('section', type=str, nargs='?', default='nafdata.mysql')
 
+    args = argp.parse_args()
+
+    with create_connection(load_config(section=args.section)) as connection:
+        start_time = time.time()
+        for tournament_count, tournament in enumerate(load_tournaments(connection=connection)):
+            rich.print(tournament_count)
+            pass
+        LOG.debug('Finished loading tournaments in {} seconds'.format(time.time() - start_time))
 
 if __name__ == '__main__':
     main()
