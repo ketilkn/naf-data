@@ -17,7 +17,7 @@ LOG = logging.getLogger(__package__)
 
 TOURNAMENT_QUERY = """
 SELECT nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
-    nt.tournamentstyle, nt.tournamentscoring, nt.tournamentorg, 
+    nt.tournamentstyle, nt.tournamentscoring, nt.tournamentmajor, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
     nt.tournamentnation, nt.tournamentcity, 
     nts.winnerCoachID, winner.pn_uname as winner_uname,
@@ -47,7 +47,7 @@ LEFT JOIN nuke_users bestpainted on bestpainted.pn_uid = nts.bestPainterCoachID
 LEFT JOIN naf_game ng on nt.tournamentid=ng.tournamentid
 WHERE nt.tournamentstatus='APPROVED' /**AND nts.winnerCoachID > 0**/
 GROUP BY nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
-    nt.tournamentstyle, nt.tournamentscoring, nt.tournamentorg, 
+    nt.tournamentstyle, nt.tournamentscoring, nt.tournamentmajor, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
     nt.tournamentnation, nt.tournamentcity, 
     nts.winnerCoachID, winner.pn_uname ,
@@ -114,6 +114,7 @@ def load_tournaments(connection=None):
                 'style': row.get('tournamentstyle'),
                 'scoring': row.get('tournamentscoring'),
                 'type': row.get('tournamenttype'),
+                'major': 1 if 'yes' in row.get('tournamentmajor') else 0,
                 'organizer': row.get('tournamentorg'),
                 'email': row.get('tournamentemail'),
                 'webpage': row.get('tournamenturl'),
