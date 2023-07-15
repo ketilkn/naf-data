@@ -8,16 +8,27 @@ import rich
 
 TOURNAMENT_QUERY = """
 SELECT nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
-    ntv.variantname, nt.tournamentstyle, nt.tournamentscoring, nt.tournamentorg, 
+    nt.tournamentstyle, nt.tournamentscoring, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
     nt.tournamentnation, nt.tournamentcity, 
-    nts.winnerCoachID, nts.runnerUpCoachID, nts.mostTouchdownsCoachID, nts.mostCasualitiesCoachID, nts.stuntyCupCoachID,
-    nts.bestPainterCoachID,
-    ntr.rulesetname
+    nts.winnerCoachID, winner.pn_uname as winner_uname,
+    nts.runnerUpCoachID, runnerup.pn_uname as runnerup_uname,
+    nts.mostTouchdownsCoachID, mosttouchdowns.pn_uname as mosttouchdowns_uname,
+    nts.mostCasualitiesCoachID, mostcasualties.pn_uname as mostcasualties_uname,
+    nts.stuntyCupCoachID, stuntycup.pn_uname as stuntycup_uname, 
+    nts.bestPainterCoachID, bestpainted.pn_uname as bestpainted_uname,
+    ntv.variantname, ntv.variantid,
+    ntr.rulesetname, ntr.rulesetid
 FROM naf_tournament nt
 LEFT JOIN naf_tournament_statistics nts ON nts.tournamentID=nt.tournamentid
 LEFT JOIN naf_variants ntv ON ntv.variantid = nt.naf_variantsid
 LEFT JOIN naf_ruleset ntr ON ntr.rulesetid = nt.naf_rulesetid
+LEFT JOIN nuke_users winner on winner.pn_uid = nts.winnerCoachID
+LEFT JOIN nuke_users runnerup on runnerup.pn_uid = nts.runnerUpCoachID
+LEFT JOIN nuke_users stuntycup on stuntycup.pn_uid = nts.stuntyCupCoachID
+LEFT JOIN nuke_users mosttouchdowns on mosttouchdowns.pn_uid = nts.mostTouchdownsCoachID
+LEFT JOIN nuke_users mostcasualties on mostcasualties.pn_uid = nts.mostCasualitiesCoachID
+LEFT JOIN nuke_users bestpainted on bestpainted.pn_uid = nts.bestPainterCoachID
 """
 
 
@@ -80,12 +91,12 @@ def load_tournaments(connection=None):
                 'nation': row.get('tournamentnation'),
                 'city': row.get('tournamentcity'),
                 '_last_updated': datetime.datetime.now().isoformat(),
-                'awards': {'winner': row.get('winnerCoachID'),
-                           'runner up': row.get('runnerUpCoachID'),
-                           'most touchdowns': row.get('mostTouchdownsCoachID'),
-                           'most casualties': row.get('mostCasualitiesCoachID'),
-                           'stunty cup': row.get('stuntyCupCoachID'),
-                           'best painted': row.get('bestPainterRaceID')},
+                'awards': {'winner': row.get('winner_uname'),
+                           'runner up': row.get('runnerup_uname'),
+                           'most touchdowns': row.get('mosttouchdowns_uname'),
+                           'most casualties': row.get('mostcasualities_uname'),
+                           'stunty cup': row.get('stuntycup_uname'),
+                           'best painted': row.get('bestpainted_uname')},
                 'other_awards': 'N/A',
                 'matches': 'N/A',
                 'swiss': 'N/A',
