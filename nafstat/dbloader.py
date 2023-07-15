@@ -18,7 +18,8 @@ SELECT nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournament
     nts.stuntyCupCoachID, stuntycup.pn_uname as stuntycup_uname, 
     nts.bestPainterCoachID, bestpainted.pn_uname as bestpainted_uname,
     ntv.variantname, ntv.variantid,
-    ntr.rulesetname, ntr.rulesetid
+    ntr.rulesetname, ntr.rulesetid,
+    count(ng.gameid) as game_count
 FROM naf_tournament nt
 LEFT JOIN naf_tournament_statistics nts ON nts.tournamentID=nt.tournamentid
 LEFT JOIN naf_variants ntv ON ntv.variantid = nt.naf_variantsid
@@ -29,6 +30,19 @@ LEFT JOIN nuke_users stuntycup on stuntycup.pn_uid = nts.stuntyCupCoachID
 LEFT JOIN nuke_users mosttouchdowns on mosttouchdowns.pn_uid = nts.mostTouchdownsCoachID
 LEFT JOIN nuke_users mostcasualties on mostcasualties.pn_uid = nts.mostCasualitiesCoachID
 LEFT JOIN nuke_users bestpainted on bestpainted.pn_uid = nts.bestPainterCoachID
+LEFT JOIN naf_game ng on nt.tournamentid=ng.tournamentid 
+GROUP BY nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
+    nt.tournamentstyle, nt.tournamentscoring, nt.tournamentorg, 
+    nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
+    nt.tournamentnation, nt.tournamentcity, 
+    nts.winnerCoachID, winner.pn_uname ,
+    nts.runnerUpCoachID, runnerup.pn_uname ,
+    nts.mostTouchdownsCoachID, mosttouchdowns.pn_uname,
+    nts.mostCasualitiesCoachID, mostcasualties.pn_uname,
+    nts.stuntyCupCoachID, stuntycup.pn_uname, 
+    nts.bestPainterCoachID, bestpainted.pn_uname,
+    ntv.variantname, ntv.variantid,
+    ntr.rulesetname, ntr.rulesetid
 """
 
 
@@ -100,7 +114,7 @@ def load_tournaments(connection=None):
                 'other_awards': 'N/A',
                 'matches': 'N/A',
                 'swiss': 'N/A',
-                'match_count': 'N/A',
+                'match_count': row.get('game_count'),
                 'casualties': 'N/A',
                 'touchdowns': 'N/A',
                 'ruleset': row.get('rulesetname')}
@@ -108,8 +122,8 @@ def load_tournaments(connection=None):
 
 
 def main():
-    for tournament in load_tournaments():
-        rich.print(tournament)
+    for tournament_count, tournament in enumerate(load_tournaments()):
+        rich.print(tournament_count)
 
 
 if __name__ == '__main__':
