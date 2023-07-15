@@ -1,6 +1,8 @@
 import argparse
 import configparser
+import csv
 import datetime
+import json
 import logging
 import pathlib
 import sys
@@ -42,7 +44,8 @@ LEFT JOIN nuke_users stuntycup on stuntycup.pn_uid = nts.stuntyCupCoachID
 LEFT JOIN nuke_users mosttouchdowns on mosttouchdowns.pn_uid = nts.mostTouchdownsCoachID
 LEFT JOIN nuke_users mostcasualties on mostcasualties.pn_uid = nts.mostCasualitiesCoachID
 LEFT JOIN nuke_users bestpainted on bestpainted.pn_uid = nts.bestPainterCoachID
-LEFT JOIN naf_game ng on nt.tournamentid=ng.tournamentid 
+LEFT JOIN naf_game ng on nt.tournamentid=ng.tournamentid
+WHERE nt.tournamentstatus='APPROVED' 
 GROUP BY nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
     nt.tournamentstyle, nt.tournamentscoring, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
@@ -104,8 +107,8 @@ def load_tournaments(connection=None):
                 'name': row.get('tournamentname'),
                 'tournament_id': row.get('tournamentid'),
                 'location': row.get('tournamentnation'),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': start_date.isoformat() if isinstance(start_date, datetime.date) else None,
+                'end_date': end_date.isoformat() if isinstance(end_date, datetime.date) else None,
                 'variant': row.get('variantname'),
                 'style': row.get('tournamentstyle'),
                 'scoring': row.get('tournamentscoring'),
@@ -139,18 +142,32 @@ def main():
     argp = argparse.ArgumentParser()
     argp.add_argument('--debug', action='store_true')
     argp.add_argument('--rich', action='store_true')
-    argp.add_argument('section', type=str, nargs='?', default='nafdata.mysql')
-    argp.add_argument("outfile", type=argparse.FileType('w'), nargs='?', default=sys.stdout)
+    argp.add_argument('--section', type=str, default='nafdata.mysql')
+    argp.add_argument('outfile', type=argparse.FileType('w'), nargs='?', default=sys.stdout)
+    argp.add_argument('format', type=str, nargs='?', choices=['rich', 'json', 'csv', 'python'], default='rich')
 
     args = argp.parse_args()
 
+    to_output = []
+    csv_writer = None
     with create_connection(load_config(section=args.section)) as connection:
         start_time = time.time()
         for tournament_count, tournament in enumerate(load_tournaments(connection=connection)):
-            if args.rich and argp.outfile == sys.stdout:
+            if args.format == 'rich' or (args.rich and args.outfile == sys.stdout):
                 rich.print(tournament)
-            else:
+            if args.format == 'python':
                 print(tournament, file=args.outfile)
+            elif args.format == 'csv':
+                if not csv_writer:
+                    csv_writer = csv.DictWriter(args.outfile, fieldnames=tournament.keys())
+                    csv_writer.writeheader()
+                csv_writer.writerow({k: v for k, v in tournament.items() if k not in ['information']})
+
+            else:
+                to_output.append(tournament)
+
+        if args.format == 'json':
+            json.dump(to_output, args.outfile, ensure_ascii=False)
 
         LOG.debug('Finished loading tournaments in {} seconds'.format(time.time() - start_time))
 
