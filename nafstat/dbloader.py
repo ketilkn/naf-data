@@ -45,7 +45,7 @@ LEFT JOIN nuke_users mosttouchdowns on mosttouchdowns.pn_uid = nts.mostTouchdown
 LEFT JOIN nuke_users mostcasualties on mostcasualties.pn_uid = nts.mostCasualitiesCoachID
 LEFT JOIN nuke_users bestpainted on bestpainted.pn_uid = nts.bestPainterCoachID
 LEFT JOIN naf_game ng on nt.tournamentid=ng.tournamentid
-WHERE nt.tournamentstatus='APPROVED' 
+WHERE nt.tournamentstatus='APPROVED' /**AND nts.winnerCoachID > 0**/
 GROUP BY nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
     nt.tournamentstyle, nt.tournamentscoring, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
@@ -101,11 +101,12 @@ def load_tournaments(connection=None):
         query = 'SELECT * FROM naf_tournament'
         cursor.execute(TOURNAMENT_QUERY)
         for row in cursor.fetchall():
+            tournament_id = row.get('tournamentid')
             start_date = row.get('tournamentenddate')
             end_date = row.get('tournamentenddate')
             tournament = {
                 'name': row.get('tournamentname'),
-                'tournament_id': row.get('tournamentid'),
+                'tournament_id': tournament_id,
                 'location': row.get('tournamentnation'),
                 'start_date': start_date.isoformat() if isinstance(start_date, datetime.date) else None,
                 'end_date': end_date.isoformat() if isinstance(end_date, datetime.date) else None,
