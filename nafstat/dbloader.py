@@ -3,6 +3,7 @@ import configparser
 import datetime
 import logging
 import pathlib
+import sys
 import time
 
 import pymysql
@@ -134,8 +135,9 @@ def load_tournaments(connection=None):
 
 def main():
     log_format = "[%(levelname)s:%(filename)s:%(lineno)s - %(funcName)20s ] %(message)s"
-    logging.basicConfig(level=logging.DEBUG, format=log_format)
+    logging.basicConfig(level=logging.DEBUG if '--debug' in sys.argv else logging.INFO, format=log_format)
     argp = argparse.ArgumentParser()
+    argp.add_argument('--debug', action='store_true')
     argp.add_argument('section', type=str, nargs='?', default='nafdata.mysql')
 
     args = argp.parse_args()
@@ -143,8 +145,7 @@ def main():
     with create_connection(load_config(section=args.section)) as connection:
         start_time = time.time()
         for tournament_count, tournament in enumerate(load_tournaments(connection=connection)):
-            rich.print(tournament_count)
-            pass
+            rich.print(tournament)
         LOG.debug('Finished loading tournaments in {} seconds'.format(time.time() - start_time))
 
 if __name__ == '__main__':
