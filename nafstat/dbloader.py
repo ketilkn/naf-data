@@ -27,7 +27,10 @@ SELECT nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournament
     ntr.rulesetname, ntr.rulesetid,
     count(ng.gameid) as game_count,
     sum(ng.goalshome)+sum(ng.goalsaway) as touchdown_count,
-    sum(ng.goalshome)+sum(ng.goalsaway)
+    sum(ng.goalshome)+sum(ng.goalsaway),
+    sum(ng.badlyhurthome)+sum(ng.badlyhurtaway)+
+    sum(ng.serioushome)+sum(ng.seriousaway)+
+    sum(ng.killshome)+sum(ng.killsaway) as casualty_count
 FROM naf_tournament nt
 LEFT JOIN naf_tournament_statistics nts ON nts.tournamentID=nt.tournamentid
 LEFT JOIN naf_variants ntv ON ntv.variantid = nt.naf_variantsid
@@ -122,10 +125,10 @@ def load_tournaments(connection=None):
                 'other_awards': 'N/A',
                 'matches': 'N/A',
                 'swiss': 'N/A',
+                'ruleset': row.get('rulesetname'),
                 'match_count': row.get('game_count'),
-                'casualties': 'N/A',
-                'touchdowns': row.get('touchdown_count'),
-                'ruleset': row.get('rulesetname')}
+                'casualties': int(row.get('casualty_count')) if row.get('casualty_count') else None,
+                'touchdowns': int(row.get('touchdown_count')) if row.get('touchdown_count') else None}
             yield tournament
 
 
