@@ -138,14 +138,20 @@ def main():
     logging.basicConfig(level=logging.DEBUG if '--debug' in sys.argv else logging.INFO, format=log_format)
     argp = argparse.ArgumentParser()
     argp.add_argument('--debug', action='store_true')
+    argp.add_argument('--rich', action='store_true')
     argp.add_argument('section', type=str, nargs='?', default='nafdata.mysql')
+    argp.add_argument("outfile", type=argparse.FileType('w'), nargs='?', default=sys.stdout)
 
     args = argp.parse_args()
 
     with create_connection(load_config(section=args.section)) as connection:
         start_time = time.time()
         for tournament_count, tournament in enumerate(load_tournaments(connection=connection)):
-            rich.print(tournament)
+            if args.rich and argp.outfile == sys.stdout:
+                rich.print(tournament)
+            else:
+                print(tournament, file=args.outfile)
+
         LOG.debug('Finished loading tournaments in {} seconds'.format(time.time() - start_time))
 
 if __name__ == '__main__':
