@@ -197,7 +197,7 @@ def main():
     argp.add_argument('--debug', action='store_true')
     argp.add_argument('--rich', action='store_true')
     argp.add_argument('--tournaments', type=int, nargs='*', default=[])
-    argp.add_argument('--section', type=str, default='nafdata.mysql')
+    argp.add_argument('--config-section', '--section', type=str, default='nafdata.mysql')
     argp.add_argument('outfile', type=argparse.FileType('w'), nargs='?', default=sys.stdout)
     argp.add_argument('format', type=str, nargs='?', choices=['rich', 'json', 'csv', 'python'], default='rich')
 
@@ -205,7 +205,7 @@ def main():
 
     to_output = []
     csv_writer = None
-    with create_connection(load_config(section=args.section)) as connection:
+    with create_connection(load_config(section=args.config_section)) as connection:
         start_time = time.time()
         for tournament_count, tournament in enumerate(load_tournaments(tournament_ids=args.tournaments, connection=connection)):
             games = load_games(tournament_ids=[tournament.get('tournament_id')])
