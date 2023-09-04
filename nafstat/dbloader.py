@@ -51,6 +51,25 @@ GROUP BY nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tourname
 """
 
 
+GAME_QUERY = """
+SELECT gameid, seasonid, tournamentid, `date`,`hour`,
+    homecoachid, racehome, nuh.pn_uname homecoach, goalshome,
+    goalsaway, nua.pn_uname as awaycoach, raceaway, awaycoachid, 
+    trhome, traway, rephome, repaway, rephome_calibrated, repaway_calibrated,
+    badlyhurthome, badlyhurtaway,
+    serioushome, seriousaway,
+    killshome, killsaway,
+    gate,
+    winningshome, winningsaway,
+    newdate,
+    naf_variantsid
+FROM thenafne_main.naf_game ng
+JOIN thenafne_main.nuke_users nuh on nuh.pn_uid=ng.homecoachid
+JOIN thenafne_main.nuke_users nua on nua.pn_uid=ng.awaycoachid
+/*WHERE*/
+ORDER BY `date`, `hour`, gameid
+"""
+
 def _locate_naf_ini(requested_file):
     if requested_file and requested_file != 'naf.ini':
         return pathlib.Path(requested_file)
@@ -85,7 +104,46 @@ def create_connection(configuration=None):
     return connection
 
 
-def load_tournaments(connection=None):
+def load_games(tournament_ids, connection=None):
+    con = connection or create_connection()
+    with con.cursor() as cursor:
+        query = GAME_QUERY
+        tournaments = [tournament_ids] if isinstance(tournament_ids, int) else tournament_ids
+        if tournament_ids:
+            query = GAME_QUERY.replace(
+                '/*WHERE*/',
+                f' AND ng.tournamentid in ({", ".join([str(tid) for tid in tournaments])})')
+
+        cursor.execute(query)
+        for game_count, row in enumerate(cursor.fetchall(), start=1):
+            game_id = row.get('gameid')
+            yield {
+        'game_id': game_id,
+        "away_tr": row.get('traway'),
+        "date": row.get('date'),
+        "round": f"{row.get('hour'):02}:00",
+        "home_dead": row.get('killshome'),
+        "gate": row.get('gate'),
+        "away_coach": row.get('awaycoach'),
+        "away_coachid": row.get('awaycoachid'),
+        "home_race": row.get('racehome'),
+        "home_si": row.get('serioushome'),
+        "home_tr": row.get('trhome'),
+        "home_bh": row.get('badlyhurthome'),
+        "time": f'{row.get("hour"):02}:00',
+        "home_coach": row.get('homecoach'),
+        "home_coachid": row.get('homecoachid'),
+        "away_score": row.get('goalsaway'),
+        "away_si": row.get('serioushome'),
+        "home_score": row.get('goalshome'),
+        "match_id": game_count,
+        "away_race": row.get('raceaway'),
+        "away_bh": row.get('badlyhurtaway'),
+        "away_dead": row.get('killsaway')
+      }
+
+
+def load_tournaments(tournament_ids=None, connection=None):
     con = connection or create_connection()
     with con.cursor() as cursor:
         query = 'SELECT * FROM naf_tournament'
@@ -143,7 +201,9 @@ def main():
     csv_writer = None
     with create_connection(load_config(section=args.section)) as connection:
         start_time = time.time()
-        for tournament_count, tournament in enumerate(load_tournaments(connection=connection)):
+        for tournament_count, tournament in enumerate(load_tournaments(tournament_ids=args.tournaments, connection=connection)):
+            games = load_games(tournament_ids=[tournament.get('tournament_id')])
+            tournament['matches'] = list(games)
             if args.format == 'rich' or (args.rich and args.outfile == sys.stdout):
                 rich.print(tournament)
             if args.format == 'python':
