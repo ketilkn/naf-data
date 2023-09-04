@@ -40,7 +40,8 @@ GROUP BY ntsg.tournamentID
 LEFT JOIN naf_variants ntv ON ntv.variantid = nt.naf_variantsid
 LEFT JOIN naf_ruleset ntr ON ntr.rulesetid = nt.naf_rulesetid
 LEFT JOIN naf_game ng on nt.tournamentid=ng.tournamentid
-WHERE nt.tournamentstatus='APPROVED' and nt.naf_variantsid in (%s)/**AND nts.winnerCoachID > 0**/ /*TOURNAMENT_IDS*/
+WHERE nt.tournamentstatus='APPROVED' and nt.naf_variantsid in %s 
+/**AND nts.winnerCoachID > 0**/ /*TOURNAMENT_IDS*/
 GROUP BY nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
     nt.tournamentstyle, nt.tournamentscoring, nt.tournamentmajor, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
@@ -153,7 +154,7 @@ def load_tournaments(tournament_ids=None, variants=None, connection=None):
                 '/*TOURNAMENT_IDS*/',
                 f' AND nt.tournamentid in ({", ".join([str(tid) for tid in tournament_ids])}) ')
 
-        cursor.execute(query, ({", ".join([str(vid) for vid in variants_filter])}, ))
+        cursor.execute(query, (variants_filter,))
         for row in cursor.fetchall():
             tournament_id = row.get('tournamentid')
             start_date = row.get('tournamentenddate')
@@ -209,6 +210,7 @@ def main():
     csv_writer = None
     with create_connection(load_config(section=args.config_section)) as connection:
         start_time = time.time()
+        tournament_count = 0
         for tournament_count, tournament in enumerate(load_tournaments(tournament_ids=args.tournaments, variants=args.variants, connection=connection)):
             games = load_games(tournament_ids=[tournament.get('tournament_id')])
             tournament['matches'] = list(games)
@@ -220,8 +222,7 @@ def main():
                 if not csv_writer:
                     csv_writer = csv.DictWriter(args.outfile, fieldnames=tournament.keys())
                     csv_writer.writeheader()
-                csv_writer.writerow({k: v for k, v in tournament.items() if k not in ['information']})
-
+                csv_writer.writerow({k: v for k, v in tournament.items() if k not in ['information', 'matches']})
             else:
                 to_output.append(tournament)
         LOG.debug('Loaded {} tournaments in {} seconds'.format(tournament_count, time.time() - start_time))
