@@ -17,7 +17,7 @@ LOG = logging.getLogger(__package__)
 
 TOURNAMENT_QUERY = """
 SELECT nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
-    nt.tournamentstyle, nt.tournamentscoring, nt.tournamentmajor, nt.tournamentorg, 
+    nt.tournamentstyle, nt.tournamentscoring, nt.tournamentmajor, nt.tournamentorg, nt.tournamenttype,
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
     nt.tournamentnation, nt.tournamentcity, 
     nts.awards,
