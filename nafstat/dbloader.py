@@ -40,7 +40,7 @@ GROUP BY ntsg.tournamentID
 LEFT JOIN naf_variants ntv ON ntv.variantid = nt.naf_variantsid
 LEFT JOIN naf_ruleset ntr ON ntr.rulesetid = nt.naf_rulesetid
 LEFT JOIN naf_game ng on nt.tournamentid=ng.tournamentid
-WHERE nt.tournamentstatus='APPROVED' /**AND nts.winnerCoachID > 0**/
+WHERE nt.tournamentstatus='APPROVED' /**AND nts.winnerCoachID > 0**/ /*TOURNAMENT_IDS*/
 GROUP BY nt.tournamentname, nt.tournamentid, nt.tournamentstartdate, nt.tournamentenddate,
     nt.tournamentstyle, nt.tournamentscoring, nt.tournamentmajor, nt.tournamentorg, 
     nt.tournamentemail, nt.tournamenturl, nt.tournamentinformation,
@@ -146,8 +146,13 @@ def load_games(tournament_ids, connection=None):
 def load_tournaments(tournament_ids=None, connection=None):
     con = connection or create_connection()
     with con.cursor() as cursor:
-        query = 'SELECT * FROM naf_tournament'
-        cursor.execute(TOURNAMENT_QUERY)
+        query = TOURNAMENT_QUERY
+        if tournament_ids:
+            query = TOURNAMENT_QUERY.replace(
+                '/*TOURNAMENT_IDS*/',
+                f' AND nt.tournamentid in ({", ".join([str(tid) for tid in tournament_ids])}) ')
+
+        cursor.execute(query)
         for row in cursor.fetchall():
             tournament_id = row.get('tournamentid')
             start_date = row.get('tournamentenddate')
@@ -191,6 +196,7 @@ def main():
     argp = argparse.ArgumentParser()
     argp.add_argument('--debug', action='store_true')
     argp.add_argument('--rich', action='store_true')
+    argp.add_argument('--tournaments', type=int, nargs='*', default=[])
     argp.add_argument('--section', type=str, default='nafdata.mysql')
     argp.add_argument('outfile', type=argparse.FileType('w'), nargs='?', default=sys.stdout)
     argp.add_argument('format', type=str, nargs='?', choices=['rich', 'json', 'csv', 'python'], default='rich')
