@@ -11,6 +11,7 @@ import time
 import pymysql
 import rich
 
+from nafstat.collate import fix_webpage_url, is_swiss, match_count, sum_casualties, sum_touchdowns, ruleset
 
 LOG = logging.getLogger(__package__)
 
@@ -140,7 +141,9 @@ def load_games(tournament_ids, connection=None):
         "match_id": game_count,
         "away_race": row.get('raceaway'),
         "away_bh": row.get('badlyhurtaway'),
-        "away_dead": row.get('killsaway')
+        "away_dead": row.get('killsaway'),
+        'away_cas': row.get('badlyhurtaway') + row.get('killsaway') +  row.get('seriousaway'),
+        'home_cas': row.get('badlyhurthome') + row.get('killshome') + row.get('serioushome')
       }
 
 
@@ -214,6 +217,14 @@ def main():
         for tournament_count, tournament in enumerate(load_tournaments(tournament_ids=args.tournaments, variants=args.variants, connection=connection)):
             games = load_games(tournament_ids=[tournament.get('tournament_id')])
             tournament['matches'] = list(games)
+
+            tournament["webpage"] = fix_webpage_url(tournament)
+            tournament["swiss"] = is_swiss(tournament)
+            tournament["match_count"] = match_count(tournament)
+            tournament["casualties"] = sum_casualties(tournament)
+            tournament["touchdowns"] = sum_touchdowns(tournament)
+            tournament["ruleset"] = ruleset(tournament)
+
             if args.format == 'rich' or (args.rich and args.outfile == sys.stdout):
                 rich.print(tournament)
             if args.format == 'python':
