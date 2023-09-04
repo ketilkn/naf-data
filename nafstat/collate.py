@@ -66,6 +66,8 @@ def ruleset(tourney):
     information = trim(tourney["information"])
 
     #v5 de Blood Bowl
+    if tourney.get('variant', '') == 'Blood Bowl':
+        return 'bb2020'
     if "lrb6" in style or "lrb6" in information:
         return "crp"
     elif "crp" in style or "crp" in information:
